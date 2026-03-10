@@ -67,7 +67,14 @@ text-align:left;
 <div class="card">
 
 <h2>⚔️ Character Progress</h2>
+<h3>Level: <span id="level">1</span></h3>
+<p>XP: <span id="xp">0</span> / <span id="nextLevel">100</span></p>
 
+<div class="xpbar">
+<div class="xpfill" id="xpfill"></div>
+</div>
+
+<button onclick="gainXP(10)">Gain XP</button>
 <div class="xpbar">
 <div class="xpfill"></div>
 </div>
@@ -103,3 +110,29 @@ text-align:left;
 </body>
 
 </html>
+<script>
+
+let xp = 0
+let level = 1
+let nextLevel = 100
+
+function gainXP(amount) {
+
+xp += amount
+
+if (xp >= nextLevel) {
+xp = xp - nextLevel
+level++
+nextLevel = Math.floor(nextLevel * 1.2)
+}
+
+document.getElementById("xp").innerText = xp
+document.getElementById("level").innerText = level
+document.getElementById("nextLevel").innerText = nextLevel
+
+let percent = (xp / nextLevel) * 100
+document.getElementById("xpfill").style.width = percent + "%"
+
+}
+
+</script>
