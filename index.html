@@ -23,19 +23,25 @@
     }
 
     * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; background: radial-gradient(circle at top right, #151026 0%, var(--bg) 36%); color: var(--text); font-family: Inter, Arial, sans-serif; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top right, #151026 0%, var(--bg) 36%);
+      color: var(--text);
+      font-family: Inter, Arial, sans-serif;
+    }
     body { min-height: 100vh; }
     button, input, select { font: inherit; }
 
     .app {
       display: grid;
-      grid-template-columns: 280px 1fr;
+      grid-template-columns: 330px 1fr;
       min-height: 100vh;
     }
 
     .sidebar {
       border-right: 1px solid var(--border);
-      background: rgba(10,10,14,.9);
+      background: rgba(10,10,14,.94);
       backdrop-filter: blur(10px);
       padding: 24px 18px;
       position: sticky;
@@ -60,7 +66,12 @@
       color: var(--accent-2);
     }
 
-    .brand p { margin: 0; color: var(--muted); line-height: 1.5; font-size: 14px; }
+    .brand p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 14px;
+    }
 
     .nav-grid {
       display: grid;
@@ -152,9 +163,14 @@
     .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
-    @media (max-width: 1120px) {
+    @media (max-width: 1180px) {
       .app { grid-template-columns: 1fr; }
-      .sidebar { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--border); }
+      .sidebar {
+        position: static;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+      }
       .grid.two, .grid.three { grid-template-columns: 1fr; }
     }
 
@@ -179,7 +195,6 @@
     .progress-fill.danger { background: linear-gradient(90deg, #dc2626, #f87171); }
 
     .small-muted { color: var(--muted); font-size: 13px; }
-
     .button-row { display: flex; flex-wrap: wrap; gap: 10px; }
 
     .btn {
@@ -194,7 +209,7 @@
 
     .btn:hover { transform: translateY(-1px); border-color: var(--accent); }
     .btn.primary { background: linear-gradient(180deg, #7c3aed, #5b21b6); border-color: #7c3aed; }
-    .btn.ghost { background: transparent; }
+    .btn.danger { background: linear-gradient(180deg, #7f1d1d, #450a0a); border-color: #7f1d1d; }
 
     .quest-list, .achievement-list, .skill-list { display: grid; gap: 12px; }
 
@@ -304,33 +319,6 @@
       margin: 4px 0;
     }
 
-    .home-links {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 18px;
-      margin-top: 20px;
-    }
-
-    @media (max-width: 840px) {
-      .home-links { grid-template-columns: 1fr; }
-    }
-
-    .home-tile {
-      text-align: left;
-      background: linear-gradient(180deg, #181822, #111119);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px;
-      cursor: pointer;
-      transition: transform .15s ease, border-color .15s ease;
-      box-shadow: var(--shadow);
-    }
-
-    .home-tile:hover { transform: translateY(-1px); border-color: var(--accent); }
-
-    .home-tile h3 { margin: 0 0 8px; color: #faf7ff; }
-    .home-tile p { margin: 0; color: var(--muted); line-height: 1.55; }
-
     .level-preview {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -364,6 +352,57 @@
       font-size: 13px;
       margin-top: 8px;
     }
+
+    .skill-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .remove-btn {
+      border: 1px solid rgba(239,68,68,.35);
+      background: rgba(127,29,29,.25);
+      color: #fecaca;
+      border-radius: 10px;
+      padding: 8px 10px;
+      cursor: pointer;
+    }
+
+    .top-tools {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.65);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .modal-backdrop.active { display: flex; }
+
+    .modal {
+      width: 100%;
+      max-width: 480px;
+      background: #13131a;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .modal h3 { margin-top: 0; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
   </style>
 </head>
 <body>
@@ -371,29 +410,25 @@
     <aside class="sidebar">
       <div class="brand">
         <h1>METAMORPHOSIS</h1>
-        <p>Dark RPG life system with XP, daily quests, main quests, achievements, skill trees and long-term progression.</p>
+        <p>Dark RPG life system with quests, achievements, attributes, skills and long-term progression.</p>
       </div>
 
       <div class="nav-grid">
         <button class="nav-card active" data-page-link="home">
           <span class="nav-card-title">🏠 Home</span>
-          <span class="nav-card-desc">Main hub, quick navigation and skill overview.</span>
+          <span class="nav-card-desc">Main hub and quick progression snapshot.</span>
         </button>
         <button class="nav-card" data-page-link="quests">
           <span class="nav-card-title">📜 Quests</span>
-          <span class="nav-card-desc">Daily quests and long-term main quests.</span>
-        </button>
-        <button class="nav-card" data-page-link="progression">
-          <span class="nav-card-title">⚔ Progression</span>
-          <span class="nav-card-desc">Level, XP and skill tree growth.</span>
+          <span class="nav-card-desc">Daily quests and main quest progression.</span>
         </button>
         <button class="nav-card" data-page-link="achievements">
           <span class="nav-card-title">🏆 Achievements</span>
-          <span class="nav-card-desc">Unlocked milestones and progress rewards.</span>
+          <span class="nav-card-desc">Quick, steady and legendary unlocks.</span>
         </button>
         <button class="nav-card" data-page-link="stats">
           <span class="nav-card-title">📊 Statistics</span>
-          <span class="nav-card-desc">Attributes, skills and streak system.</span>
+          <span class="nav-card-desc">XP, streak, attributes and manual skills.</span>
         </button>
       </div>
     </aside>
@@ -403,7 +438,7 @@
         <div class="page-header">
           <div>
             <h2 class="page-title">Home</h2>
-            <p class="page-subtitle">This is the central hub. Avatar and Shakes &amp; Fidget style character view can be added later. For now, use it as your fast-travel menu and progression snapshot.</p>
+            <p class="page-subtitle">Avatar will come later. For now, this page is a clean character snapshot and the central hub.</p>
           </div>
         </div>
 
@@ -413,32 +448,13 @@
           <p style="margin: 10px 0 0;">Level <strong id="homeLevel">1</strong> • XP <strong id="homeXp">0</strong> / <strong id="homeNextLevel">100</strong></p>
           <div class="level-preview" id="homeSkillPreview"></div>
         </div>
-
-        <div class="home-links">
-          <button class="home-tile" data-page-link="quests">
-            <h3>📜 Quests</h3>
-            <p>Random daily quests, long-term main quests, active progress and earned XP.</p>
-          </button>
-          <button class="home-tile" data-page-link="progression">
-            <h3>⚔ Progression</h3>
-            <p>Main XP bar and the character skill tree for body, mind and discipline growth.</p>
-          </button>
-          <button class="home-tile" data-page-link="achievements">
-            <h3>🏆 Achievements</h3>
-            <p>Quick achievements, medium-term goals and legendary long-haul milestones.</p>
-          </button>
-          <button class="home-tile" data-page-link="stats">
-            <h3>📊 Statistics</h3>
-            <p>Streak system, physical attributes, mental attributes and manually trained skills.</p>
-          </button>
-        </div>
       </section>
 
       <section class="page" id="page-quests">
         <div class="page-header">
           <div>
             <h2 class="page-title">Quests</h2>
-            <p class="page-subtitle">Daily quests rotate automatically. Main quests are long-term growth arcs with manual progress tracking and larger rewards.</p>
+            <p class="page-subtitle">Daily quests rotate at local midnight. Main quests are simpler, long-term goals with manual progress steps.</p>
           </div>
         </div>
 
@@ -449,8 +465,13 @@
 
         <div class="subsection active" id="sub-quests-daily">
           <div class="section-card">
-            <h3>Today's Rotation</h3>
-            <p class="small-muted">Every day, three random daily quests are selected from a larger pool. Complete them for XP and achievement progress.</p>
+            <div class="top-tools">
+              <div>
+                <h3 style="margin:0;">Today's Rotation</h3>
+                <div class="small-muted">Three random daily quests from a pool of thirty.</div>
+              </div>
+              <button class="btn" onclick="rerollDailyQuests()">🎲 Reroll Once Today</button>
+            </div>
             <div class="quest-list" id="dailyQuestList"></div>
           </div>
         </div>
@@ -458,39 +479,9 @@
         <div class="subsection" id="sub-quests-main">
           <div class="section-card">
             <h3>Main Quests</h3>
-            <p class="small-muted">Longer quests based on your body, mind, discipline, home life, social life and Project Metamorphosis. Use +/- to track real progress.</p>
+            <p class="small-muted">Simple long-term goals. Use + and − to move progress. Completing a stage rewards XP.</p>
             <div class="quest-list" id="mainQuestList"></div>
           </div>
-        </div>
-      </section>
-
-      <section class="page" id="page-progression">
-        <div class="page-header">
-          <div>
-            <h2 class="page-title">Progression</h2>
-            <p class="page-subtitle">Main XP progression and skill tree. Your major skill trees can later feed your avatar screen and class identity.</p>
-          </div>
-        </div>
-
-        <div class="section-card">
-          <h3>Character Progress</h3>
-          <div class="grid two">
-            <div>
-              <p style="margin-top:0;">Level <strong id="level">1</strong></p>
-              <p>XP <strong id="xp">0</strong> / <strong id="nextLevel">100</strong></p>
-              <div class="progress-shell"><div class="progress-fill" id="xpfill"></div></div>
-            </div>
-            <div>
-              <p style="margin-top:0;">Quest Completions <strong id="questCompletionCount">0</strong></p>
-              <p>Completed Days <strong id="completedDaysCount">0</strong></p>
-              <p>Main Quest Progress Steps <strong id="mainQuestStepCount">0</strong></p>
-            </div>
-          </div>
-        </div>
-
-        <div class="section-card">
-          <h3>Skill Tree</h3>
-          <div class="grid three" id="skillTreeCards"></div>
         </div>
       </section>
 
@@ -498,7 +489,7 @@
         <div class="page-header">
           <div>
             <h2 class="page-title">Achievements</h2>
-            <p class="page-subtitle">Twenty-five achievements in three tiers: quick unlocks, medium-term goals and long legendary arcs.</p>
+            <p class="page-subtitle">Twenty-five achievements in three tiers: quick unlocks, medium-term goals and legendary long-haul milestones.</p>
           </div>
         </div>
 
@@ -523,7 +514,24 @@
         <div class="page-header">
           <div>
             <h2 class="page-title">Statistics</h2>
-            <p class="page-subtitle">Streak at the top. Basic attributes are automatic and are calculated from the selected skill bars underneath them.</p>
+            <p class="page-subtitle">XP, streak, primary attributes and manual skills. Primary attributes are automatic and based on the skills you attach to them.</p>
+          </div>
+          <button class="btn danger" onclick="openResetModal()">Reset Character</button>
+        </div>
+
+        <div class="section-card">
+          <h3>Character Progress</h3>
+          <div class="grid two">
+            <div>
+              <p style="margin-top:0;">Level <strong id="level">1</strong></p>
+              <p>XP <strong id="xp">0</strong> / <strong id="nextLevel">100</strong></p>
+              <div class="progress-shell"><div class="progress-fill" id="xpfill"></div></div>
+            </div>
+            <div>
+              <p style="margin-top:0;">Quest Completions <strong id="questCompletionCount">0</strong></p>
+              <p>Completed Days <strong id="completedDaysCount">0</strong></p>
+              <p>Main Quest Steps <strong id="mainQuestStepCount">0</strong></p>
+            </div>
           </div>
         </div>
 
@@ -547,10 +555,18 @@
     </main>
   </div>
 
+  <div class="modal-backdrop" id="resetModal">
+    <div class="modal">
+      <h3>Reset Character?</h3>
+      <p class="small-muted">This will erase XP, quests, achievements, streak, attributes and selected skills from local storage on this browser.</p>
+      <div class="modal-actions">
+        <button class="btn ghost" onclick="closeResetModal()">Cancel</button>
+        <button class="btn danger" onclick="confirmResetCharacter()">Yes, Reset</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // -----------------------------
-    // Core state
-    // -----------------------------
     let xp = 0;
     let level = 1;
     let nextLevel = 100;
@@ -558,10 +574,8 @@
     let completedDays = 0;
     let streak = 0;
     let mainQuestStepCount = 0;
+    let totalXpEarned = 0;
 
-    // -----------------------------
-    // Quest pools
-    // -----------------------------
     const dailyQuestPool = [
       { id: 'dq1', title: 'Read 10 pages', category: 'Mind', xp: 20 },
       { id: 'dq2', title: 'Listen to 15 minutes of an audiobook', category: 'Mind', xp: 20 },
@@ -575,7 +589,7 @@
       { id: 'dq10', title: 'Prepare one solid meal yourself', category: 'Body', xp: 20 },
       { id: 'dq11', title: 'Spend 10 focused minutes on Project Metamorphosis', category: 'Discipline', xp: 25 },
       { id: 'dq12', title: 'Do one small room cleanup', category: 'Discipline', xp: 15 },
-      { id: 'dq13', title: 'Go to sleep more intentionally tonight', category: 'Discipline', xp: 20 },
+      { id: 'dq13', title: 'Go to sleep intentionally tonight', category: 'Discipline', xp: 20 },
       { id: 'dq14', title: 'Wake up and get out of bed without long delay', category: 'Discipline', xp: 20 },
       { id: 'dq15', title: 'Meditate or breathe quietly for 5 minutes', category: 'Mind', xp: 20 },
       { id: 'dq16', title: 'Practice a hobby for 20 minutes', category: 'Mind', xp: 20 },
@@ -596,40 +610,34 @@
     ];
 
     const mainQuests = [
-      { id: 'mq1', title: 'Respec the Body', desc: 'Build a sustainable movement routine instead of burnout training.', steps: 20, xpReward: 120 },
-      { id: 'mq2', title: 'Sleep Checkpoint', desc: 'Stabilize your sleeping rhythm and create a calmer bedtime loop.', steps: 20, xpReward: 120 },
-      { id: 'mq3', title: 'No Liquid Sugar Arc', desc: 'Reduce sugary drinks and build a cleaner hydration habit.', steps: 15, xpReward: 100 },
-      { id: 'mq4', title: 'Reader Reawakening', desc: 'Return to books and audiobooks as a regular part of life.', steps: 18, xpReward: 110 },
-      { id: 'mq5', title: 'Language Forge', desc: 'Move forward in self-study of languages consistently.', steps: 20, xpReward: 120 },
-      { id: 'mq6', title: 'Metamorphosis Architect', desc: 'Keep building the project itself: system, web, UI, structure.', steps: 25, xpReward: 140 },
-      { id: 'mq7', title: 'Calm Morning Ritual', desc: 'Turn mornings into stable starts instead of emotional drift.', steps: 14, xpReward: 90 },
-      { id: 'mq8', title: 'Disciplined Nutrition', desc: 'Create meal timing and practical food consistency.', steps: 18, xpReward: 110 },
-      { id: 'mq9', title: 'Skillful Cook', desc: 'Expand and refine your signature recipes.', steps: 15, xpReward: 100 },
-      { id: 'mq10', title: 'Return to the Gym', desc: 'Build courage and rhythm around gym exposure.', steps: 16, xpReward: 110 },
-      { id: 'mq11', title: 'Cyclist Reborn', desc: 'Bring back biking as a steady, enjoyable form of movement.', steps: 16, xpReward: 100 },
-      { id: 'mq12', title: 'Water Over Noise', desc: 'Reduce passive dopamine clutter and improve attention.', steps: 20, xpReward: 120 },
-      { id: 'mq13', title: 'Stable Social Presence', desc: 'Stay open to people without performing for them.', steps: 20, xpReward: 120 },
-      { id: 'mq14', title: 'DnD Deepening', desc: 'Take roleplay, preparation and character work more seriously.', steps: 15, xpReward: 90 },
-      { id: 'mq15', title: 'Grounded Home Life', desc: 'Make room for family, animals, house tasks and garden rhythm.', steps: 24, xpReward: 130 },
-      { id: 'mq16', title: 'Financial Shield', desc: 'Start creating financial clarity, categories and reserve thinking.', steps: 18, xpReward: 110 },
-      { id: 'mq17', title: 'Upgrade Roadmap', desc: 'Prioritize gear and life upgrades without chaos.', steps: 16, xpReward: 100 },
-      { id: 'mq18', title: 'Plasma Courage', desc: 'Maintain meaningful donation rhythm despite fear of needles.', steps: 12, xpReward: 90 },
-      { id: 'mq19', title: 'Narrative Discipline', desc: 'Use journaling and structured writing as a growth system.', steps: 18, xpReward: 110 },
-      { id: 'mq20', title: 'Quiet Self-Trust', desc: 'Build the version of you that validates itself from within.', steps: 30, xpReward: 160 }
+      { id: 'mq1', title: 'Read 1 Book', desc: 'Finish one whole book.', steps: 1, xpReward: 80 },
+      { id: 'mq2', title: 'Read 3 Books', desc: 'Finish three books total.', steps: 3, xpReward: 120 },
+      { id: 'mq3', title: 'Read 5 Books', desc: 'Finish five books total.', steps: 5, xpReward: 160 },
+      { id: 'mq4', title: 'Lose 2 kg', desc: 'Cut body weight by two kilos.', steps: 2, xpReward: 100 },
+      { id: 'mq5', title: 'Lose 5 kg', desc: 'Cut body weight by five kilos.', steps: 5, xpReward: 140 },
+      { id: 'mq6', title: 'Lose 10 kg', desc: 'Cut body weight by ten kilos.', steps: 10, xpReward: 220 },
+      { id: 'mq7', title: 'Finish 1 Game', desc: 'Complete one single-player game.', steps: 1, xpReward: 80 },
+      { id: 'mq8', title: 'Finish 3 Games', desc: 'Complete three single-player games.', steps: 3, xpReward: 130 },
+      { id: 'mq9', title: 'Exercise 10 Times', desc: 'Log ten workouts or strong movement sessions.', steps: 10, xpReward: 120 },
+      { id: 'mq10', title: 'Exercise 25 Times', desc: 'Log twenty-five workouts or strong movement sessions.', steps: 25, xpReward: 200 },
+      { id: 'mq11', title: 'Cook 10 Quality Meals', desc: 'Prepare ten meals yourself.', steps: 10, xpReward: 100 },
+      { id: 'mq12', title: 'Write 20 Journal Entries', desc: 'Log twenty personal entries.', steps: 20, xpReward: 140 },
+      { id: 'mq13', title: 'Study 50 Language Sessions', desc: 'Complete fifty focused language sessions.', steps: 50, xpReward: 220 },
+      { id: 'mq14', title: 'Swim 10 Times', desc: 'Log ten swimming sessions.', steps: 10, xpReward: 110 },
+      { id: 'mq15', title: 'Bike 15 Times', desc: 'Log fifteen bike rides.', steps: 15, xpReward: 130 },
+      { id: 'mq16', title: 'Paint 10 Mini Sessions', desc: 'Work on mini painting ten times.', steps: 10, xpReward: 100 },
+      { id: 'mq17', title: 'Complete 30 Project Sessions', desc: 'Work on Metamorphosis thirty times.', steps: 30, xpReward: 180 },
+      { id: 'mq18', title: 'Donate Plasma 3 Times', desc: 'Track three successful donation days.', steps: 3, xpReward: 150 },
+      { id: 'mq19', title: 'Spend 20 Family Days', desc: 'Mark twenty meaningful family days.', steps: 20, xpReward: 150 },
+      { id: 'mq20', title: 'Garden / Animal Care 30 Times', desc: 'Track thirty garden or animal-care sessions.', steps: 30, xpReward: 180 }
     ];
 
-    // -----------------------------
-    // Achievement design
-    // -----------------------------
     const achievements = [
-      // Quick 5
       { id: 'a1', tier: 'easy', title: 'First Step', desc: 'Complete your first quest.', type: 'quests', target: 1 },
       { id: 'a2', tier: 'easy', title: 'Tiny Momentum', desc: 'Complete three total quests.', type: 'quests', target: 3 },
       { id: 'a3', tier: 'easy', title: 'Awakening', desc: 'Gain your first level.', type: 'level', target: 2 },
       { id: 'a4', tier: 'easy', title: 'One Good Day', desc: 'Finish a day with at least one completed quest.', type: 'days', target: 1 },
       { id: 'a5', tier: 'easy', title: 'First Arc', desc: 'Advance any main quest once.', type: 'mainSteps', target: 1 },
-
-      // Medium 15
       { id: 'a6', tier: 'medium', title: 'Quest Runner', desc: 'Complete ten total quests.', type: 'quests', target: 10 },
       { id: 'a7', tier: 'medium', title: 'Quest Walker', desc: 'Complete twenty-five total quests.', type: 'quests', target: 25 },
       { id: 'a8', tier: 'medium', title: 'Quest Builder', desc: 'Complete fifty total quests.', type: 'quests', target: 50 },
@@ -644,9 +652,7 @@
       { id: 'a17', tier: 'medium', title: 'Iron Will', desc: 'Complete ten Discipline-type daily quests.', type: 'dailyCategory', category: 'Discipline', target: 10 },
       { id: 'a18', tier: 'medium', title: 'Long Arc', desc: 'Reach ten main quest progress steps.', type: 'mainSteps', target: 10 },
       { id: 'a19', tier: 'medium', title: 'Pathwalker', desc: 'Reach twenty-five main quest progress steps.', type: 'mainSteps', target: 25 },
-      { id: 'a20', tier: 'medium', title: 'Self System', desc: 'Gain enough XP to cross several thresholds.', type: 'totalXpEarned', target: 500 },
-
-      // Legendary 5
+      { id: 'a20', tier: 'medium', title: 'Self System', desc: 'Earn a solid amount of total XP.', type: 'totalXpEarned', target: 500 },
       { id: 'a21', tier: 'legendary', title: 'True Discipline', desc: 'Reach level 20.', type: 'level', target: 20 },
       { id: 'a22', tier: 'legendary', title: 'Relentless', desc: 'Complete one hundred total quests.', type: 'quests', target: 100 },
       { id: 'a23', tier: 'legendary', title: 'Metamorphosis', desc: 'Reach fifty completed days.', type: 'days', target: 50 },
@@ -654,45 +660,22 @@
       { id: 'a25', tier: 'legendary', title: 'Quiet Self-Trust', desc: 'Advance main quests a total of sixty steps.', type: 'mainSteps', target: 60 }
     ];
 
-    // -----------------------------
-    // Stats & skills
-    // -----------------------------
     const skillOptions = {
-      Strength: ['Calisthenics', 'Gym Training', 'Weighted Carries', 'Push Strength', 'Pull Strength', 'Core Bracing', 'Grip Strength', 'Manual Labor', 'Upper Body Power', 'Lower Body Power'],
-      Dexterity: ['Fine Motor Control', 'Mini Painting', 'Knife Skills', 'Keyboard Precision', 'Tool Handling', 'Camera Setup', 'Cable Work', 'Detailing Precision', 'Driving Control', 'Hand-Eye Coordination'],
-      Agility: ['Mobility', 'Footwork', 'Reaction Speed', 'Balance', 'Bike Handling', 'Swimming Form', 'Jump Control', 'Body Awareness', 'Quick Transitions', 'Coordination Drills'],
-      Endurance: ['Walking Capacity', 'Cycling Endurance', 'Swimming Stamina', 'Long Session Focus', 'Work Capacity', 'Sleep Resilience', 'Recovery Habit', 'Cardio Base', 'Breathing Control', 'Consistency'],
-      Intelligence: ['Reading Depth', 'Research', 'Language Study', 'Technical Learning', 'System Design', 'Planning', 'Writing Structure', 'Pattern Recognition', 'Problem Solving', 'Analytical Thinking'],
-      Willpower: ['No Doomscrolling', 'No Sugary Drinks', 'Routine Keeping', 'Sleep Discipline', 'Task Completion', 'Stress Tolerance', 'Emotional Restraint', 'Delayed Gratification', 'Habit Repetition', 'Recovery Decisions'],
-      Wits: ['Humor', 'Improvisation', 'Roleplay', 'Conversation Timing', 'Creative Problem Solving', 'Quick Reading of Situations', 'Adaptability', 'Social Reading', 'Verbal Play', 'Strategic Thinking'],
-      Wisdom: ['Self-Reflection', 'Boundary Awareness', 'Emotional Insight', 'Journaling', 'Meditation', 'Perspective Keeping', 'Choosing Long-Term Growth', 'Calm Decision Making', 'Pattern Awareness', 'Acceptance']
-    };
-
-    const treeGroups = {
-      Body: ['Strength', 'Dexterity', 'Agility', 'Endurance'],
-      Mind: ['Intelligence', 'Willpower', 'Wits', 'Wisdom'],
-      Discipline: ['Consistency', 'Focus', 'Recovery', 'Resilience']
+      Strength: ['Brawling', 'Longsword', 'War Hammer', 'Martial Arts', 'Shield', 'Pike', 'Spear', 'Two-handed Axe', 'Unarmed Fighting', 'Bo Staff'],
+      Dexterity: ['Archery', 'Crossbow', 'Dagger', 'Fencing', 'Sling', 'Throwing', 'Sleight of Hand', 'Lockpicking', 'Tinkering', 'Weapon Tinkering'],
+      Agility: ['Acrobatics', 'Athletics', 'Climbing', 'Stealth', 'Shadowing', 'Swimming', 'Navigation', 'Riding', 'Land Vehicle Operation', 'Aircraft Piloting'],
+      Endurance: ['Survival', 'Farming', 'Fishing', 'Hunting', 'Gardening', 'Tracking', 'Animal Handling', 'Construction', 'Brewing', 'Sailing'],
+      Intelligence: ['Study', 'Literature', 'History', 'Law', 'Engineering', 'Economy', 'Chemistry', 'Natural Sciences', 'Geology', 'Philosophy'],
+      Willpower: ['Meditation', 'Administration', 'First Aid', 'Anatomy', 'Leadership', 'Logistics', 'Strategy - Land', 'Tactics', 'Trading', 'Observation'],
+      Wits: ['Fast-Talk', 'Deception', 'Diplomacy', 'Psychology', 'Insight', 'Disguise', 'Streetwise', 'Interrogation', 'Current Affairs', 'Politics'],
+      Wisdom: ['Cooking', 'Herbalism', 'Acting', 'Public Speaking', 'Poetry', 'Etiquette', 'Linguistics', 'Theology', 'Occultism', 'Theory of Magics']
     };
 
     let selectedSkills = {};
     let skillValues = {};
     let dailyCategoryProgress = { Mind: 0, Body: 0, Discipline: 0, Social: 0, Life: 0 };
-    let totalXpEarned = 0;
+    let mainQuestProgress = {};
 
-    // Manual skill trees for progression page cards
-    const progressionTrees = {
-      Consistency: 0,
-      Focus: 0,
-      Recovery: 0,
-      Resilience: 0,
-      Body: 0,
-      Mind: 0,
-      Discipline: 0
-    };
-
-    // -----------------------------
-    // Utilities
-    // -----------------------------
     const $ = (id) => document.getElementById(id);
 
     function saveState() {
@@ -708,7 +691,6 @@
       localStorage.setItem('meta_skillValues', JSON.stringify(skillValues));
       localStorage.setItem('meta_dailyCategoryProgress', JSON.stringify(dailyCategoryProgress));
       localStorage.setItem('meta_totalXpEarned', totalXpEarned);
-      localStorage.setItem('meta_progressionTrees', JSON.stringify(progressionTrees));
     }
 
     function loadState() {
@@ -724,13 +706,6 @@
       skillValues = JSON.parse(localStorage.getItem('meta_skillValues') || '{}');
       dailyCategoryProgress = JSON.parse(localStorage.getItem('meta_dailyCategoryProgress') || '{"Mind":0,"Body":0,"Discipline":0,"Social":0,"Life":0}');
       totalXpEarned = parseInt(localStorage.getItem('meta_totalXpEarned') || '0', 10);
-      const savedTrees = JSON.parse(localStorage.getItem('meta_progressionTrees') || '{}');
-      Object.keys(treeGroups).forEach(group => {
-        if (savedTrees[group] != null) progressionTrees[group] = savedTrees[group];
-      });
-      ['Consistency','Focus','Recovery','Resilience'].forEach(k => {
-        if (savedTrees[k] != null) progressionTrees[k] = savedTrees[k];
-      });
     }
 
     function setPage(pageKey) {
@@ -763,14 +738,11 @@
     function gainXP(amount) {
       xp += amount;
       totalXpEarned += amount;
-
       while (xp >= nextLevel) {
         xp -= nextLevel;
         level += 1;
         nextLevel = Math.floor(nextLevel * 1.22);
       }
-
-      updateProgressionTreeDerivedValues();
       updateUI();
       saveState();
     }
@@ -785,16 +757,13 @@
       const percent = Math.max(0, Math.min(100, (xp / nextLevel) * 100));
       $('xpfill').style.width = percent + '%';
       $('homeXpFill').style.width = percent + '%';
-
       $('questCompletionCount').textContent = completedQuestTotal;
       $('completedDaysCount').textContent = completedDays;
       $('mainQuestStepCount').textContent = mainQuestStepCount;
       $('streakNumber').textContent = streak;
-
       renderHomePreview();
       renderAchievements();
       renderMainQuests();
-      renderProgressionTrees();
       renderAttributes();
     }
 
@@ -812,11 +781,25 @@
       }).join('');
     }
 
-    // -----------------------------
-    // Daily quests
-    // -----------------------------
     function getTodayKey() {
-      return new Date().toISOString().slice(0,10);
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function createFreshDailyQuestSet() {
+      const poolCopy = [...dailyQuestPool];
+      const selected = [];
+      while (selected.length < 3 && poolCopy.length) {
+        const idx = Math.floor(Math.random() * poolCopy.length);
+        selected.push(poolCopy.splice(idx, 1)[0]);
+      }
+      localStorage.setItem('meta_dailyQuestSet', JSON.stringify(selected));
+      localStorage.setItem('meta_dailyQuestDone', JSON.stringify([]));
+      localStorage.setItem('meta_dailyQuestDate', getTodayKey());
+      return selected;
     }
 
     function getTodayQuests() {
@@ -824,27 +807,33 @@
       const storedDate = localStorage.getItem('meta_dailyQuestDate');
       let storedQuests = JSON.parse(localStorage.getItem('meta_dailyQuestSet') || '[]');
       let done = JSON.parse(localStorage.getItem('meta_dailyQuestDone') || '[]');
+      let rerollDate = localStorage.getItem('meta_dailyQuestRerollDate');
 
       if (storedDate !== today) {
-        const poolCopy = [...dailyQuestPool];
-        const selected = [];
-        while (selected.length < 3 && poolCopy.length) {
-          const idx = Math.floor(Math.random() * poolCopy.length);
-          selected.push(poolCopy.splice(idx, 1)[0]);
-        }
-        storedQuests = selected;
+        storedQuests = createFreshDailyQuestSet();
         done = [];
-        localStorage.setItem('meta_dailyQuestDate', today);
-        localStorage.setItem('meta_dailyQuestSet', JSON.stringify(storedQuests));
-        localStorage.setItem('meta_dailyQuestDone', JSON.stringify(done));
+        localStorage.setItem('meta_dailyQuestRerollDate', '');
+        rerollDate = '';
       }
 
-      return { quests: storedQuests, done };
+      return { quests: storedQuests, done, rerollDate };
+    }
+
+    function rerollDailyQuests() {
+      const today = getTodayKey();
+      const rerollDate = localStorage.getItem('meta_dailyQuestRerollDate');
+      if (rerollDate === today) {
+        alert('You already rerolled daily quests today.');
+        return;
+      }
+      createFreshDailyQuestSet();
+      localStorage.setItem('meta_dailyQuestRerollDate', today);
+      renderDailyQuests();
     }
 
     function renderDailyQuests() {
-      const { quests, done } = getTodayQuests();
-      $('dailyQuestList').innerHTML = quests.map((q, idx) => {
+      const { quests, done, rerollDate } = getTodayQuests();
+      $('dailyQuestList').innerHTML = quests.map(q => {
         const checked = done.includes(q.id);
         return `
           <div class="quest-item">
@@ -862,6 +851,12 @@
           </div>
         `;
       }).join('');
+
+      const rerollBtn = document.querySelector('button[onclick="rerollDailyQuests()"]');
+      if (rerollBtn) {
+        rerollBtn.disabled = rerollDate === getTodayKey();
+        rerollBtn.textContent = rerollDate === getTodayKey() ? '🎲 Reroll Used Today' : '🎲 Reroll Once Today';
+      }
     }
 
     function completeDailyQuest(id) {
@@ -869,7 +864,6 @@
       if (done.includes(id)) return;
       const quest = quests.find(q => q.id === id);
       if (!quest) return;
-
       done.push(id);
       localStorage.setItem('meta_dailyQuestDone', JSON.stringify(done));
       completedQuestTotal += 1;
@@ -878,11 +872,6 @@
       updateStreakForToday(true);
       renderDailyQuests();
     }
-
-    // -----------------------------
-    // Main quests
-    // -----------------------------
-    let mainQuestProgress = {};
 
     function renderMainQuests() {
       $('mainQuestList').innerHTML = mainQuests.map(q => {
@@ -915,14 +904,12 @@
       const oldValue = mainQuestProgress[id] || 0;
       const nextValue = Math.max(0, Math.min(quest.steps, oldValue + delta));
       if (nextValue === oldValue) return;
-
       mainQuestProgress[id] = nextValue;
       if (delta > 0) {
         mainQuestStepCount += 1;
         completedQuestTotal += 1;
         updateStreakForToday(true);
       }
-
       if (oldValue < quest.steps && nextValue >= quest.steps) {
         gainXP(quest.xpReward);
       } else {
@@ -931,9 +918,6 @@
       }
     }
 
-    // -----------------------------
-    // Streak logic
-    // -----------------------------
     function updateStreakForToday(hadQuestCompletion) {
       const today = getTodayKey();
       const lastProcessed = localStorage.getItem('meta_streakDateProcessed');
@@ -951,21 +935,16 @@
       const lastPenaltyCheck = localStorage.getItem('meta_lastPenaltyCheck');
       const lastPositiveDay = localStorage.getItem('meta_streakDateProcessed');
       if (lastPenaltyCheck === today) return;
-
       if (lastPositiveDay && lastPositiveDay !== today) {
-        const todayDate = new Date(today);
-        const positiveDate = new Date(lastPositiveDay);
+        const todayDate = new Date(today + 'T00:00:00');
+        const positiveDate = new Date(lastPositiveDay + 'T00:00:00');
         const diffDays = Math.floor((todayDate - positiveDate) / (1000 * 60 * 60 * 24));
         if (diffDays >= 1) streak -= 1;
       }
-
       localStorage.setItem('meta_lastPenaltyCheck', today);
       saveState();
     }
 
-    // -----------------------------
-    // Achievements
-    // -----------------------------
     function achievementUnlocked(ach) {
       switch (ach.type) {
         case 'quests': return completedQuestTotal >= ach.target;
@@ -996,15 +975,26 @@
     function renderAchievements() {
       const grouped = { easy: [], medium: [], legendary: [] };
       achievements.forEach(ach => grouped[ach.tier].push(ach));
-      renderAchievementTier('achievementListEasy', grouped.easy, 'Quick');
-      renderAchievementTier('achievementListMedium', grouped.medium, 'Steady');
-      renderAchievementTier('achievementListLegendary', grouped.legendary, 'Legendary');
+      renderAchievementTier('achievementListEasy', grouped.easy);
+      renderAchievementTier('achievementListMedium', grouped.medium);
+      renderAchievementTier('achievementListLegendary', grouped.legendary);
     }
 
     function renderAchievementTier(containerId, list) {
       $(containerId).innerHTML = list.map(ach => {
         const unlocked = achievementUnlocked(ach);
         const tagClass = ach.tier === 'legendary' ? 'legendary' : ach.tier;
+        let current = 0;
+        switch (ach.type) {
+          case 'quests': current = completedQuestTotal; break;
+          case 'level': current = level; break;
+          case 'days': current = completedDays; break;
+          case 'streak': current = Math.max(0, streak); break;
+          case 'mainSteps': current = mainQuestStepCount; break;
+          case 'dailyCategory': current = dailyCategoryProgress[ach.category] || 0; break;
+          case 'totalXpEarned': current = totalXpEarned; break;
+        }
+        const fill = Math.min(100, (current / ach.target) * 100);
         return `
           <div class="achievement-item ${unlocked ? 'unlocked' : ''}">
             <div class="achievement-head">
@@ -1014,36 +1004,18 @@
               </div>
               <span class="tag ${tagClass}">${achievementProgressText(ach)}</span>
             </div>
-            <div class="progress-shell"><div class="progress-fill ${unlocked ? 'good' : ''}" style="width:${Math.min(100, (() => {
-              let current = 0;
-              switch (ach.type) {
-                case 'quests': current = completedQuestTotal; break;
-                case 'level': current = level; break;
-                case 'days': current = completedDays; break;
-                case 'streak': current = Math.max(0, streak); break;
-                case 'mainSteps': current = mainQuestStepCount; break;
-                case 'dailyCategory': current = dailyCategoryProgress[ach.category] || 0; break;
-                case 'totalXpEarned': current = totalXpEarned; break;
-              }
-              return (current / ach.target) * 100;
-            })())}%"></div></div>
+            <div class="progress-shell"><div class="progress-fill ${unlocked ? 'good' : ''}" style="width:${fill}%"></div></div>
           </div>
         `;
       }).join('');
     }
 
-    // -----------------------------
-    // Stats / attributes
-    // -----------------------------
     function initializeSkillState() {
-      [...skillOptions.Strength, ...skillOptions.Dexterity, ...skillOptions.Agility, ...skillOptions.Endurance,
-       ...skillOptions.Intelligence, ...skillOptions.Willpower, ...skillOptions.Wits, ...skillOptions.Wisdom]
-        .forEach(skill => {
+      Object.keys(skillOptions).forEach(attr => {
+        if (!selectedSkills[attr]) selectedSkills[attr] = [];
+        skillOptions[attr].forEach(skill => {
           if (skillValues[skill] == null) skillValues[skill] = 0;
         });
-
-      ['Strength','Dexterity','Agility','Endurance','Intelligence','Willpower','Wits','Wisdom'].forEach(attr => {
-        if (!selectedSkills[attr]) selectedSkills[attr] = [];
       });
     }
 
@@ -1068,7 +1040,6 @@
         .filter(skill => !chosen.includes(skill))
         .map(skill => `<option value="${skill}">${skill}</option>`)
         .join('');
-
       return `
         <div class="attr-card">
           <div class="attr-head">
@@ -1076,19 +1047,19 @@
             <span class="tag">Auto • ${value}%</span>
           </div>
           <div class="progress-shell"><div class="progress-fill" style="width:${value}%"></div></div>
-          <div class="inline-note">Primary attribute value is based on the average of selected skills below.</div>
+          <div class="inline-note">Primary attribute value is the average of the selected skills below.</div>
           <select onchange="addSkillToAttribute('${attr}', this.value)">
             <option value="">Add a skill to ${attr}</option>
             ${optionsHtml}
           </select>
           <div class="skill-list" style="margin-top:12px;">
-            ${chosen.map(renderSkillCard).join('')}
+            ${chosen.map(skill => renderSkillCard(attr, skill)).join('')}
           </div>
         </div>
       `;
     }
 
-    function renderSkillCard(skill) {
+    function renderSkillCard(attr, skill) {
       const value = skillValues[skill] || 0;
       return `
         <div class="skill-card">
@@ -1101,6 +1072,9 @@
             <button class="step-btn" onclick="changeSkillValue('${skill}', -5)">−</button>
             <div class="small-muted" style="text-align:center;">Manual skill progress</div>
             <button class="step-btn" onclick="changeSkillValue('${skill}', 5)">+</button>
+          </div>
+          <div class="skill-actions">
+            <button class="remove-btn" onclick="removeSkillFromAttribute('${attr}', '${skill.replace(/'/g, "\\'")}')">Remove Skill</button>
           </div>
         </div>
       `;
@@ -1116,64 +1090,42 @@
 
     function changeSkillValue(skill, delta) {
       skillValues[skill] = Math.max(0, Math.min(100, (skillValues[skill] || 0) + delta));
-      updateProgressionTreeDerivedValues();
       saveState();
       updateUI();
     }
 
-    function updateProgressionTreeDerivedValues() {
-      progressionTrees.Body = Math.round((calculateAttributeValue('Strength') + calculateAttributeValue('Dexterity') + calculateAttributeValue('Agility') + calculateAttributeValue('Endurance')) / 4);
-      progressionTrees.Mind = Math.round((calculateAttributeValue('Intelligence') + calculateAttributeValue('Willpower') + calculateAttributeValue('Wits') + calculateAttributeValue('Wisdom')) / 4);
-      progressionTrees.Discipline = Math.round((progressionTrees.Consistency + progressionTrees.Focus + progressionTrees.Recovery + progressionTrees.Resilience) / 4);
-    }
-
-    // -----------------------------
-    // Progression trees
-    // -----------------------------
-    function renderProgressionTrees() {
-      const cards = [
-        { name: 'Body', desc: 'Derived from physical attributes.' },
-        { name: 'Mind', desc: 'Derived from mental attributes.' },
-        { name: 'Discipline', desc: 'Derived from discipline subskills.' },
-        { name: 'Consistency', desc: 'Manually trained discipline subskill.' },
-        { name: 'Focus', desc: 'Manually trained discipline subskill.' },
-        { name: 'Recovery', desc: 'Manually trained discipline subskill.' },
-        { name: 'Resilience', desc: 'Manually trained discipline subskill.' }
-      ];
-
-      $('skillTreeCards').innerHTML = cards.map(card => {
-        const value = progressionTrees[card.name] || 0;
-        const manual = ['Consistency','Focus','Recovery','Resilience'].includes(card.name);
-        return `
-          <div class="skill-card">
-            <div class="skill-head">
-              <div class="skill-title">${card.name}</div>
-              <span class="tag">${value}%</span>
-            </div>
-            <div class="progress-shell"><div class="progress-fill ${manual ? 'warn' : ''}" style="width:${value}%"></div></div>
-            <div class="inline-note">${card.desc}</div>
-            ${manual ? `
-              <div class="skill-progress-row">
-                <button class="step-btn" onclick="changeTreeValue('${card.name}', -5)">−</button>
-                <div class="small-muted" style="text-align:center;">Manual discipline growth</div>
-                <button class="step-btn" onclick="changeTreeValue('${card.name}', 5)">+</button>
-              </div>
-            ` : ''}
-          </div>
-        `;
-      }).join('');
-    }
-
-    function changeTreeValue(name, delta) {
-      progressionTrees[name] = Math.max(0, Math.min(100, (progressionTrees[name] || 0) + delta));
-      updateProgressionTreeDerivedValues();
+    function removeSkillFromAttribute(attr, skill) {
+      if (!selectedSkills[attr]) return;
+      selectedSkills[attr] = selectedSkills[attr].filter(s => s !== skill);
       saveState();
       updateUI();
     }
 
-    // -----------------------------
-    // Init
-    // -----------------------------
+    function openResetModal() {
+      $('resetModal').classList.add('active');
+    }
+
+    function closeResetModal() {
+      $('resetModal').classList.remove('active');
+    }
+
+    function confirmResetCharacter() {
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('meta_')) localStorage.removeItem(key);
+      });
+      location.reload();
+    }
+
+    function initMidnightRefresh() {
+      const now = new Date();
+      const next = new Date();
+      next.setHours(24, 0, 0, 0);
+      const ms = next.getTime() - now.getTime();
+      setTimeout(() => {
+        location.reload();
+      }, ms);
+    }
+
     function init() {
       loadState();
       initializeSkillState();
@@ -1181,55 +1133,11 @@
       setupPageNavigation();
       setupSubtabs();
       renderDailyQuests();
-      updateProgressionTreeDerivedValues();
       updateUI();
+      initMidnightRefresh();
     }
 
     init();
   </script>
 </body>
 </html>
-``` 
-
----
-
-## Co je v tom už hotové
-
-Máš tam:
-
-- levou navigaci s klikacími okénky
-- home jako samostatný hub
-- questy rozdělené na **Daily / Main**
-- achievements rozdělené na **Quick / Steady / Legendary**
-- progression sekci s hlavním XP a skill tree
-- stats sekci se streakem nahoře
-- základní atributy a skill bary pod nimi
-- automatické počítání základních atributů ze skillů
-- daily quest randomizer 3 z 30
-- 20 main questů s ručním progressem
-- 25 achievements s progres bary
-- ukládání přes localStorage
-
----
-
-## Dvě důležité poznámky
-
-První: streak systém je nastavený tak, že při otevření stránky zkontroluje, jestli minulý den nebyl bez splnění. Je to rozumný základ, ale není to ještě úplně „serverově přesné“. Na single-user free web je to ale velmi dobré.
-
-Druhá: skill výběr funguje tak, že pro každý atribut vybíráš skilly ze scrollovacího dropdownu a pod atributem se generují jejich vlastní bary. To odpovídá tomu, co jsi chtěl.
-
----
-
-## Co bych přidal hned potom
-
-Až to rozchodíš, další ideální krok je:
-
-1. **avatar panel na Home**
-2. **lepší vizuální styling jako RPG UI**
-3. **multiplayer reminder** — ten ti připomínám teď: později chceme přidat multiplayer
-4. **obrázky / galerie**
-5. **server-side save** až někdy v budoucnu
-
----
-
-Po nasazení mi napiš, co funguje a co nefunguje přesně tak, jak sis představoval. Pak to doladíme po vrstvách místo chaotického předělávání.
