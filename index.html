@@ -5,7 +5,20 @@
 <title>Metamorphosis</title>
 
 <style>
+.achievement{
+background:#1a1a1a;
+border:1px solid #333;
+padding:10px;
+margin:10px 0;
+border-radius:6px;
+opacity:0.5;
+}
 
+.unlocked{
+opacity:1;
+border:1px solid #4caf50;
+box-shadow:0 0 10px #4caf50;
+}
 body{
 background:#0a0a0a;
 color:#e6e6e6;
@@ -83,7 +96,26 @@ text-align:left;
 
 </div>
 
+<h2>🏆 Achievements</h2>
 
+<div id="achievements">
+
+<div class="achievement" id="achv_first_xp">
+🔒 First Step  
+<p>Gain your first XP</p>
+</div>
+
+<div class="achievement" id="achv_level_5">
+🔒 Rising Hero  
+<p>Reach Level 5</p>
+</div>
+
+<div class="achievement" id="achv_level_10">
+🔒 True Discipline  
+<p>Reach Level 10</p>
+</div>
+
+</div>
 <div class="card">
 
 <h2>🏆 Achievements</h2>
@@ -133,6 +165,27 @@ document.getElementById("nextLevel").innerText = nextLevel
 let percent = (xp / nextLevel) * 100
 document.getElementById("xpfill").style.width = percent + "%"
 
+  checkAchievements()
+  
 }
 
 </script>
+
+function checkAchievements(){
+
+if(xp > 0){
+document.getElementById("achv_first_xp").classList.add("unlocked")
+document.getElementById("achv_first_xp").innerHTML="🏆 First Step<p>You gained your first XP</p>"
+}
+
+if(level >= 5){
+document.getElementById("achv_level_5").classList.add("unlocked")
+document.getElementById("achv_level_5").innerHTML="🏆 Rising Hero<p>Reached Level 5</p>"
+}
+
+if(level >= 10){
+document.getElementById("achv_level_10").classList.add("unlocked")
+document.getElementById("achv_level_10").innerHTML="🏆 True Discipline<p>Reached Level 10</p>"
+}
+
+}
