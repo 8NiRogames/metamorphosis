@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 <head>
 <title>Metamorphosis</title>
 
@@ -16,7 +15,7 @@ text-align:center;
 h1{
 font-size:60px;
 color:#a855f7;
-margin-top:60px;
+margin-top:40px;
 }
 
 .container{
@@ -39,12 +38,7 @@ background:#7c3aed;
 border:none;
 border-radius:8px;
 color:white;
-font-size:16px;
 cursor:pointer;
-}
-
-button:hover{
-background:#a855f7;
 }
 
 .xpbar{
@@ -53,23 +47,30 @@ background:#222;
 border-radius:20px;
 overflow:hidden;
 height:25px;
-margin-top:10px;
 }
 
 .xpfill{
 height:25px;
 width:0%;
 background:#7c3aed;
-transition:0.4s;
+transition:0.3s;
+}
+
+.quest{
+text-align:left;
+margin:10px;
+padding:10px;
+background:#1a1a1a;
+border-radius:6px;
 }
 
 .achievement{
 background:#1a1a1a;
 border:1px solid #333;
 padding:10px;
-margin:10px 0;
+margin:8px 0;
 border-radius:6px;
-opacity:0.5;
+opacity:0.4;
 text-align:left;
 }
 
@@ -80,7 +81,6 @@ box-shadow:0 0 10px #4caf50;
 }
 
 </style>
-
 </head>
 
 <body>
@@ -91,10 +91,10 @@ box-shadow:0 0 10px #4caf50;
 
 <div class="card">
 
-<h2>⚔️ Character Progress</h2>
+<h2>⚔ Character</h2>
 
-<h3>Level: <span id="level">1</span></h3>
-<p>XP: <span id="xp">0</span> / <span id="nextLevel">100</span></p>
+Level: <span id="level">1</span><br>
+XP: <span id="xp">0</span> / <span id="nextLevel">100</span>
 
 <div class="xpbar">
 <div class="xpfill" id="xpfill"></div>
@@ -104,12 +104,9 @@ box-shadow:0 0 10px #4caf50;
 
 <div class="card">
 
-<h2>🎯 Actions</h2>
+<h2>📜 Daily Quests</h2>
 
-<button onclick="gainXP(20)">🏋 Workout</button>
-<button onclick="gainXP(15)">📚 Study</button>
-<button onclick="gainXP(10)">📖 Read</button>
-<button onclick="gainXP(5)">🧠 Small Discipline</button>
+<div id="quests"></div>
 
 </div>
 
@@ -117,30 +114,7 @@ box-shadow:0 0 10px #4caf50;
 
 <h2>🏆 Achievements</h2>
 
-<div class="achievement" id="achv_first_xp">
-🔒 First Step
-<p>Gain your first XP</p>
-</div>
-
-<div class="achievement" id="achv_level_5">
-🔒 Rising Hero
-<p>Reach Level 5</p>
-</div>
-
-<div class="achievement" id="achv_level_10">
-🔒 True Discipline
-<p>Reach Level 10</p>
-</div>
-
-</div>
-
-<div class="card">
-
-<h2>📍 Milestones</h2>
-
-<p>Improve body</p>
-<p>Improve mind</p>
-<p>Build discipline</p>
+<div id="achievements"></div>
 
 </div>
 
@@ -148,84 +122,233 @@ box-shadow:0 0 10px #4caf50;
 
 <script>
 
-let xp = 0
-let level = 1
-let nextLevel = 100
+let xp=0
+let level=1
+let nextLevel=100
+let completedQuests=0
+let totalDays=0
+
+const questPool=[
+
+"Read 10 pages",
+"Listen to audiobook",
+"Study 20 minutes",
+"Learn 5 new words",
+"Write journal",
+
+"Do pushups",
+"Go for walk",
+"Stretch 10 minutes",
+"Ride a bike",
+"Cardio session",
+
+"No sugary drink",
+"No doomscrolling",
+"Wake early",
+"Sleep before midnight",
+"Clean room",
+
+"Cold shower",
+"Do uncomfortable task",
+"Talk to friend",
+"Help someone",
+"Spend time outside",
+
+"Practice hobby",
+"Work on project",
+"Creative activity",
+"Plan tomorrow",
+"Drink enough water",
+
+"Healthy meal",
+"Reflect on day",
+"Meditate",
+"Organize desk",
+"Practice discipline"
+
+]
+
+const achievements=[
+
+{title:"First Quest",req:1},
+{title:"3 Quests",req:3},
+{title:"10 Quests",req:10},
+{title:"25 Quests",req:25},
+{title:"50 Quests",req:50},
+
+{title:"Level 5",level:5},
+{title:"Level 10",level:10},
+{title:"Level 20",level:20},
+
+{title:"100 XP",xp:100},
+{title:"500 XP",xp:500},
+{title:"1000 XP",xp:1000},
+
+{title:"5 Days",days:5},
+{title:"10 Days",days:10},
+{title:"20 Days",days:20},
+{title:"50 Days",days:50},
+
+{title:"100 Quests",req:100},
+{title:"Legendary Discipline",req:150},
+{title:"Metamorphosis",req:200},
+
+{title:"Persistent",level:15},
+{title:"Focused Mind",xp:1500},
+{title:"Iron Discipline",xp:2000},
+
+{title:"Daily Hero",days:30},
+{title:"Relentless",req:300},
+{title:"Ascended",level:25},
+{title:"Ultimate Growth",xp:5000}
+
+]
 
 function gainXP(amount){
 
-xp += amount
+xp+=amount
+completedQuests++
 
-if(xp >= nextLevel){
-xp = xp - nextLevel
+if(xp>=nextLevel){
+xp-=nextLevel
 level++
-nextLevel = Math.floor(nextLevel * 1.2)
+nextLevel=Math.floor(nextLevel*1.25)
 }
 
 updateUI()
 checkAchievements()
-saveProgress()
+save()
 
 }
 
 function updateUI(){
 
-document.getElementById("xp").innerText = xp
-document.getElementById("level").innerText = level
-document.getElementById("nextLevel").innerText = nextLevel
+document.getElementById("xp").innerText=xp
+document.getElementById("level").innerText=level
+document.getElementById("nextLevel").innerText=nextLevel
 
-let percent = (xp / nextLevel) * 100
-document.getElementById("xpfill").style.width = percent + "%"
+let percent=(xp/nextLevel)*100
+document.getElementById("xpfill").style.width=percent+"%"
+
+}
+
+function generateQuests(){
+
+let today=new Date().toDateString()
+
+if(localStorage.getItem("questDate")!==today){
+
+totalDays++
+
+let selected=[]
+
+while(selected.length<3){
+
+let q=questPool[Math.floor(Math.random()*questPool.length)]
+
+if(!selected.includes(q)) selected.push(q)
+
+}
+
+localStorage.setItem("todayQuests",JSON.stringify(selected))
+localStorage.setItem("questDate",today)
+localStorage.setItem("questDone","[]")
+
+}
+
+renderQuests()
+
+}
+
+function renderQuests(){
+
+let quests=JSON.parse(localStorage.getItem("todayQuests"))
+let done=JSON.parse(localStorage.getItem("questDone")||"[]")
+
+let html=""
+
+quests.forEach((q,i)=>{
+
+let checked=done.includes(i)?"checked":""
+
+html+=`
+<div class="quest">
+<input type="checkbox" ${checked} onchange="completeQuest(${i})">
+${q}
+</div>
+`
+
+})
+
+document.getElementById("quests").innerHTML=html
+
+}
+
+function completeQuest(i){
+
+let done=JSON.parse(localStorage.getItem("questDone")||"[]")
+
+if(!done.includes(i)){
+
+done.push(i)
+localStorage.setItem("questDone",JSON.stringify(done))
+
+gainXP(25)
+
+}
 
 }
 
 function checkAchievements(){
 
-if(xp > 0){
-unlock("achv_first_xp","🏆 First Step","You gained your first XP")
-}
+let html=""
 
-if(level >= 5){
-unlock("achv_level_5","🏆 Rising Hero","Reached Level 5")
-}
+achievements.forEach(a=>{
 
-if(level >= 10){
-unlock("achv_level_10","🏆 True Discipline","Reached Level 10")
-}
+let unlocked=false
 
-}
+if(a.req && completedQuests>=a.req) unlocked=true
+if(a.level && level>=a.level) unlocked=true
+if(a.xp && xp>=a.xp) unlocked=true
+if(a.days && totalDays>=a.days) unlocked=true
 
-function unlock(id,title,desc){
+html+=`
+<div class="achievement ${unlocked?"unlocked":""}">
+${unlocked?"🏆":"🔒"} ${a.title}
+</div>
+`
 
-let el = document.getElementById(id)
+})
 
-if(!el.classList.contains("unlocked")){
-el.classList.add("unlocked")
-el.innerHTML = title + "<p>" + desc + "</p>"
-}
+document.getElementById("achievements").innerHTML=html
 
 }
 
-function saveProgress(){
+function save(){
 
 localStorage.setItem("xp",xp)
 localStorage.setItem("level",level)
 localStorage.setItem("nextLevel",nextLevel)
+localStorage.setItem("completedQuests",completedQuests)
+localStorage.setItem("days",totalDays)
 
 }
 
-function loadProgress(){
+function load(){
 
-xp = parseInt(localStorage.getItem("xp")) || 0
-level = parseInt(localStorage.getItem("level")) || 1
-nextLevel = parseInt(localStorage.getItem("nextLevel")) || 100
+xp=parseInt(localStorage.getItem("xp")||0)
+level=parseInt(localStorage.getItem("level")||1)
+nextLevel=parseInt(localStorage.getItem("nextLevel")||100)
+completedQuests=parseInt(localStorage.getItem("completedQuests")||0)
+totalDays=parseInt(localStorage.getItem("days")||0)
 
 updateUI()
 checkAchievements()
 
 }
 
-loadProgress()
+load()
+generateQuests()
 
 </script>
 
