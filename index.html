@@ -1,33 +1,57 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 <title>Metamorphosis</title>
 
 <style>
+
 body{
-background-color:#0b0b0b;
-color:#e5e5e5;
+background:#0a0a0a;
+color:#e6e6e6;
 font-family:Arial;
 text-align:center;
 }
 
 h1{
 font-size:60px;
-margin-top:80px;
-color:#8a2be2;
+color:#a855f7;
+margin-top:60px;
 }
 
 .container{
-width:800px;
+width:900px;
 margin:auto;
 }
 
 .card{
 background:#161616;
-padding:20px;
+padding:25px;
 margin:20px;
-border-radius:10px;
-box-shadow:0 0 10px #000;
+border-radius:12px;
+box-shadow:0 0 15px rgba(0,0,0,0.6);
+}
+
+.xpbar{
+width:100%;
+background:#222;
+border-radius:20px;
+overflow:hidden;
+height:25px;
+}
+
+.xpfill{
+height:25px;
+width:20%;
+background:#7c3aed;
+}
+
+.achievement{
+padding:10px;
+margin:10px;
+background:#1f1f1f;
+border-left:4px solid #a855f7;
+text-align:left;
 }
 
 </style>
@@ -41,21 +65,41 @@ box-shadow:0 0 10px #000;
 <div class="container">
 
 <div class="card">
-<h2>⚔️ The Journey</h2>
-<p>Build the person you want to become.</p>
+
+<h2>⚔️ Character Progress</h2>
+
+<div class="xpbar">
+<div class="xpfill"></div>
 </div>
 
-<div class="card">
-<h2>📈 XP System</h2>
-<p>Every action is progress.</p>
+<p>Level 1 — The Beginning</p>
+
 </div>
 
+
 <div class="card">
+
 <h2>🏆 Achievements</h2>
-<p>Milestones of growth.</p>
+
+<div class="achievement">Start the journey</div>
+<div class="achievement">Create the website</div>
+<div class="achievement">First week of discipline</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>📍 Milestones</h2>
+
+<p>Improve body</p>
+<p>Improve mind</p>
+<p>Build discipline</p>
+
 </div>
 
 </div>
 
 </body>
+
 </html>
