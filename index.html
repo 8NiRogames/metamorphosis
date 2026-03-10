@@ -5,20 +5,7 @@
 <title>Metamorphosis</title>
 
 <style>
-.achievement{
-background:#1a1a1a;
-border:1px solid #333;
-padding:10px;
-margin:10px 0;
-border-radius:6px;
-opacity:0.5;
-}
 
-.unlocked{
-opacity:1;
-border:1px solid #4caf50;
-box-shadow:0 0 10px #4caf50;
-}
 body{
 background:#0a0a0a;
 color:#e6e6e6;
@@ -45,26 +32,51 @@ border-radius:12px;
 box-shadow:0 0 15px rgba(0,0,0,0.6);
 }
 
+button{
+padding:10px 20px;
+margin:10px;
+background:#7c3aed;
+border:none;
+border-radius:8px;
+color:white;
+font-size:16px;
+cursor:pointer;
+}
+
+button:hover{
+background:#a855f7;
+}
+
 .xpbar{
 width:100%;
 background:#222;
 border-radius:20px;
 overflow:hidden;
 height:25px;
+margin-top:10px;
 }
 
 .xpfill{
 height:25px;
-width:20%;
+width:0%;
 background:#7c3aed;
+transition:0.4s;
 }
 
 .achievement{
+background:#1a1a1a;
+border:1px solid #333;
 padding:10px;
-margin:10px;
-background:#1f1f1f;
-border-left:4px solid #a855f7;
+margin:10px 0;
+border-radius:6px;
+opacity:0.5;
 text-align:left;
+}
+
+.unlocked{
+opacity:1;
+border:1px solid #4caf50;
+box-shadow:0 0 10px #4caf50;
 }
 
 </style>
@@ -80,6 +92,7 @@ text-align:left;
 <div class="card">
 
 <h2>⚔️ Character Progress</h2>
+
 <h3>Level: <span id="level">1</span></h3>
 <p>XP: <span id="xp">0</span> / <span id="nextLevel">100</span></p>
 
@@ -87,45 +100,39 @@ text-align:left;
 <div class="xpfill" id="xpfill"></div>
 </div>
 
-<button onclick="gainXP(10)">Gain XP</button>
-<div class="xpbar">
-<div class="xpfill"></div>
 </div>
 
-<p>Level 1 — The Beginning</p>
+<div class="card">
+
+<h2>🎯 Actions</h2>
+
+<button onclick="gainXP(20)">🏋 Workout</button>
+<button onclick="gainXP(15)">📚 Study</button>
+<button onclick="gainXP(10)">📖 Read</button>
+<button onclick="gainXP(5)">🧠 Small Discipline</button>
 
 </div>
 
-<h2>🏆 Achievements</h2>
-
-<div id="achievements">
-
-<div class="achievement" id="achv_first_xp">
-🔒 First Step  
-<p>Gain your first XP</p>
-</div>
-
-<div class="achievement" id="achv_level_5">
-🔒 Rising Hero  
-<p>Reach Level 5</p>
-</div>
-
-<div class="achievement" id="achv_level_10">
-🔒 True Discipline  
-<p>Reach Level 10</p>
-</div>
-
-</div>
 <div class="card">
 
 <h2>🏆 Achievements</h2>
 
-<div class="achievement">Start the journey</div>
-<div class="achievement">Create the website</div>
-<div class="achievement">First week of discipline</div>
-
+<div class="achievement" id="achv_first_xp">
+🔒 First Step
+<p>Gain your first XP</p>
 </div>
 
+<div class="achievement" id="achv_level_5">
+🔒 Rising Hero
+<p>Reach Level 5</p>
+</div>
+
+<div class="achievement" id="achv_level_10">
+🔒 True Discipline
+<p>Reach Level 10</p>
+</div>
+
+</div>
 
 <div class="card">
 
@@ -139,24 +146,29 @@ text-align:left;
 
 </div>
 
-</body>
-
-</html>
 <script>
 
 let xp = 0
 let level = 1
 let nextLevel = 100
 
-function gainXP(amount) {
+function gainXP(amount){
 
 xp += amount
 
-if (xp >= nextLevel) {
+if(xp >= nextLevel){
 xp = xp - nextLevel
 level++
 nextLevel = Math.floor(nextLevel * 1.2)
 }
+
+updateUI()
+checkAchievements()
+saveProgress()
+
+}
+
+function updateUI(){
 
 document.getElementById("xp").innerText = xp
 document.getElementById("level").innerText = level
@@ -165,27 +177,57 @@ document.getElementById("nextLevel").innerText = nextLevel
 let percent = (xp / nextLevel) * 100
 document.getElementById("xpfill").style.width = percent + "%"
 
-  checkAchievements()
-  
 }
-
-</script>
 
 function checkAchievements(){
 
 if(xp > 0){
-document.getElementById("achv_first_xp").classList.add("unlocked")
-document.getElementById("achv_first_xp").innerHTML="🏆 First Step<p>You gained your first XP</p>"
+unlock("achv_first_xp","🏆 First Step","You gained your first XP")
 }
 
 if(level >= 5){
-document.getElementById("achv_level_5").classList.add("unlocked")
-document.getElementById("achv_level_5").innerHTML="🏆 Rising Hero<p>Reached Level 5</p>"
+unlock("achv_level_5","🏆 Rising Hero","Reached Level 5")
 }
 
 if(level >= 10){
-document.getElementById("achv_level_10").classList.add("unlocked")
-document.getElementById("achv_level_10").innerHTML="🏆 True Discipline<p>Reached Level 10</p>"
+unlock("achv_level_10","🏆 True Discipline","Reached Level 10")
 }
 
 }
+
+function unlock(id,title,desc){
+
+let el = document.getElementById(id)
+
+if(!el.classList.contains("unlocked")){
+el.classList.add("unlocked")
+el.innerHTML = title + "<p>" + desc + "</p>"
+}
+
+}
+
+function saveProgress(){
+
+localStorage.setItem("xp",xp)
+localStorage.setItem("level",level)
+localStorage.setItem("nextLevel",nextLevel)
+
+}
+
+function loadProgress(){
+
+xp = parseInt(localStorage.getItem("xp")) || 0
+level = parseInt(localStorage.getItem("level")) || 1
+nextLevel = parseInt(localStorage.getItem("nextLevel")) || 100
+
+updateUI()
+checkAchievements()
+
+}
+
+loadProgress()
+
+</script>
+
+</body>
+</html>
