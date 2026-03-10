@@ -445,7 +445,7 @@
         <div class="section-card">
           <h3>Current Character Snapshot</h3>
           <div class="progress-shell"><div class="progress-fill" id="homeXpFill"></div></div>
-          <p style="margin: 10px 0 0;">Level <strong id="homeLevel">1</strong> • XP <strong id="homeXp">0</strong> / <strong id="homeNextLevel">100</strong></p>
+          <p style="margin: 10px 0 0;">Level <strong id="homeLevel">0</strong> • XP <strong id="homeXp">0</strong> / <strong id="homeNextLevel">100</strong></p>
           <div class="level-preview" id="homeSkillPreview"></div>
         </div>
       </section>
@@ -523,7 +523,7 @@
           <h3>Character Progress</h3>
           <div class="grid two">
             <div>
-              <p style="margin-top:0;">Level <strong id="level">1</strong></p>
+              <p style="margin-top:0;">Level <strong id="level">0</strong></p>
               <p>XP <strong id="xp">0</strong> / <strong id="nextLevel">100</strong></p>
               <div class="progress-shell"><div class="progress-fill" id="xpfill"></div></div>
             </div>
@@ -568,7 +568,7 @@
 
   <script>
     let xp = 0;
-    let level = 1;
+    let level = 0;
     let nextLevel = 100;
     let completedQuestTotal = 0;
     let completedDays = 0;
@@ -695,7 +695,7 @@
 
     function loadState() {
       xp = parseInt(localStorage.getItem('meta_xp') || '0', 10);
-      level = parseInt(localStorage.getItem('meta_level') || '1', 10);
+      level = parseInt(localStorage.getItem('meta_level') || '0', 10);
       nextLevel = parseInt(localStorage.getItem('meta_nextLevel') || '100', 10);
       completedQuestTotal = parseInt(localStorage.getItem('meta_completedQuestTotal') || '0', 10);
       completedDays = parseInt(localStorage.getItem('meta_completedDays') || '0', 10);
