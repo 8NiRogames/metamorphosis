@@ -572,9 +572,20 @@
     let nextLevel = 100;
     let completedQuestTotal = 0;
     let completedDays = 0;
-    let streak = 0;
-    let mainQuestStepCount = 0;
-    let totalXpEarned = 0;
+let streak = 0;
+let mainQuestStepCount = 0;
+let totalXpEarned = 0;
+
+let attributeBonus = {
+  Strength: 0,
+  Dexterity: 0,
+  Agility: 0,
+  Endurance: 0,
+  Intelligence: 0,
+  Willpower: 0,
+  Wits: 0,
+  Wisdom: 0
+};
 
     const dailyQuestPool = [
       { id: 'dq1', title: 'Read 10 pages', category: 'Mind', xp: 20 },
@@ -691,6 +702,7 @@
       localStorage.setItem('meta_skillValues', JSON.stringify(skillValues));
       localStorage.setItem('meta_dailyCategoryProgress', JSON.stringify(dailyCategoryProgress));
       localStorage.setItem('meta_totalXpEarned', totalXpEarned);
+      localStorage.setItem('meta_attributeBonus', JSON.stringify(attributeBonus));
     }
 
     function loadState() {
@@ -706,6 +718,16 @@
       skillValues = JSON.parse(localStorage.getItem('meta_skillValues') || '{}');
       dailyCategoryProgress = JSON.parse(localStorage.getItem('meta_dailyCategoryProgress') || '{"Mind":0,"Body":0,"Discipline":0,"Social":0,"Life":0}');
       totalXpEarned = parseInt(localStorage.getItem('meta_totalXpEarned') || '0', 10);
+      attributeBonus = JSON.parse(localStorage.getItem('meta_attributeBonus') || `{
+  "Strength":0,
+  "Dexterity":0,
+  "Agility":0,
+  "Endurance":0,
+  "Intelligence":0,
+  "Willpower":0,
+  "Wits":0,
+  "Wisdom":0
+}`);
     }
 
     function setPage(pageKey) {
@@ -735,6 +757,43 @@
       });
     }
 
+    function rewardAttributeXP(category, amount = 1) {
+  const add = (attr, value) => {
+    attributeBonus[attr] = Math.min(40, (attributeBonus[attr] || 0) + value);
+  };
+
+  switch(category) {
+    case 'Body':
+      add('Strength', amount);
+      add('Dexterity', amount);
+      add('Agility', amount);
+      add('Endurance', amount * 2);
+      break;
+
+    case 'Mind':
+      add('Intelligence', amount * 2);
+      add('Willpower', amount);
+      add('Wits', amount);
+      add('Wisdom', amount * 2);
+      break;
+
+    case 'Discipline':
+      add('Willpower', amount * 2);
+      add('Wisdom', amount);
+      add('Endurance', amount);
+      break;
+
+    case 'Social':
+      add('Wits', amount * 2);
+      add('Wisdom', amount);
+      break;
+
+    case 'Life':
+      add('Endurance', amount);
+      add('Wisdom', amount * 2);
+      break;
+  }
+}
     function gainXP(amount) {
       xp += amount;
       totalXpEarned += amount;
@@ -866,9 +925,11 @@
       if (!quest) return;
       done.push(id);
       localStorage.setItem('meta_dailyQuestDone', JSON.stringify(done));
-      completedQuestTotal += 1;
-      if (dailyCategoryProgress[quest.category] != null) dailyCategoryProgress[quest.category] += 1;
-      gainXP(quest.xp);
+completedQuestTotal += 1;
+if (dailyCategoryProgress[quest.category] != null) dailyCategoryProgress[quest.category] += 1;
+
+rewardAttributeXP(quest.category, 1);
+gainXP(quest.xp);
       updateStreakForToday(true);
       renderDailyQuests();
     }
@@ -898,6 +959,36 @@
       }).join('');
     }
 
+    function getMainQuestCategory(quest) {
+  const title = quest.title.toLowerCase();
+
+  if (
+    title.includes('lose') ||
+    title.includes('exercise') ||
+    title.includes('swim') ||
+    title.includes('bike')
+  ) return 'Body';
+
+  if (
+    title.includes('read') ||
+    title.includes('journal') ||
+    title.includes('study') ||
+    title.includes('project')
+  ) return 'Mind';
+
+  if (
+    title.includes('cook') ||
+    title.includes('family') ||
+    title.includes('garden') ||
+    title.includes('plasma')
+  ) return 'Life';
+
+  if (
+    title.includes('game')
+  ) return 'Social';
+
+  return 'Discipline';
+}
     function changeMainQuestProgress(id, delta) {
       const quest = mainQuests.find(q => q.id === id);
       if (!quest) return;
@@ -905,11 +996,15 @@
       const nextValue = Math.max(0, Math.min(quest.steps, oldValue + delta));
       if (nextValue === oldValue) return;
       mainQuestProgress[id] = nextValue;
-      if (delta > 0) {
-        mainQuestStepCount += 1;
-        completedQuestTotal += 1;
-        updateStreakForToday(true);
-      }
+if (delta > 0) {
+  mainQuestStepCount += 1;
+  completedQuestTotal += 1;
+
+  const category = getMainQuestCategory(quest);
+  rewardAttributeXP(category, 1);
+
+  updateStreakForToday(true);
+}
       if (oldValue < quest.steps && nextValue >= quest.steps) {
         gainXP(quest.xpReward);
       } else {
@@ -1019,12 +1114,17 @@
       });
     }
 
-    function calculateAttributeValue(attr) {
-      const chosen = selectedSkills[attr] || [];
-      if (!chosen.length) return 0;
-      const sum = chosen.reduce((acc, skill) => acc + (skillValues[skill] || 0), 0);
-      return Math.round(sum / chosen.length);
-    }
+function calculateAttributeValue(attr) {
+  const chosen = selectedSkills[attr] || [];
+  const bonus = attributeBonus[attr] || 0;
+
+  if (!chosen.length) return Math.min(100, bonus);
+
+  const sum = chosen.reduce((acc, skill) => acc + (skillValues[skill] || 0), 0);
+  const base = Math.round(sum / chosen.length);
+
+  return Math.min(100, base + bonus);
+}
 
     function renderAttributes() {
       const physical = ['Strength','Dexterity','Agility','Endurance'];
@@ -1035,6 +1135,7 @@
 
     function renderAttributeCard(attr) {
       const value = calculateAttributeValue(attr);
+      const bonus = attributeBonus[attr] || 0;
       const chosen = selectedSkills[attr] || [];
       const optionsHtml = skillOptions[attr]
         .filter(skill => !chosen.includes(skill))
@@ -1044,7 +1145,7 @@
         <div class="attr-card">
           <div class="attr-head">
             <div class="attr-title">${attr}</div>
-            <span class="tag">Auto • ${value}%</span>
+            <span class="tag">Auto • ${value}% • +${bonus}</span>
           </div>
           <div class="progress-shell"><div class="progress-fill" style="width:${value}%"></div></div>
           <div class="inline-note">Primary attribute value is the average of the selected skills below.</div>
