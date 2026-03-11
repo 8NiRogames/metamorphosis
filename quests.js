@@ -1,13 +1,12 @@
 (function () {
-  const { dailyQuestPool, mainQuests } = window.MetaData;
-
-  function renderAttributeRewards(category, amount = 10) {
-    const rewards = window.MetaStats.getAttributeRewardMap(category, amount);
-
-    return Object.entries(rewards)
-      .map(([attr, value]) => `+${value} ${attr}`)
-      .join(' • ');
-  }
+  const {
+    questGenerators,
+    questSkillRotation,
+    skillToAttribute,
+    questTextPools,
+    mainQuestFamilies,
+    progressionSteps
+  } = window.MetaData;
 
   function getTodayKey() {
     const now = new Date();
@@ -17,14 +16,45 @@
     return `${y}-${m}-${d}`;
   }
 
-  function createFreshDailyQuestSet() {
-    const poolCopy = [...dailyQuestPool];
-    const selected = [];
+  function randomFrom(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
 
-    while (selected.length < 3 && poolCopy.length) {
-      const idx = Math.floor(Math.random() * poolCopy.length);
-      selected.push(poolCopy.splice(idx, 1)[0]);
+  function fillTemplate(text) {
+    return text.replace(/\{(\w+)\}/g, (_, key) => {
+      const pool = questTextPools[key];
+      return pool && pool.length ? randomFrom(pool) : key;
+    });
+  }
+
+  function buildDailyQuest(skill, template, idx) {
+    const attr = skillToAttribute[skill];
+    return {
+      id: `dq_${getTodayKey()}_${idx}_${skill.replace(/\s+/g, '_')}`,
+      title: fillTemplate(template.text),
+      skill,
+      attribute: attr,
+      skillXp: 20,
+      xp: 20,
+      metaType: template.type,
+      metaAmount: template.amount
+    };
+  }
+
+  function createFreshDailyQuestSet() {
+    const skillPool = [...questSkillRotation];
+    const chosenSkills = [];
+
+    while (chosenSkills.length < 5 && skillPool.length) {
+      const idx = Math.floor(Math.random() * skillPool.length);
+      chosenSkills.push(skillPool.splice(idx, 1)[0]);
     }
+
+    const selected = chosenSkills.map((skill, index) => {
+      const templates = questGenerators[skill] || [];
+      const template = randomFrom(templates);
+      return buildDailyQuest(skill, template, index);
+    });
 
     localStorage.setItem('meta_dailyQuestSet', JSON.stringify(selected));
     localStorage.setItem('meta_dailyQuestDone', JSON.stringify([]));
@@ -75,10 +105,10 @@
           <div class="quest-head">
             <div>
               <div class="quest-title">${q.title}</div>
-              <div class="quest-desc">Daily quest • ${q.xp} main XP reward</div>
-              <div class="small-muted">${renderAttributeRewards(q.category, 10)}</div>
+              <div class="quest-desc">+${q.xp} Character XP • +${q.skillXp} ${q.skill} XP</div>
+              <div class="small-muted">Attribute: ${q.attribute}</div>
             </div>
-            <span class="tag daily">${q.category}</span>
+            <span class="tag daily">${q.skill}</span>
           </div>
           <div class="checkbox-row">
             <input type="checkbox" ${checked ? 'checked' : ''} onchange="completeDailyQuest('${q.id}')">
@@ -108,68 +138,48 @@
     const state = window.MetaApp.state;
     state.completedQuestTotal += 1;
 
-    if (state.dailyCategoryProgress[quest.category] != null) {
-      state.dailyCategoryProgress[quest.category] += 1;
-    }
-
-    window.MetaStats.rewardAttributeXP(quest.category, 10);
+    window.MetaStats.gainSkillXP(quest.attribute, quest.skill, quest.skillXp);
     window.MetaApp.gainXP(quest.xp);
+
     updateStreakForToday(true);
     renderDailyQuests();
   }
 
-  function getMainQuestCategory(quest) {
-    const title = quest.title.toLowerCase();
-
-    if (
-      title.includes('lose') ||
-      title.includes('exercise') ||
-      title.includes('swim') ||
-      title.includes('bike')
-    ) return 'Body';
-
-    if (
-      title.includes('read') ||
-      title.includes('journal') ||
-      title.includes('study') ||
-      title.includes('project')
-    ) return 'Mind';
-
-    if (
-      title.includes('cook') ||
-      title.includes('family') ||
-      title.includes('garden') ||
-      title.includes('plasma')
-    ) return 'Life';
-
-    if (title.includes('game')) return 'Social';
-
-    return 'Discipline';
+  function getUnlockedMilestoneCount(progress) {
+    return progressionSteps.filter(step => progress >= step).length;
   }
 
   function renderMainQuests() {
     const state = window.MetaApp.state;
 
-    window.MetaApp.$('mainQuestList').innerHTML = mainQuests.map(q => {
-      const current = state.mainQuestProgress[q.id] || 0;
-      const percent = Math.min(100, (current / q.steps) * 100);
-      const done = current >= q.steps;
+    window.MetaApp.$('mainQuestList').innerHTML = mainQuestFamilies.map(family => {
+      const progress = state.mainQuestProgress[family.id] || 0;
+      const unlockedCount = getUnlockedMilestoneCount(progress);
+      const nextMilestone = family.milestones.find(step => step > progress) || null;
+      const prevMilestone = unlockedCount > 0 ? family.milestones[unlockedCount - 1] : 0;
+      const percent = nextMilestone
+        ? Math.min(100, ((progress - prevMilestone) / (nextMilestone - prevMilestone)) * 100)
+        : 100;
 
       return `
         <div class="quest-item">
           <div class="quest-head">
             <div>
-              <div class="quest-title">${q.title}</div>
-              <div class="quest-desc">${q.desc}</div>
-              <div class="small-muted">${renderAttributeRewards(getMainQuestCategory(q), 10)}</div>
+              <div class="quest-title">${family.title}</div>
+              <div class="quest-desc">Skill: ${family.skill} • Progress: ${progress} ${family.unit}</div>
+              <div class="small-muted">Next milestone: ${nextMilestone ?? 'Completed'} • Reward: +${family.rewardXp} Character XP • +25 ${family.skill} XP</div>
             </div>
-            <span class="tag main">${current}/${q.steps}</span>
+            <span class="tag main">${unlockedCount}/${family.milestones.length}</span>
           </div>
-          <div class="progress-shell"><div class="progress-fill good" style="width:${percent}%"></div></div>
+
+          <div class="progress-shell">
+            <div class="progress-fill good" style="width:${percent}%"></div>
+          </div>
+
           <div class="quest-progress-row">
-            <button class="step-btn" onclick="changeMainQuestProgress('${q.id}', -1)">−</button>
-            <div class="small-muted" style="text-align:center;">${done ? 'Completed' : `${q.xpReward} XP on completion`}</div>
-            <button class="step-btn" onclick="changeMainQuestProgress('${q.id}', 1)">+</button>
+            <button class="step-btn" onclick="changeMainQuestProgress('${family.id}', -1)">−</button>
+            <div class="small-muted" style="text-align:center;">${progress} ${family.unit}</div>
+            <button class="step-btn" onclick="changeMainQuestProgress('${family.id}', 1)">+</button>
           </div>
         </div>
       `;
@@ -177,12 +187,12 @@
   }
 
   function changeMainQuestProgress(id, delta) {
-    const quest = mainQuests.find(q => q.id === id);
-    if (!quest) return;
+    const family = mainQuestFamilies.find(q => q.id === id);
+    if (!family) return;
 
     const state = window.MetaApp.state;
     const oldValue = state.mainQuestProgress[id] || 0;
-    const nextValue = Math.max(0, Math.min(quest.steps, oldValue + delta));
+    const nextValue = Math.max(0, oldValue + delta);
 
     if (nextValue === oldValue) return;
 
@@ -192,14 +202,21 @@
       state.mainQuestStepCount += 1;
       state.completedQuestTotal += 1;
 
-      const category = getMainQuestCategory(quest);
-      window.MetaStats.rewardAttributeXP(category, 10);
-
+      const attr = skillToAttribute[family.skill];
+      window.MetaStats.gainSkillXP(attr, family.skill, 15);
       updateStreakForToday(true);
     }
 
-    if (oldValue < quest.steps && nextValue >= quest.steps) {
-      window.MetaApp.gainXP(quest.xpReward);
+    const oldMilestones = family.milestones.filter(step => oldValue >= step).length;
+    const newMilestones = family.milestones.filter(step => nextValue >= step).length;
+
+    if (newMilestones > oldMilestones) {
+      const rewardCount = newMilestones - oldMilestones;
+      for (let i = 0; i < rewardCount; i++) {
+        const attr = skillToAttribute[family.skill];
+        window.MetaStats.gainSkillXP(attr, family.skill, 25);
+        window.MetaApp.gainXP(family.rewardXp);
+      }
     } else {
       window.MetaApp.updateUI();
       window.MetaApp.saveState();
