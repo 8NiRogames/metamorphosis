@@ -1,113 +1,161 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Crimson+Text:wght@400;600;700&display=swap');
+
 :root {
-  --bg: #0f0d0b;
-  --bg-2: #17130f;
-  --bg-3: #221b14;
+  --bg: #080604;
+  --bg-2: #0f0b08;
+  --bg-3: #15100c;
+  --bg-4: #1c1510;
 
-  --panel: #1a1714;
-  --panel-2: #241f1a;
-  --panel-3: #2b241d;
+  --panel: #17120d;
+  --panel-2: #211912;
+  --panel-3: #2b2118;
 
-  --card: #191612;
-  --card-2: #221d18;
-  --card-3: #2a241e;
+  --card: #140f0b;
+  --card-2: #1d1610;
+  --card-3: #271d15;
 
-  --border: #6e5432;
-  --border-2: #3f2f1b;
-  --border-3: #9a7742;
+  --border: #6f532f;
+  --border-2: #3d2d1a;
+  --border-3: #a57b3d;
+  --border-soft: rgba(255, 222, 170, 0.08);
 
-  --text: #efe2c5;
-  --muted: #b9a98b;
-  --soft: #d7c7a7;
+  --text: #f0e3c8;
+  --muted: #b8a789;
+  --soft: #dcc8a6;
 
-  --accent: #8a5a18;
-  --accent-2: #5a2b7a;
-  --accent-3: #c3953e;
+  --accent: #9b6a20;
+  --accent-2: #4e2a6e;
+  --accent-3: #c99a45;
 
   --good: #5f8f46;
   --warn: #b8862f;
   --danger: #7a1f1f;
 
   --quick: #b88739;
-  --steady: #7d67b8;
-  --legendary: #d1a338;
+  --steady: #7660b4;
+  --legendary: #d0a13c;
 
-  --shadow: 0 14px 30px rgba(0,0,0,.45);
-  --shadow-soft: 0 8px 18px rgba(0,0,0,.26);
-  --glow: 0 0 0 1px rgba(195,149,62,.14), 0 0 18px rgba(195,149,62,.08);
+  --shadow: 0 14px 30px rgba(0, 0, 0, 0.55);
+  --shadow-soft: 0 8px 16px rgba(0, 0, 0, 0.34);
+  --glow: 0 0 0 1px rgba(201,154,69,.14), 0 0 20px rgba(201,154,69,.08);
 
-  --radius: 14px;
-  --radius-sm: 10px;
+  --radius: 12px;
+  --radius-sm: 8px;
 
-  --inner-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+  --inner-shadow: inset 0 1px 0 rgba(255,255,255,.04);
 
-  --texture:
-    linear-gradient(180deg, rgba(255,255,255,.03), rgba(0,0,0,.08)),
-    radial-gradient(circle at top left, rgba(255,255,255,.04), transparent 35%);
+  --metal-texture:
+    linear-gradient(180deg, rgba(255,255,255,.03), rgba(0,0,0,.12)),
+    repeating-linear-gradient(
+      135deg,
+      rgba(255,255,255,.015) 0px,
+      rgba(255,255,255,.015) 2px,
+      rgba(0,0,0,.015) 2px,
+      rgba(0,0,0,.015) 4px
+    );
 
-  --hero-fill: linear-gradient(90deg, #6c4ab6, #a87c2a);
-  --bar-fill: linear-gradient(90deg, #8a5a18, #d0a14a);
-  --bar-bg: #0f0d0b;
+  --wood-texture:
+    linear-gradient(180deg, rgba(255,255,255,.03), rgba(0,0,0,.12)),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255,255,255,.02) 0px,
+      rgba(255,255,255,.02) 1px,
+      rgba(0,0,0,.025) 1px,
+      rgba(0,0,0,.025) 4px
+    );
+
+  --parchment-texture:
+    linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.05)),
+    radial-gradient(circle at top left, rgba(255,255,255,.04), transparent 36%);
+
+  --hero-fill: linear-gradient(90deg, #5f3da8, #9c7530);
+  --bar-fill: linear-gradient(90deg, #8d6123, #d3a348);
+  --bar-bg: #090705;
 
   --page-ornament:
-    radial-gradient(circle at 10% 0%, rgba(195,149,62,.08), transparent 25%),
-    radial-gradient(circle at 100% 30%, rgba(90,43,122,.08), transparent 22%),
-    radial-gradient(circle at 0% 100%, rgba(195,149,62,.05), transparent 26%);
+    radial-gradient(circle at 12% 0%, rgba(201,154,69,.10), transparent 24%),
+    radial-gradient(circle at 100% 26%, rgba(78,42,110,.10), transparent 20%),
+    radial-gradient(circle at 0% 100%, rgba(201,154,69,.06), transparent 26%);
 }
 
 body[data-theme="light"] {
-  --bg: #e8dcc2;
-  --bg-2: #ded0b3;
-  --bg-3: #d2c09d;
+  --bg: #e7dbc1;
+  --bg-2: #dfcfaf;
+  --bg-3: #d2bf99;
+  --bg-4: #c8b087;
 
   --panel: #f3ead6;
-  --panel-2: #e4d5b7;
-  --panel-3: #d8c6a0;
+  --panel-2: #e8d8b7;
+  --panel-3: #dac49b;
 
-  --card: #efe3ca;
-  --card-2: #e6d6b8;
-  --card-3: #dcc7a0;
+  --card: #efe1c3;
+  --card-2: #e4d1ad;
+  --card-3: #d8be90;
 
-  --border: #8a6a3a;
-  --border-2: #b0905d;
-  --border-3: #6d5128;
+  --border: #8b6938;
+  --border-2: #b28b56;
+  --border-3: #6b4d23;
+  --border-soft: rgba(80, 52, 18, 0.08);
 
-  --text: #2f2418;
-  --muted: #6e5a42;
-  --soft: #54412d;
+  --text: #2d2114;
+  --muted: #5f4b34;
+  --soft: #4b3a28;
 
-  --accent: #7b5522;
-  --accent-2: #6a4c93;
-  --accent-3: #a87f32;
+  --accent: #7c5321;
+  --accent-2: #62458f;
+  --accent-3: #a77a2c;
 
-  --good: #5f8f46;
-  --warn: #ad7b25;
+  --good: #4e7f39;
+  --warn: #9c6d1e;
   --danger: #8f2d2d;
 
-  --quick: #9f6f22;
-  --steady: #6d57ad;
-  --legendary: #af7b19;
+  --quick: #99681d;
+  --steady: #6652a3;
+  --legendary: #a87414;
 
-  --shadow: 0 10px 22px rgba(50,30,10,.16);
-  --shadow-soft: 0 6px 14px rgba(50,30,10,.12);
-  --glow: 0 0 0 1px rgba(122,85,34,.12), 0 0 14px rgba(122,85,34,.06);
+  --shadow: 0 10px 20px rgba(76, 54, 18, 0.18);
+  --shadow-soft: 0 6px 12px rgba(76, 54, 18, 0.12);
+  --glow: 0 0 0 1px rgba(124,83,33,.10), 0 0 12px rgba(124,83,33,.06);
 
   --inner-shadow: inset 0 1px 0 rgba(255,255,255,.45);
 
-  --texture:
-    linear-gradient(180deg, rgba(255,255,255,.24), rgba(0,0,0,.03)),
-    radial-gradient(circle at top left, rgba(255,255,255,.2), transparent 38%);
+  --metal-texture:
+    linear-gradient(180deg, rgba(255,255,255,.18), rgba(0,0,0,.03)),
+    repeating-linear-gradient(
+      135deg,
+      rgba(255,255,255,.06) 0px,
+      rgba(255,255,255,.06) 2px,
+      rgba(0,0,0,.02) 2px,
+      rgba(0,0,0,.02) 4px
+    );
 
-  --hero-fill: linear-gradient(90deg, #7a5bc1, #b0832a);
-  --bar-fill: linear-gradient(90deg, #8a6a2d, #c59a3a);
-  --bar-bg: #d6c5a7;
+  --wood-texture:
+    linear-gradient(180deg, rgba(255,255,255,.18), rgba(0,0,0,.03)),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255,255,255,.05) 0px,
+      rgba(255,255,255,.05) 1px,
+      rgba(0,0,0,.02) 1px,
+      rgba(0,0,0,.02) 4px
+    );
+
+  --parchment-texture:
+    linear-gradient(180deg, rgba(255,255,255,.24), rgba(0,0,0,.03)),
+    radial-gradient(circle at top left, rgba(255,255,255,.24), transparent 38%);
+
+  --hero-fill: linear-gradient(90deg, #7459b8, #b78632);
+  --bar-fill: linear-gradient(90deg, #876126, #c8983b);
+  --bar-bg: #d9c8a7;
 
   --page-ornament:
-    radial-gradient(circle at 10% 0%, rgba(122,85,34,.08), transparent 25%),
-    radial-gradient(circle at 100% 30%, rgba(106,76,147,.08), transparent 22%),
-    radial-gradient(circle at 0% 100%, rgba(122,85,34,.05), transparent 26%);
+    radial-gradient(circle at 12% 0%, rgba(167,122,44,.08), transparent 24%),
+    radial-gradient(circle at 100% 26%, rgba(98,69,143,.08), transparent 20%),
+    radial-gradient(circle at 0% 100%, rgba(167,122,44,.05), transparent 26%);
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
 html, body {
   margin: 0;
@@ -124,8 +172,9 @@ body {
     var(--page-ornament),
     linear-gradient(180deg, var(--bg-2), var(--bg));
   color: var(--text);
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: "Crimson Text", Georgia, serif;
   min-height: 100vh;
+  letter-spacing: 0.1px;
 }
 
 button, input, select {
@@ -133,7 +182,7 @@ button, input, select {
 }
 
 ::selection {
-  background: rgba(195,149,62,.25);
+  background: rgba(201,154,69,.25);
 }
 
 ::-webkit-scrollbar {
@@ -159,19 +208,19 @@ button, input, select {
 }
 
 .sidebar {
-  border-right: 2px solid var(--border);
+  border-right: 3px solid var(--border);
   background:
-    linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.1)),
-    var(--texture),
+    linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.18)),
+    var(--wood-texture),
     linear-gradient(180deg, var(--panel-3), var(--panel));
-  padding: 22px 18px;
+  padding: 20px 16px;
   position: sticky;
   top: 0;
   height: 100vh;
   overflow-y: auto;
   box-shadow:
-    inset -1px 0 0 rgba(255,255,255,.03),
-    inset 0 0 50px rgba(0,0,0,.18);
+    inset -2px 0 0 rgba(255,255,255,.03),
+    inset 0 0 60px rgba(0,0,0,.25);
   display: flex;
   flex-direction: column;
 }
@@ -186,19 +235,18 @@ button, input, select {
 .modal,
 .streak-box,
 .nav-card {
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.03), rgba(0,0,0,.08)),
-    var(--texture),
-    linear-gradient(180deg, var(--card-3), var(--card));
+  position: relative;
   border: 2px solid var(--border);
   box-shadow: var(--shadow), var(--inner-shadow);
 }
 
 .brand {
-  padding: 18px;
+  background:
+    var(--metal-texture),
+    linear-gradient(180deg, var(--card-3), var(--card));
+  padding: 16px;
   border-radius: var(--radius);
   margin-bottom: 18px;
-  position: relative;
   overflow: hidden;
 }
 
@@ -208,7 +256,7 @@ button, input, select {
   inset: 0;
   background:
     linear-gradient(90deg, transparent, rgba(255,255,255,.04), transparent);
-  opacity: .6;
+  opacity: .7;
   pointer-events: none;
 }
 
@@ -224,25 +272,27 @@ button, input, select {
 .modal::after {
   content: "";
   position: absolute;
-  inset: 6px;
-  border: 1px solid rgba(255,255,255,.06);
-  border-radius: calc(var(--radius) - 6px);
+  inset: 5px;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
   pointer-events: none;
 }
 
 .brand h1 {
   margin: 0 0 8px;
-  font-size: 30px;
-  letter-spacing: 1.8px;
+  font-family: "Cinzel", Georgia, serif;
+  font-size: 24px;
+  letter-spacing: 1.6px;
   text-transform: uppercase;
   color: var(--text);
   text-shadow: 0 1px 0 rgba(0,0,0,.5);
+  line-height: 1.1;
 }
 
 .brand p {
   margin: 0;
   color: var(--muted);
-  line-height: 1.55;
+  line-height: 1.45;
   font-size: 14px;
 }
 
@@ -254,13 +304,15 @@ button, input, select {
 .nav-card {
   width: 100%;
   text-align: left;
-  padding: 15px;
-  border-radius: 12px;
+  padding: 14px;
+  border-radius: 10px;
   color: var(--text);
   cursor: pointer;
   transition: transform .15s ease, border-color .15s ease, filter .15s ease, box-shadow .15s ease;
-  position: relative;
   overflow: hidden;
+  background:
+    var(--wood-texture),
+    linear-gradient(180deg, var(--card-3), var(--card));
 }
 
 .nav-card::before {
@@ -282,6 +334,16 @@ button, input, select {
   box-shadow: var(--shadow-soft), var(--inner-shadow), var(--glow);
 }
 
+body[data-theme="light"] .nav-card.active,
+body[data-theme="light"] .nav-card:hover {
+  filter: brightness(0.98);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.22), rgba(0,0,0,.02)),
+    linear-gradient(180deg, #d8c29a, #c6ab7b);
+  color: var(--text);
+  border-color: var(--border-3);
+}
+
 .nav-card:hover::before,
 .nav-card.active::before {
   opacity: 1;
@@ -289,7 +351,8 @@ button, input, select {
 
 .nav-card-title {
   display: block;
-  font-size: 16px;
+  font-family: "Cinzel", Georgia, serif;
+  font-size: 15px;
   font-weight: 700;
   margin-bottom: 6px;
   text-transform: uppercase;
@@ -300,7 +363,12 @@ button, input, select {
   display: block;
   font-size: 13px;
   color: var(--muted);
-  line-height: 1.45;
+  line-height: 1.4;
+}
+
+body[data-theme="light"] .nav-card.active .nav-card-desc,
+body[data-theme="light"] .nav-card:hover .nav-card-desc {
+  color: #4c3a26;
 }
 
 .sidebar-footer {
@@ -312,14 +380,15 @@ button, input, select {
   width: 100%;
   border: 2px solid var(--border);
   background:
-    linear-gradient(180deg, rgba(255,255,255,.09), rgba(0,0,0,.08)),
+    var(--metal-texture),
     linear-gradient(180deg, var(--panel-3), var(--panel));
   color: var(--text);
   padding: 12px 14px;
-  border-radius: 12px;
+  border-radius: 10px;
   cursor: pointer;
   box-shadow: var(--shadow-soft), var(--inner-shadow);
   transition: transform .15s ease, border-color .15s ease, filter .15s ease, box-shadow .15s ease;
+  font-family: "Cinzel", Georgia, serif;
   text-transform: uppercase;
   letter-spacing: .5px;
 }
@@ -335,8 +404,13 @@ button, input, select {
   padding: 28px;
 }
 
-.page { display: none; }
-.page.active { display: block; }
+.page {
+  display: none;
+}
+
+.page.active {
+  display: block;
+}
 
 .page-header {
   display: flex;
@@ -349,7 +423,8 @@ button, input, select {
 
 .page-title {
   margin: 0;
-  font-size: 34px;
+  font-family: "Cinzel", Georgia, serif;
+  font-size: 30px;
   text-transform: uppercase;
   letter-spacing: 1.2px;
   color: var(--text);
@@ -359,16 +434,19 @@ button, input, select {
 .page-subtitle {
   margin: 6px 0 0;
   color: var(--muted);
-  line-height: 1.6;
+  line-height: 1.55;
   max-width: 760px;
+  font-size: 16px;
 }
 
 .section-card {
-  position: relative;
   border-radius: var(--radius);
   padding: 22px;
   margin-bottom: 18px;
   overflow: hidden;
+  background:
+    var(--parchment-texture),
+    linear-gradient(180deg, var(--card-3), var(--card));
 }
 
 .section-card::before {
@@ -379,20 +457,22 @@ button, input, select {
   top: 0;
   height: 3px;
   background: linear-gradient(90deg, transparent, var(--accent-3), transparent);
-  opacity: .7;
+  opacity: .8;
 }
 
 .section-card h2,
 .section-card h3 {
   margin-top: 0;
   color: var(--text);
+  font-family: "Cinzel", Georgia, serif;
   text-transform: uppercase;
   letter-spacing: .9px;
   text-shadow: 0 1px 0 rgba(0,0,0,.25);
+  font-size: 20px;
 }
 
 .hero-card {
-  box-shadow: var(--shadow), var(--inner-shadow), 0 0 0 1px rgba(195,149,62,.08);
+  box-shadow: var(--shadow), var(--inner-shadow), 0 0 0 1px rgba(201,154,69,.10);
 }
 
 .hero-card h3 {
@@ -404,8 +484,13 @@ button, input, select {
   gap: 18px;
 }
 
-.grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid.two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid.three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
 
 .level-preview {
   display: grid;
@@ -418,13 +503,15 @@ button, input, select {
 }
 
 @media (max-width: 1180px) {
-  .app { grid-template-columns: 1fr; }
+  .app {
+    grid-template-columns: 1fr;
+  }
 
   .sidebar {
     position: static;
     height: auto;
     border-right: 0;
-    border-bottom: 2px solid var(--border);
+    border-bottom: 3px solid var(--border);
   }
 
   .grid.two,
@@ -438,14 +525,14 @@ button, input, select {
   width: 100%;
   height: 18px;
   background:
-    linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.18)),
+    linear-gradient(180deg, rgba(255,255,255,.03), rgba(0,0,0,.24)),
     var(--bar-bg);
   border-radius: 999px;
   overflow: hidden;
   border: 2px solid var(--border-2);
   box-shadow:
-    inset 0 1px 3px rgba(0,0,0,.45),
-    inset 0 0 8px rgba(0,0,0,.16);
+    inset 0 1px 3px rgba(0,0,0,.5),
+    inset 0 0 8px rgba(0,0,0,.18);
 }
 
 .hero-bar {
@@ -459,7 +546,7 @@ button, input, select {
   transition: width .25s ease;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.18),
-    0 0 10px rgba(195,149,62,.15);
+    0 0 10px rgba(201,154,69,.15);
 }
 
 .hero-bar .progress-fill {
@@ -489,7 +576,7 @@ button, input, select {
 .btn {
   border: 2px solid var(--border);
   background:
-    linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.08)),
+    var(--metal-texture),
     linear-gradient(180deg, var(--panel-3), var(--panel));
   color: var(--text);
   padding: 10px 14px;
@@ -497,8 +584,10 @@ button, input, select {
   cursor: pointer;
   transition: transform .15s ease, border-color .15s ease, filter .15s ease, box-shadow .15s ease;
   box-shadow: var(--inner-shadow);
+  font-family: "Cinzel", Georgia, serif;
   text-transform: uppercase;
   letter-spacing: .4px;
+  font-size: 14px;
 }
 
 .btn:hover {
@@ -508,15 +597,19 @@ button, input, select {
   box-shadow: var(--inner-shadow), var(--glow);
 }
 
+body[data-theme="light"] .btn:hover {
+  filter: brightness(0.98);
+}
+
 .btn.primary {
   background:
-    linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.08)),
+    var(--metal-texture),
     linear-gradient(180deg, #6b4aa7, #4a3176);
 }
 
 .btn.danger {
   background:
-    linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.08)),
+    var(--metal-texture),
     linear-gradient(180deg, #8f2d2d, #621a1a);
 }
 
@@ -532,10 +625,12 @@ button, input, select {
 .skill-card,
 .attr-card,
 .mini-stat {
-  position: relative;
-  border-radius: 12px;
+  border-radius: 10px;
   padding: 14px;
   overflow: hidden;
+  background:
+    var(--parchment-texture),
+    linear-gradient(180deg, var(--card-2), var(--card));
 }
 
 .quest-item::before,
@@ -546,8 +641,7 @@ button, input, select {
   content: "";
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.02), transparent 18%);
+  background: linear-gradient(180deg, rgba(255,255,255,.02), transparent 18%);
   pointer-events: none;
 }
 
@@ -568,15 +662,17 @@ button, input, select {
 .skill-title {
   font-weight: 700;
   color: var(--text);
+  font-family: "Cinzel", Georgia, serif;
   text-transform: uppercase;
-  letter-spacing: .4px;
+  letter-spacing: .45px;
+  font-size: 15px;
 }
 
 .quest-desc,
 .achievement-desc {
   color: var(--muted);
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.45;
 }
 
 .tag {
@@ -590,7 +686,7 @@ button, input, select {
 }
 
 .tag.daily {
-  border-color: rgba(195,149,62,.35);
+  border-color: rgba(201,149,69,.35);
 }
 
 .tag.main {
@@ -601,17 +697,20 @@ button, input, select {
 .tag.easy {
   color: #f2d49b;
   border-color: rgba(184,135,57,.45);
+  background: rgba(184,135,57,.10);
 }
 
 .tag.medium {
-  color: #d9d2ff;
-  border-color: rgba(125,103,184,.45);
+  color: #e2dbff;
+  border-color: rgba(118,96,180,.45);
+  background: rgba(118,96,180,.12);
 }
 
 .tag.legendary {
-  color: #ffd78c;
-  border-color: rgba(209,163,56,.55);
-  box-shadow: 0 0 8px rgba(209,163,56,.15);
+  color: #ffd98f;
+  border-color: rgba(208,161,60,.55);
+  background: rgba(208,161,60,.12);
+  box-shadow: 0 0 8px rgba(208,161,60,.15);
 }
 
 .checkbox-row {
@@ -641,13 +740,14 @@ button, input, select {
   border-radius: 10px;
   border: 2px solid var(--border);
   background:
-    linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.08)),
+    var(--metal-texture),
     linear-gradient(180deg, var(--panel-3), var(--panel));
   color: var(--text);
   cursor: pointer;
   font-size: 20px;
   box-shadow: var(--inner-shadow);
   transition: transform .12s ease, border-color .12s ease, filter .12s ease;
+  font-family: "Cinzel", Georgia, serif;
 }
 
 .step-btn:hover {
@@ -672,12 +772,13 @@ button, input, select {
 .tab-btn {
   border: 2px solid var(--border);
   background:
-    linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.08)),
+    var(--metal-texture),
     linear-gradient(180deg, var(--panel-3), var(--panel));
   color: var(--muted);
   padding: 10px 14px;
   border-radius: 10px;
   cursor: pointer;
+  font-family: "Cinzel", Georgia, serif;
   text-transform: uppercase;
   letter-spacing: .4px;
   transition: transform .12s ease, border-color .12s ease, filter .12s ease, box-shadow .12s ease;
@@ -689,33 +790,45 @@ button, input, select {
 }
 
 .tab-btn.active {
-  color: var(--text);
+  color: #fff3da;
   border-color: var(--accent-3);
   background:
-    linear-gradient(180deg, rgba(255,255,255,.12), rgba(0,0,0,.08)),
-    linear-gradient(180deg, #5e4520, #382714);
+    linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.12)),
+    linear-gradient(180deg, #6b4b1d, #3a2813);
   box-shadow: var(--glow);
 }
 
-.subsection { display: none; }
-.subsection.active { display: block; }
-
-.streak-box {
-  position: relative;
-  text-align: center;
-  padding: 16px;
-  border-radius: 12px;
-  margin-bottom: 16px;
-  overflow: hidden;
+body[data-theme="light"] .tab-btn {
+  color: #5e4a34;
 }
 
-.streak-box::before {
-  content: "";
-  position: absolute;
-  inset: 0;
+body[data-theme="light"] .tab-btn.active {
+  color: #24190e;
+  border-color: #6b4d23;
   background:
-    radial-gradient(circle at center, rgba(195,149,62,.08), transparent 50%);
-  pointer-events: none;
+    linear-gradient(180deg, rgba(255,255,255,.22), rgba(0,0,0,.02)),
+    linear-gradient(180deg, #d0b27e, #ba9865);
+  box-shadow: 0 0 0 1px rgba(107,77,35,.08);
+}
+
+.subsection {
+  display: none;
+}
+
+.subsection.active {
+  display: block;
+}
+
+.streak-box {
+  text-align: center;
+  padding: 16px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at center, rgba(201,154,69,.08), transparent 50%),
+    var(--parchment-texture),
+    linear-gradient(180deg, var(--card-2), var(--card));
 }
 
 .streak-number {
@@ -723,12 +836,14 @@ button, input, select {
   font-weight: 800;
   color: var(--text);
   margin: 4px 0;
-  text-shadow: 0 0 10px rgba(195,149,62,.12);
+  text-shadow: 0 0 10px rgba(201,154,69,.12);
+  font-family: "Cinzel", Georgia, serif;
 }
 
 .mini-stat strong {
   display: block;
   margin-bottom: 6px;
+  font-family: "Cinzel", Georgia, serif;
   text-transform: uppercase;
   letter-spacing: .5px;
 }
@@ -737,7 +852,7 @@ select,
 input[type="number"] {
   width: 100%;
   background:
-    linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.06)),
+    linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.08)),
     rgba(0,0,0,.15);
   color: var(--text);
   border: 2px solid var(--border);
@@ -747,11 +862,19 @@ input[type="number"] {
   box-shadow: inset 0 1px 2px rgba(0,0,0,.18);
 }
 
+body[data-theme="light"] select,
+body[data-theme="light"] input[type="number"] {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.28), rgba(0,0,0,.02)),
+    rgba(255,255,255,.45);
+  color: var(--text);
+}
+
 select:focus,
 input[type="number"]:focus {
   outline: none;
   border-color: var(--accent-3);
-  box-shadow: 0 0 0 2px rgba(195,149,62,.14);
+  box-shadow: 0 0 0 2px rgba(201,154,69,.14);
 }
 
 .inline-note {
@@ -777,6 +900,8 @@ input[type="number"]:focus {
   padding: 8px 10px;
   cursor: pointer;
   transition: transform .12s ease, filter .12s ease, border-color .12s ease;
+  font-family: "Cinzel", Georgia, serif;
+  font-size: 13px;
 }
 
 .remove-btn:hover {
@@ -795,7 +920,7 @@ input[type="number"]:focus {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.65);
+  background: rgba(0,0,0,.72);
   display: none;
   align-items: center;
   justify-content: center;
@@ -804,15 +929,19 @@ input[type="number"]:focus {
   backdrop-filter: blur(2px);
 }
 
-.modal-backdrop.active { display: flex; }
+.modal-backdrop.active {
+  display: flex;
+}
 
 .modal {
-  position: relative;
   width: 100%;
   max-width: 480px;
-  border-radius: 16px;
+  border-radius: 14px;
   padding: 22px;
   overflow: hidden;
+  background:
+    var(--parchment-texture),
+    linear-gradient(180deg, var(--card-3), var(--card));
 }
 
 .modal::before {
@@ -823,11 +952,12 @@ input[type="number"]:focus {
   top: 0;
   height: 3px;
   background: linear-gradient(90deg, transparent, var(--danger), transparent);
-  opacity: .7;
+  opacity: .75;
 }
 
 .modal h3 {
   margin-top: 0;
+  font-family: "Cinzel", Georgia, serif;
   text-transform: uppercase;
   letter-spacing: .8px;
 }
