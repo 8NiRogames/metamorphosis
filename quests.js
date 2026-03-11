@@ -1,5 +1,12 @@
 (function () {
   const { dailyQuestPool, mainQuests } = window.MetaData;
+    function renderAttributeRewards(category, amount = 10) {
+    const rewards = window.MetaStats.getAttributeRewardMap(category, amount);
+
+    return Object.entries(rewards)
+      .map(([attr, value]) => `+${value} ${attr}`)
+      .join(' • ');
+  }
 
   function getTodayKey() {
     const now = new Date();
@@ -64,10 +71,11 @@
       return `
         <div class="quest-item">
           <div class="quest-head">
-            <div>
-              <div class="quest-title">${q.title}</div>
-              <div class="quest-desc">Daily quest • ${q.xp} XP reward</div>
-            </div>
+<div>
+  <div class="quest-title">${q.title}</div>
+  <div class="quest-desc">Daily quest • ${q.xp} main XP reward</div>
+  <div class="small-muted">${renderAttributeRewards(q.category, 10)}</div>
+</div>
             <span class="tag daily">${q.category}</span>
           </div>
           <div class="checkbox-row">
@@ -116,10 +124,11 @@
       return `
         <div class="quest-item">
           <div class="quest-head">
-            <div>
-              <div class="quest-title">${q.title}</div>
-              <div class="quest-desc">${q.desc}</div>
-            </div>
+<div>
+  <div class="quest-title">${q.title}</div>
+  <div class="quest-desc">${q.desc}</div>
+  <div class="small-muted">${renderAttributeRewards(getMainQuestCategory(q), 10)}</div>
+</div>
             <span class="tag main">${current}/${q.steps}</span>
           </div>
           <div class="progress-shell"><div class="progress-fill good" style="width:${percent}%"></div></div>
