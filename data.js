@@ -1,6 +1,24 @@
 window.MetaData = {
   progressionSteps: [1, 5, 10, 13, 25, 50, 100, 250, 500, 666, 1000],
 
+  xpConfig: {
+    character: {
+      base: 50,
+      multiplier: 1.04,
+      flat: 2
+    },
+    attribute: {
+      base: 40,
+      multiplier: 1.03,
+      flat: 1
+    },
+    skill: {
+      base: 30,
+      multiplier: 1.025,
+      flat: 1
+    }
+  },
+
   skillTree: {
     Strength: [
       'Calisthenics',
@@ -199,11 +217,11 @@ window.MetaData = {
 
   questGenerators: {
     Reading: [
-      { type: 'pages', amount: 5, text: 'Read 5 pages of a {genre} book' },
-      { type: 'pages', amount: 10, text: 'Read 10 pages of a {genre} book' },
-      { type: 'pages', amount: 15, text: 'Read 15 pages of a {genre} book' },
-      { type: 'pages', amount: 20, text: 'Read 20 pages of a {genre} book' },
-      { type: 'chapter', amount: 1, text: 'Read one chapter of a {genre} book' },
+      { type: 'pages', amount: 5, text: 'Read 5 pages of a {genres} book' },
+      { type: 'pages', amount: 10, text: 'Read 10 pages of a {genres} book' },
+      { type: 'pages', amount: 15, text: 'Read 15 pages of a {genres} book' },
+      { type: 'pages', amount: 20, text: 'Read 20 pages of a {genres} book' },
+      { type: 'chapter', amount: 1, text: 'Read one chapter of a {genres} book' },
       { type: 'summary', amount: 1, text: 'Write a short summary from your reading' },
       { type: 'notes', amount: 1, text: 'Take notes from what you read' },
       { type: 'nonfiction', amount: 1, text: 'Read a nonfiction text for focused learning' },
@@ -212,24 +230,24 @@ window.MetaData = {
     ],
 
     'Language Learning': [
-      { type: 'words', amount: 5, text: 'Learn 5 new words in {language}' },
-      { type: 'words', amount: 10, text: 'Learn 10 new words in {language}' },
-      { type: 'words', amount: 20, text: 'Learn 20 new words in {language}' },
-      { type: 'listening', amount: 10, text: 'Listen to 10 minutes of {language}' },
-      { type: 'listening', amount: 20, text: 'Listen to 20 minutes of {language}' },
-      { type: 'reading', amount: 1, text: 'Read a short article in {language}' },
-      { type: 'writing', amount: 1, text: 'Write 5 sentences in {language}' },
-      { type: 'writing', amount: 1, text: 'Write 10 sentences in {language}' },
-      { type: 'flashcards', amount: 1, text: 'Review your {language} flashcards' },
-      { type: 'speaking', amount: 5, text: 'Practice speaking {language} for 5 minutes' }
+      { type: 'words', amount: 5, text: 'Learn 5 new words in {languages}' },
+      { type: 'words', amount: 10, text: 'Learn 10 new words in {languages}' },
+      { type: 'words', amount: 20, text: 'Learn 20 new words in {languages}' },
+      { type: 'listening', amount: 10, text: 'Listen to 10 minutes of {languages}' },
+      { type: 'listening', amount: 20, text: 'Listen to 20 minutes of {languages}' },
+      { type: 'reading', amount: 1, text: 'Read a short article in {languages}' },
+      { type: 'writing', amount: 1, text: 'Write 5 sentences in {languages}' },
+      { type: 'writing', amount: 1, text: 'Write 10 sentences in {languages}' },
+      { type: 'flashcards', amount: 1, text: 'Review your {languages} flashcards' },
+      { type: 'speaking', amount: 5, text: 'Practice speaking {languages} for 5 minutes' }
     ],
 
     Cooking: [
-      { type: 'meal', amount: 1, text: 'Cook one proper {cuisine} meal' },
-      { type: 'balanced', amount: 1, text: 'Cook a balanced {cuisine} meal' },
-      { type: 'prep', amount: 1, text: 'Prepare ingredients for a {cuisine} dish' },
-      { type: 'recipe', amount: 1, text: 'Cook a {cuisine} dish from a recipe' },
-      { type: 'improvise', amount: 1, text: 'Improvise a {cuisine}-inspired meal' },
+      { type: 'meal', amount: 1, text: 'Cook one proper {cuisines} meal' },
+      { type: 'balanced', amount: 1, text: 'Cook a balanced {cuisines} meal' },
+      { type: 'prep', amount: 1, text: 'Prepare ingredients for a {cuisines} dish' },
+      { type: 'recipe', amount: 1, text: 'Cook a {cuisines} dish from a recipe' },
+      { type: 'improvise', amount: 1, text: 'Improvise a {cuisines}-inspired meal' },
       { type: 'onepan', amount: 1, text: 'Cook a one-pan meal' },
       { type: 'rice', amount: 1, text: 'Cook a rice-based meal' },
       { type: 'signature', amount: 1, text: 'Improve one of your signature recipes' },
@@ -329,9 +347,9 @@ window.MetaData = {
     ],
 
     Writing: [
-      { type: 'words', amount: 100, text: 'Write 100 words in {writingMode} form' },
-      { type: 'words', amount: 250, text: 'Write 250 words in {writingMode} form' },
-      { type: 'words', amount: 500, text: 'Write 500 words in {writingMode} form' },
+      { type: 'words', amount: 100, text: 'Write 100 words in {writingModes} form' },
+      { type: 'words', amount: 250, text: 'Write 250 words in {writingModes} form' },
+      { type: 'words', amount: 500, text: 'Write 500 words in {writingModes} form' },
       { type: 'reflection', amount: 1, text: 'Write a reflection piece' },
       { type: 'creative', amount: 1, text: 'Write a short creative passage' },
       { type: 'music', amount: 1, text: 'Write a few lines of lyrics or poetry' },
@@ -342,7 +360,7 @@ window.MetaData = {
     ],
 
     Planning: [
-      { type: 'scope', amount: 1, text: 'Plan {planningScope}' },
+      { type: 'scope', amount: 1, text: 'Plan {planningScopes}' },
       { type: 'priority', amount: 1, text: 'Set three priorities for today' },
       { type: 'meal', amount: 1, text: 'Plan a meal block' },
       { type: 'training', amount: 1, text: 'Plan a training session' },
@@ -355,7 +373,7 @@ window.MetaData = {
     ],
 
     Gardening: [
-      { type: 'task', amount: 1, text: 'Do one {gardenTaskType} task in the garden' },
+      { type: 'task', amount: 1, text: 'Do one {gardenTaskTypes} task in the garden' },
       { type: 'water', amount: 1, text: 'Water plants properly' },
       { type: 'soil', amount: 1, text: 'Work on soil or planting space' },
       { type: 'weed', amount: 1, text: 'Remove weeds for a while' },
@@ -368,7 +386,7 @@ window.MetaData = {
     ],
 
     'Mini Painting': [
-      { type: 'style', amount: 1, text: 'Paint a mini in a {paintStyle} style' },
+      { type: 'style', amount: 1, text: 'Paint a mini in a {paintStyles} style' },
       { type: 'base', amount: 1, text: 'Finish base colors on a mini' },
       { type: 'detail', amount: 1, text: 'Work on details on a mini' },
       { type: 'highlight', amount: 1, text: 'Practice highlights on a mini' },
@@ -381,7 +399,7 @@ window.MetaData = {
     ],
 
     Drawing: [
-      { type: 'theme', amount: 1, text: 'Draw a {drawingTheme}' },
+      { type: 'theme', amount: 1, text: 'Draw a {drawingThemes}' },
       { type: 'sketch', amount: 1, text: 'Do a quick sketch study' },
       { type: 'lines', amount: 1, text: 'Practice clean linework' },
       { type: 'shading', amount: 1, text: 'Practice shading on a drawing' },
@@ -394,7 +412,7 @@ window.MetaData = {
     ],
 
     'Household Chores': [
-      { type: 'zone', amount: 1, text: 'Clean or organize the {houseZone}' },
+      { type: 'zone', amount: 1, text: 'Clean or organize the {houseZones}' },
       { type: 'surface', amount: 1, text: 'Clear one messy surface area' },
       { type: 'laundry', amount: 1, text: 'Do one useful laundry task' },
       { type: 'dishes', amount: 1, text: 'Wash dishes or clean kitchen tools' },
