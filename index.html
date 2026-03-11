@@ -46,8 +46,33 @@
         <div class="section-card">
           <h3>Current Character Snapshot</h3>
           <div class="progress-shell"><div class="progress-fill" id="homeXpFill"></div></div>
-          <p style="margin: 10px 0 0;">Level <strong id="homeLevel">0</strong> • XP <strong id="homeXp">0</strong> / <strong id="homeNextLevel">100</strong></p>
+          <p style="margin: 10px 0 0;">
+            Level <strong id="homeLevel">0</strong>
+            • XP <strong id="homeXp">0</strong> / <strong id="homeNextLevel">100</strong>
+          </p>
+          <p class="small-muted" style="margin:8px 0 0;">
+            Character Paragon: <strong id="homeCharacterParagon">0</strong>
+            • Total Paragon: <strong id="homeTotalParagon">0</strong>
+          </p>
           <div class="level-preview" id="homeSkillPreview"></div>
+        </div>
+
+        <div class="section-card">
+          <h3>Paragon Summary</h3>
+          <div class="grid three">
+            <div class="mini-stat">
+              <strong>Character</strong>
+              <div class="small-muted">Paragon <span id="homeParagonCharacterOnly">0</span></div>
+            </div>
+            <div class="mini-stat">
+              <strong>Attributes</strong>
+              <div class="small-muted">Paragon <span id="homeParagonAttributesOnly">0</span></div>
+            </div>
+            <div class="mini-stat">
+              <strong>Skills</strong>
+              <div class="small-muted">Paragon <span id="homeParagonSkillsOnly">0</span></div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -69,7 +94,7 @@
             <div class="top-tools">
               <div>
                 <h3 style="margin:0;">Today's Rotation</h3>
-                <div class="small-muted">Three random daily quests from a pool of thirty.</div>
+                <div class="small-muted">Random skill-based daily quests.</div>
               </div>
               <button class="btn" id="rerollButton" onclick="rerollDailyQuests()">🎲 Reroll Once Today</button>
             </div>
@@ -80,7 +105,7 @@
         <div class="subsection" id="sub-quests-main">
           <div class="section-card">
             <h3>Main Quests</h3>
-            <p class="small-muted">Simple long-term goals. Use + and − to move progress. Completing a stage rewards XP.</p>
+            <p class="small-muted">Long-term milestone families. Use buttons or bulk add values.</p>
             <div class="quest-list" id="mainQuestList"></div>
           </div>
         </div>
@@ -90,7 +115,7 @@
         <div class="page-header">
           <div>
             <h2 class="page-title">Achievements</h2>
-            <p class="page-subtitle">Twenty-five achievements in three tiers: quick unlocks, medium-term goals and legendary long-haul milestones.</p>
+            <p class="page-subtitle">Milestone families for skills, attributes, streaks and total progress.</p>
           </div>
         </div>
 
@@ -115,7 +140,7 @@
         <div class="page-header">
           <div>
             <h2 class="page-title">Statistics</h2>
-            <p class="page-subtitle">XP, streak, primary attributes and manual skills. Primary attributes are automatic and based on the skills you attach to them.</p>
+            <p class="page-subtitle">XP, streak, primary attributes, skills and paragon progression.</p>
           </div>
           <button class="btn danger" onclick="openResetModal()">Reset Character</button>
         </div>
@@ -127,11 +152,33 @@
               <p style="margin-top:0;">Level <strong id="level">0</strong></p>
               <p>XP <strong id="xp">0</strong> / <strong id="nextLevel">100</strong></p>
               <div class="progress-shell"><div class="progress-fill" id="xpfill"></div></div>
+              <p class="small-muted" style="margin-top:8px;">
+                Character Paragon: <strong id="characterParagon">0</strong>
+              </p>
             </div>
             <div>
               <p style="margin-top:0;">Quest Completions <strong id="questCompletionCount">0</strong></p>
               <p>Completed Days <strong id="completedDaysCount">0</strong></p>
               <p>Main Quest Steps <strong id="mainQuestStepCount">0</strong></p>
+              <p>Total Paragon <strong id="totalParagon">0</strong></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h3>Paragon Breakdown</h3>
+          <div class="grid three">
+            <div class="mini-stat">
+              <strong>Character</strong>
+              <div class="small-muted"><span id="paragonCharacterOnly">0</span></div>
+            </div>
+            <div class="mini-stat">
+              <strong>Attributes</strong>
+              <div class="small-muted"><span id="paragonAttributesOnly">0</span></div>
+            </div>
+            <div class="mini-stat">
+              <strong>Skills</strong>
+              <div class="small-muted"><span id="paragonSkillsOnly">0</span></div>
             </div>
           </div>
         </div>
@@ -159,7 +206,7 @@
   <div class="modal-backdrop" id="resetModal">
     <div class="modal">
       <h3>Reset Character?</h3>
-      <p class="small-muted">This will erase XP, quests, achievements, streak, attributes and selected skills from local storage on this browser.</p>
+      <p class="small-muted">This will erase XP, quests, achievements, streak, attributes, skills and paragon data from local storage on this browser.</p>
       <div class="modal-actions">
         <button class="btn ghost" onclick="closeResetModal()">Cancel</button>
         <button class="btn danger" onclick="confirmResetCharacter()">Yes, Reset</button>
