@@ -64,7 +64,7 @@
       if (state.level < 100) {
         state.xp -= state.nextLevel;
         state.level += 1;
-        state.nextLevel = Math.floor(state.nextLevel * 1.22);
+        state.nextLevel = Math.floor(state.nextLevel * 1.08 + 5);
 
         if (state.level >= 100) {
           state.level = 100;
