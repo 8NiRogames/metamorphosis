@@ -1,5 +1,5 @@
 (function () {
-  const { skillOptions } = window.MetaData;
+  const { skillTree } = window.MetaData;
 
   const ATTRS = [
     'Strength',
@@ -41,9 +41,9 @@
 
     ATTRS.forEach(attr => {
       if (!state.selectedSkills[attr]) state.selectedSkills[attr] = [];
-      state.attributeStats[attr] = normalizeProgress(state.attributeStats[attr]);
+      if (!state.attributeStats[attr]) state.attributeStats[attr] = makeProgress();
 
-      skillOptions[attr].forEach(skill => {
+      skillTree[attr].forEach(skill => {
         state.skillValues[skill] = normalizeProgress(state.skillValues[skill]);
       });
     });
@@ -144,7 +144,7 @@
     const stat = state.attributeStats[attr];
     const chosen = state.selectedSkills[attr] || [];
 
-    const optionsHtml = skillOptions[attr]
+    const optionsHtml = skillTree[attr]
       .filter(skill => !chosen.includes(skill))
       .map(skill => `<option value="${skill}">${skill}</option>`)
       .join('');
