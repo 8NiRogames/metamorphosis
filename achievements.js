@@ -1,80 +1,84 @@
 (function () {
-  const { achievements } = window.MetaData;
+  const { achievementFamilies, mainQuestFamilies } = window.MetaData;
 
-  function achievementUnlocked(ach) {
+  function getFamilyProgress(family) {
     const state = window.MetaApp.state;
 
-    switch (ach.type) {
-      case 'quests': return state.completedQuestTotal >= ach.target;
-      case 'level': return state.level >= ach.target;
-      case 'days': return state.completedDays >= ach.target;
-      case 'streak': return state.streak >= ach.target;
-      case 'mainSteps': return state.mainQuestStepCount >= ach.target;
-      case 'dailyCategory': return (state.dailyCategoryProgress[ach.category] || 0) >= ach.target;
-      case 'totalXpEarned': return state.totalXpEarned >= ach.target;
-      default: return false;
+    switch (family.type) {
+      case 'skill_level':
+        return state.skillValues[family.skill]?.level || 0;
+
+      case 'attribute_level':
+        return state.attributeStats[family.attribute]?.level || 0;
+
+      case 'daily_total':
+        return state.completedQuestTotal;
+
+      case 'main_total':
+        return state.mainQuestStepCount;
+
+      case 'streak':
+        return state.streak;
+
+      case 'main_family':
+        return state.mainQuestProgress[family.familyId] || 0;
+
+      default:
+        return 0;
     }
   }
 
-  function achievementProgressText(ach) {
-    const state = window.MetaApp.state;
-    let current = 0;
-
-    switch (ach.type) {
-      case 'quests': current = state.completedQuestTotal; break;
-      case 'level': current = state.level; break;
-      case 'days': current = state.completedDays; break;
-      case 'streak': current = state.streak; break;
-      case 'mainSteps': current = state.mainQuestStepCount; break;
-      case 'dailyCategory': current = state.dailyCategoryProgress[ach.category] || 0; break;
-      case 'totalXpEarned': current = state.totalXpEarned; break;
-    }
-
-    return `${current} / ${ach.target}`;
+  function getMilestoneCount(family) {
+    const progress = getFamilyProgress(family);
+    return family.milestones.filter(step => progress >= step).length;
   }
 
-  function renderAchievementTier(containerId, list) {
-    const state = window.MetaApp.state;
+  function buildAchievementCard(family) {
+    const progress = getFamilyProgress(family);
+    const unlockedCount = getMilestoneCount(family);
+    const nextMilestone = family.milestones.find(step => step > progress) || null;
+    const prevMilestone = unlockedCount > 0 ? family.milestones[unlockedCount - 1] : 0;
+    const percent = nextMilestone
+      ? Math.min(100, ((progress - prevMilestone) / (nextMilestone - prevMilestone)) * 100)
+      : 100;
 
-    window.MetaApp.$(containerId).innerHTML = list.map(ach => {
-      const unlocked = achievementUnlocked(ach);
-      const tagClass = ach.tier === 'legendary' ? 'legendary' : ach.tier;
-
-      let current = 0;
-      switch (ach.type) {
-        case 'quests': current = state.completedQuestTotal; break;
-        case 'level': current = state.level; break;
-        case 'days': current = state.completedDays; break;
-        case 'streak': current = Math.max(0, state.streak); break;
-        case 'mainSteps': current = state.mainQuestStepCount; break;
-        case 'dailyCategory': current = state.dailyCategoryProgress[ach.category] || 0; break;
-        case 'totalXpEarned': current = state.totalXpEarned; break;
-      }
-
-      const fill = Math.min(100, (current / ach.target) * 100);
-
-      return `
-        <div class="achievement-item ${unlocked ? 'unlocked' : ''}">
-          <div class="achievement-head">
-            <div>
-              <div class="achievement-title">${unlocked ? '🏆' : '🔒'} ${ach.title}</div>
-              <div class="achievement-desc">${ach.desc}</div>
-            </div>
-            <span class="tag ${tagClass}">${achievementProgressText(ach)}</span>
+    return `
+      <div class="achievement-item ${nextMilestone === null ? 'unlocked' : ''}">
+        <div class="achievement-head">
+          <div>
+            <div class="achievement-title">${nextMilestone === null ? '🏆' : '🔒'} ${family.title}</div>
+            <div class="achievement-desc">Progress: ${progress} • Next: ${nextMilestone ?? 'Completed'} • Reward: +${family.rewardXp} Character XP</div>
           </div>
-          <div class="progress-shell"><div class="progress-fill ${unlocked ? 'good' : ''}" style="width:${fill}%"></div></div>
+          <span class="tag ${nextMilestone === null ? 'legendary' : (nextMilestone <= 10 ? 'easy' : nextMilestone <= 100 ? 'medium' : 'legendary')}">${unlockedCount}/${family.milestones.length}</span>
         </div>
-      `;
-    }).join('');
+        <div class="progress-shell">
+          <div class="progress-fill ${nextMilestone === null ? 'good' : ''}" style="width:${percent}%"></div>
+        </div>
+      </div>
+    `;
   }
 
   function renderAchievements() {
-    const grouped = { easy: [], medium: [], legendary: [] };
-    achievements.forEach(ach => grouped[ach.tier].push(ach));
+    const quick = [];
+    const steady = [];
+    const legendary = [];
 
-    renderAchievementTier('achievementListEasy', grouped.easy);
-    renderAchievementTier('achievementListMedium', grouped.medium);
-    renderAchievementTier('achievementListLegendary', grouped.legendary);
+    achievementFamilies.forEach(family => {
+      const progress = getFamilyProgress(family);
+      const nextMilestone = family.milestones.find(step => step > progress) || null;
+
+      if (nextMilestone === null || nextMilestone > 100) {
+        legendary.push(family);
+      } else if (nextMilestone > 10) {
+        steady.push(family);
+      } else {
+        quick.push(family);
+      }
+    });
+
+    window.MetaApp.$('achievementListEasy').innerHTML = quick.map(buildAchievementCard).join('');
+    window.MetaApp.$('achievementListMedium').innerHTML = steady.map(buildAchievementCard).join('');
+    window.MetaApp.$('achievementListLegendary').innerHTML = legendary.map(buildAchievementCard).join('');
   }
 
   window.MetaAchievements = {
