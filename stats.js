@@ -70,6 +70,47 @@
   }
 
   function rewardAttributeXP(category, amount = 10) {
+    function getAttributeRewardMap(category, amount = 10) {
+  switch (category) {
+    case 'Body':
+      return {
+        Strength: amount,
+        Dexterity: amount,
+        Agility: amount,
+        Endurance: amount * 2
+      };
+
+    case 'Mind':
+      return {
+        Intelligence: amount * 2,
+        Willpower: amount,
+        Wits: amount,
+        Wisdom: amount * 2
+      };
+
+    case 'Discipline':
+      return {
+        Willpower: amount * 2,
+        Wisdom: amount,
+        Endurance: amount
+      };
+
+    case 'Social':
+      return {
+        Wits: amount * 2,
+        Wisdom: amount
+      };
+
+    case 'Life':
+      return {
+        Endurance: amount,
+        Wisdom: amount * 2
+      };
+
+    default:
+      return {};
+  }
+}
     const add = (attr, value) => gainAttributeXP(attr, value);
 
     switch (category) {
@@ -241,13 +282,14 @@
     window.MetaApp.updateUI();
   }
 
-  window.MetaStats = {
-    rewardAttributeXP,
-    initializeSkillState,
-    renderAttributes,
-    getAttributeLevel,
-    getAttributePercent
-  };
+window.MetaStats = {
+  rewardAttributeXP,
+  getAttributeRewardMap,
+  initializeSkillState,
+  renderAttributes,
+  getAttributeLevel,
+  getAttributePercent
+};
 
   window.addSkillToAttribute = addSkillToAttribute;
   window.changeSkillValue = changeSkillValue;
