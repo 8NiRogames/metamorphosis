@@ -1,28 +1,19 @@
 (function () {
-  const state = {
-    xp: 0,
-    level: 0,
-    nextLevel: 100,
-    completedQuestTotal: 0,
-    completedDays: 0,
-    streak: 0,
-    mainQuestStepCount: 0,
-    totalXpEarned: 0,
-    attributeBonus: {
-      Strength: 0,
-      Dexterity: 0,
-      Agility: 0,
-      Endurance: 0,
-      Intelligence: 0,
-      Willpower: 0,
-      Wits: 0,
-      Wisdom: 0
-    },
-    selectedSkills: {},
-    skillValues: {},
-    dailyCategoryProgress: { Mind: 0, Body: 0, Discipline: 0, Social: 0, Life: 0 },
-    mainQuestProgress: {}
-  };
+const state = {
+  xp: 0,
+  level: 0,
+  nextLevel: 100,
+  completedQuestTotal: 0,
+  completedDays: 0,
+  streak: 0,
+  mainQuestStepCount: 0,
+  totalXpEarned: 0,
+  attributeStats: {},
+  selectedSkills: {},
+  skillValues: {},
+  dailyCategoryProgress: { Mind: 0, Body: 0, Discipline: 0, Social: 0, Life: 0 },
+  mainQuestProgress: {}
+};
 
   const $ = (id) => document.getElementById(id);
 
@@ -39,7 +30,7 @@
     localStorage.setItem('meta_skillValues', JSON.stringify(state.skillValues));
     localStorage.setItem('meta_dailyCategoryProgress', JSON.stringify(state.dailyCategoryProgress));
     localStorage.setItem('meta_totalXpEarned', state.totalXpEarned);
-    localStorage.setItem('meta_attributeBonus', JSON.stringify(state.attributeBonus));
+localStorage.setItem('meta_attributeStats', JSON.stringify(state.attributeStats));
   }
 
   function loadState() {
@@ -55,16 +46,7 @@
     state.skillValues = JSON.parse(localStorage.getItem('meta_skillValues') || '{}');
     state.dailyCategoryProgress = JSON.parse(localStorage.getItem('meta_dailyCategoryProgress') || '{"Mind":0,"Body":0,"Discipline":0,"Social":0,"Life":0}');
     state.totalXpEarned = parseInt(localStorage.getItem('meta_totalXpEarned') || '0', 10);
-    state.attributeBonus = JSON.parse(localStorage.getItem('meta_attributeBonus') || `{
-      "Strength":0,
-      "Dexterity":0,
-      "Agility":0,
-      "Endurance":0,
-      "Intelligence":0,
-      "Willpower":0,
-      "Wits":0,
-      "Wisdom":0
-    }`);
+state.attributeStats = JSON.parse(localStorage.getItem('meta_attributeStats') || '{}');
   }
 
   function gainXP(amount) {
@@ -81,19 +63,22 @@
     saveState();
   }
 
-  function renderHomePreview() {
-    const previews = ['Strength', 'Endurance', 'Intelligence', 'Wisdom'];
-    $('homeSkillPreview').innerHTML = previews.map(attr => {
-      const value = window.MetaStats.calculateAttributeValue(attr);
-      return `
-        <div class="mini-stat">
-          <strong>${attr}</strong>
-          <div class="progress-shell"><div class="progress-fill" style="width:${value}%"></div></div>
-          <div class="small-muted" style="margin-top:6px;">${value}%</div>
-        </div>
-      `;
-    }).join('');
-  }
+function renderHomePreview() {
+  const previews = ['Strength', 'Endurance', 'Intelligence', 'Wisdom'];
+
+  $('homeSkillPreview').innerHTML = previews.map(attr => {
+    const level = window.MetaStats.getAttributeLevel(attr);
+    const percent = window.MetaStats.getAttributePercent(attr);
+
+    return `
+      <div class="mini-stat">
+        <strong>${attr}</strong>
+        <div class="progress-shell"><div class="progress-fill" style="width:${percent}%"></div></div>
+        <div class="small-muted" style="margin-top:6px;">Level ${level}</div>
+      </div>
+    `;
+  }).join('');
+}
 
   function updateUI() {
     $('xp').textContent = state.xp;
