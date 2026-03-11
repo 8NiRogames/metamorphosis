@@ -45,15 +45,56 @@
         <div class="page-header">
           <div>
             <h2 class="page-title">Home</h2>
-            <p class="page-subtitle">Your current character overview. Later this will become the main avatar and equipment hub.</p>
+            <p class="page-subtitle">Your current character overview. This page now serves as the first avatar and equipment hub.</p>
           </div>
         </div>
 
         <div class="section-card hero-card">
+          <div class="section-crest">
+            <span class="crest-wing"></span>
+            <span class="crest-core">✦</span>
+            <span class="crest-wing"></span>
+          </div>
+
           <h3>Character Overview</h3>
+
+          <div class="character-showcase">
+            <div class="equipment-column">
+              <div class="equipment-slot"><span>👑</span><small>Head</small></div>
+              <div class="equipment-slot"><span>📿</span><small>Neck</small></div>
+              <div class="equipment-slot"><span>🛡️</span><small>Off Hand</small></div>
+              <div class="equipment-slot"><span>💍</span><small>Ring</small></div>
+              <div class="equipment-slot"><span>🥾</span><small>Feet</small></div>
+            </div>
+
+            <div class="avatar-frame">
+              <div class="avatar-ornament top-left"></div>
+              <div class="avatar-ornament top-right"></div>
+              <div class="avatar-ornament bottom-left"></div>
+              <div class="avatar-ornament bottom-right"></div>
+
+              <div class="avatar-inner">
+                <div class="avatar-icon-ring">
+                  <div class="avatar-icon">🜂</div>
+                </div>
+                <div class="avatar-nameplate">The Ongoing Self</div>
+                <div class="avatar-subtitle">Future avatar, portrait and cosmetics will live here.</div>
+              </div>
+            </div>
+
+            <div class="equipment-column">
+              <div class="equipment-slot"><span>⚔️</span><small>Weapon</small></div>
+              <div class="equipment-slot"><span>🧥</span><small>Chest</small></div>
+              <div class="equipment-slot"><span>🧤</span><small>Hands</small></div>
+              <div class="equipment-slot"><span>🔮</span><small>Artifact</small></div>
+              <div class="equipment-slot"><span>📘</span><small>Relic</small></div>
+            </div>
+          </div>
+
           <div class="progress-shell hero-bar">
             <div class="progress-fill" id="homeXpFill"></div>
           </div>
+
           <p style="margin: 12px 0 0;">
             Level <strong id="homeLevel">0</strong>
             • XP <strong id="homeXp">0</strong> / <strong id="homeNextLevel">100</strong>
@@ -62,21 +103,31 @@
             Character Paragon: <strong id="homeCharacterParagon">0</strong>
             • Total Paragon: <strong id="homeTotalParagon">0</strong>
           </p>
+
           <div class="level-preview eight-grid" id="homeSkillPreview"></div>
         </div>
 
         <div class="section-card">
+          <div class="section-crest">
+            <span class="crest-wing"></span>
+            <span class="crest-core">❖</span>
+            <span class="crest-wing"></span>
+          </div>
+
           <h3>Paragon Summary</h3>
           <div class="grid three">
-            <div class="mini-stat">
+            <div class="mini-stat icon-framed">
+              <div class="mini-icon">🜲</div>
               <strong>Character</strong>
               <div class="small-muted">Paragon <span id="homeParagonCharacterOnly">0</span></div>
             </div>
-            <div class="mini-stat">
+            <div class="mini-stat icon-framed">
+              <div class="mini-icon">🜁</div>
               <strong>Attributes</strong>
               <div class="small-muted">Paragon <span id="homeParagonAttributesOnly">0</span></div>
             </div>
-            <div class="mini-stat">
+            <div class="mini-stat icon-framed">
+              <div class="mini-icon">✧</div>
               <strong>Skills</strong>
               <div class="small-muted">Paragon <span id="homeParagonSkillsOnly">0</span></div>
             </div>
@@ -99,6 +150,12 @@
 
         <div class="subsection active" id="sub-quests-daily">
           <div class="section-card">
+            <div class="section-crest">
+              <span class="crest-wing"></span>
+              <span class="crest-core">⚜</span>
+              <span class="crest-wing"></span>
+            </div>
+
             <div class="top-tools">
               <div>
                 <h3 style="margin:0;">Today's Rotation</h3>
@@ -112,6 +169,12 @@
 
         <div class="subsection" id="sub-quests-main">
           <div class="section-card">
+            <div class="section-crest">
+              <span class="crest-wing"></span>
+              <span class="crest-core">⚔</span>
+              <span class="crest-wing"></span>
+            </div>
+
             <h3>Main Quests</h3>
             <p class="small-muted">Long-form milestone families. Add progress manually or in bulk.</p>
             <div class="quest-list" id="mainQuestList"></div>
@@ -134,13 +197,34 @@
         </div>
 
         <div class="subsection active" id="sub-achievements-easy">
-          <div class="section-card"><div class="achievement-list" id="achievementListEasy"></div></div>
+          <div class="section-card">
+            <div class="section-crest">
+              <span class="crest-wing"></span>
+              <span class="crest-core">◈</span>
+              <span class="crest-wing"></span>
+            </div>
+            <div class="achievement-list" id="achievementListEasy"></div>
+          </div>
         </div>
         <div class="subsection" id="sub-achievements-medium">
-          <div class="section-card"><div class="achievement-list" id="achievementListMedium"></div></div>
+          <div class="section-card">
+            <div class="section-crest">
+              <span class="crest-wing"></span>
+              <span class="crest-core">✷</span>
+              <span class="crest-wing"></span>
+            </div>
+            <div class="achievement-list" id="achievementListMedium"></div>
+          </div>
         </div>
         <div class="subsection" id="sub-achievements-legendary">
-          <div class="section-card"><div class="achievement-list" id="achievementListLegendary"></div></div>
+          <div class="section-card">
+            <div class="section-crest">
+              <span class="crest-wing"></span>
+              <span class="crest-core">✹</span>
+              <span class="crest-wing"></span>
+            </div>
+            <div class="achievement-list" id="achievementListLegendary"></div>
+          </div>
         </div>
       </section>
 
@@ -154,6 +238,12 @@
         </div>
 
         <div class="section-card">
+          <div class="section-crest">
+            <span class="crest-wing"></span>
+            <span class="crest-core">✠</span>
+            <span class="crest-wing"></span>
+          </div>
+
           <h3>Character Progress</h3>
           <div class="grid two">
             <div>
@@ -176,17 +266,26 @@
         </div>
 
         <div class="section-card">
+          <div class="section-crest">
+            <span class="crest-wing"></span>
+            <span class="crest-core">✦</span>
+            <span class="crest-wing"></span>
+          </div>
+
           <h3>Paragon Breakdown</h3>
           <div class="grid three">
-            <div class="mini-stat">
+            <div class="mini-stat icon-framed">
+              <div class="mini-icon">🜲</div>
               <strong>Character</strong>
               <div class="small-muted"><span id="paragonCharacterOnly">0</span></div>
             </div>
-            <div class="mini-stat">
+            <div class="mini-stat icon-framed">
+              <div class="mini-icon">🜁</div>
               <strong>Attributes</strong>
               <div class="small-muted"><span id="paragonAttributesOnly">0</span></div>
             </div>
-            <div class="mini-stat">
+            <div class="mini-stat icon-framed">
+              <div class="mini-icon">✧</div>
               <strong>Skills</strong>
               <div class="small-muted"><span id="paragonSkillsOnly">0</span></div>
             </div>
@@ -201,10 +300,20 @@
 
         <div class="grid two">
           <div class="section-card">
+            <div class="section-crest">
+              <span class="crest-wing"></span>
+              <span class="crest-core">⬢</span>
+              <span class="crest-wing"></span>
+            </div>
             <h3>Physical Attributes</h3>
             <div class="skill-list" id="physicalAttributes"></div>
           </div>
           <div class="section-card">
+            <div class="section-crest">
+              <span class="crest-wing"></span>
+              <span class="crest-core">⬡</span>
+              <span class="crest-wing"></span>
+            </div>
             <h3>Mental Attributes</h3>
             <div class="skill-list" id="mentalAttributes"></div>
           </div>
