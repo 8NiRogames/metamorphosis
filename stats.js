@@ -12,16 +12,16 @@
     'Wisdom'
   ];
 
-  function makeProgress(level = 0, xp = 0, nextXp = 100, paragon = 0) {
+  function makeProgress(level = 0, xp = 0, nextXp = 60, paragon = 0) {
     return { level, xp, nextXp, paragon };
   }
 
-  function normalizeProgress(value) {
+  function normalizeProgress(value, fallbackNextXp = 60) {
     if (value && typeof value === 'object') {
       return {
         level: Number(value.level || 0),
         xp: Number(value.xp || 0),
-        nextXp: Number(value.nextXp || 100),
+        nextXp: Number(value.nextXp || fallbackNextXp),
         paragon: Number(value.paragon || 0)
       };
     }
@@ -30,12 +30,12 @@
       return {
         level: Math.max(0, Math.min(100, value)),
         xp: 0,
-        nextXp: 100,
+        nextXp: fallbackNextXp,
         paragon: 0
       };
     }
 
-    return makeProgress();
+    return { level: 0, xp: 0, nextXp: fallbackNextXp, paragon: 0 };
   }
 
   function initializeSkillState() {
@@ -43,11 +43,11 @@
 
     ATTRS.forEach(attr => {
       if (!state.selectedSkills[attr]) state.selectedSkills[attr] = [];
-      if (!state.attributeStats[attr]) state.attributeStats[attr] = makeProgress();
-      state.attributeStats[attr] = normalizeProgress(state.attributeStats[attr]);
+      if (!state.attributeStats[attr]) state.attributeStats[attr] = makeProgress(0, 0, 80, 0);
+      state.attributeStats[attr] = normalizeProgress(state.attributeStats[attr], 80);
 
       skillTree[attr].forEach(skill => {
-        state.skillValues[skill] = normalizeProgress(state.skillValues[skill]);
+        state.skillValues[skill] = normalizeProgress(state.skillValues[skill], 60);
       });
     });
   }
@@ -72,7 +72,7 @@
       if (stat.level < 100) {
         stat.xp -= stat.nextXp;
         stat.level += 1;
-        stat.nextXp = Math.floor(stat.nextXp * 1.12);
+        stat.nextXp = Math.floor(stat.nextXp * 1.06 + 2);
 
         if (stat.level >= 100) {
           stat.level = 100;
@@ -97,9 +97,9 @@
       if (skillData.level < 100) {
         skillData.xp -= skillData.nextXp;
         skillData.level += 1;
-        skillData.nextXp = Math.floor(skillData.nextXp * 1.1);
+        skillData.nextXp = Math.floor(skillData.nextXp * 1.05 + 1);
 
-        gainAttributeXP(attr, 15);
+        gainAttributeXP(attr, 12);
 
         if (skillData.level >= 100) {
           skillData.level = 100;
