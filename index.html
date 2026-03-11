@@ -11,25 +11,31 @@
     <aside class="sidebar">
       <div class="brand">
         <h1>METAMORPHOSIS</h1>
-        <p>Dark RPG life system with quests, achievements, attributes, skills and long-term progression.</p>
+        <p>Dark fantasy life RPG with quests, achievements, attributes, skills, paragon progression and long-term growth.</p>
       </div>
 
       <div class="nav-grid">
         <button class="nav-card active" data-page-link="home">
           <span class="nav-card-title">🏠 Home</span>
-          <span class="nav-card-desc">Main hub and quick progression snapshot.</span>
+          <span class="nav-card-desc">Main hub and character overview.</span>
         </button>
         <button class="nav-card" data-page-link="quests">
           <span class="nav-card-title">📜 Quests</span>
-          <span class="nav-card-desc">Daily quests and main quest progression.</span>
+          <span class="nav-card-desc">Daily challenges and long-term quest families.</span>
         </button>
         <button class="nav-card" data-page-link="achievements">
           <span class="nav-card-title">🏆 Achievements</span>
-          <span class="nav-card-desc">Quick, steady and legendary unlocks.</span>
+          <span class="nav-card-desc">Milestones, mastery and legendary progress.</span>
         </button>
         <button class="nav-card" data-page-link="stats">
           <span class="nav-card-title">📊 Statistics</span>
-          <span class="nav-card-desc">XP, streak, attributes and manual skills.</span>
+          <span class="nav-card-desc">Attributes, skills, XP and paragon progression.</span>
+        </button>
+      </div>
+
+      <div class="sidebar-footer">
+        <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()">
+          🌙 Switch Theme
         </button>
       </div>
     </aside>
@@ -39,14 +45,16 @@
         <div class="page-header">
           <div>
             <h2 class="page-title">Home</h2>
-            <p class="page-subtitle">Avatar will come later. For now, this page is a clean character snapshot and the central hub.</p>
+            <p class="page-subtitle">Your current character overview. Later this will become the main avatar and equipment hub.</p>
           </div>
         </div>
 
-        <div class="section-card">
-          <h3>Current Character Snapshot</h3>
-          <div class="progress-shell"><div class="progress-fill" id="homeXpFill"></div></div>
-          <p style="margin: 10px 0 0;">
+        <div class="section-card hero-card">
+          <h3>Character Overview</h3>
+          <div class="progress-shell hero-bar">
+            <div class="progress-fill" id="homeXpFill"></div>
+          </div>
+          <p style="margin: 12px 0 0;">
             Level <strong id="homeLevel">0</strong>
             • XP <strong id="homeXp">0</strong> / <strong id="homeNextLevel">100</strong>
           </p>
@@ -54,7 +62,7 @@
             Character Paragon: <strong id="homeCharacterParagon">0</strong>
             • Total Paragon: <strong id="homeTotalParagon">0</strong>
           </p>
-          <div class="level-preview" id="homeSkillPreview"></div>
+          <div class="level-preview eight-grid" id="homeSkillPreview"></div>
         </div>
 
         <div class="section-card">
@@ -80,7 +88,7 @@
         <div class="page-header">
           <div>
             <h2 class="page-title">Quests</h2>
-            <p class="page-subtitle">Daily quests rotate at local midnight. Main quests are simpler, long-term goals with manual progress steps.</p>
+            <p class="page-subtitle">Daily rotating quests and long-form progression paths.</p>
           </div>
         </div>
 
@@ -94,7 +102,7 @@
             <div class="top-tools">
               <div>
                 <h3 style="margin:0;">Today's Rotation</h3>
-                <div class="small-muted">Random skill-based daily quests.</div>
+                <div class="small-muted">Skill-based daily tasks chosen from your world of progress.</div>
               </div>
               <button class="btn" id="rerollButton" onclick="rerollDailyQuests()">🎲 Reroll Once Today</button>
             </div>
@@ -105,7 +113,7 @@
         <div class="subsection" id="sub-quests-main">
           <div class="section-card">
             <h3>Main Quests</h3>
-            <p class="small-muted">Long-term milestone families. Use buttons or bulk add values.</p>
+            <p class="small-muted">Long-form milestone families. Add progress manually or in bulk.</p>
             <div class="quest-list" id="mainQuestList"></div>
           </div>
         </div>
@@ -115,7 +123,7 @@
         <div class="page-header">
           <div>
             <h2 class="page-title">Achievements</h2>
-            <p class="page-subtitle">Milestone families for skills, attributes, streaks and total progress.</p>
+            <p class="page-subtitle">Quick victories, steady growth and legendary milestones.</p>
           </div>
         </div>
 
@@ -140,7 +148,7 @@
         <div class="page-header">
           <div>
             <h2 class="page-title">Statistics</h2>
-            <p class="page-subtitle">XP, streak, primary attributes, skills and paragon progression.</p>
+            <p class="page-subtitle">Your ledger of progress, skills and paragon ascent.</p>
           </div>
           <button class="btn danger" onclick="openResetModal()">Reset Character</button>
         </div>
@@ -151,7 +159,9 @@
             <div>
               <p style="margin-top:0;">Level <strong id="level">0</strong></p>
               <p>XP <strong id="xp">0</strong> / <strong id="nextLevel">100</strong></p>
-              <div class="progress-shell"><div class="progress-fill" id="xpfill"></div></div>
+              <div class="progress-shell hero-bar">
+                <div class="progress-fill" id="xpfill"></div>
+              </div>
               <p class="small-muted" style="margin-top:8px;">
                 Character Paragon: <strong id="characterParagon">0</strong>
               </p>
@@ -186,7 +196,7 @@
         <div class="streak-box">
           <div class="small-muted">Current Streak</div>
           <div class="streak-number" id="streakNumber">0</div>
-          <div class="small-muted">+1 if at least one daily or main quest is completed today. −1 if none are completed.</div>
+          <div class="small-muted">+1 if you complete at least one quest today. −1 if you complete none.</div>
         </div>
 
         <div class="grid two">
@@ -206,7 +216,7 @@
   <div class="modal-backdrop" id="resetModal">
     <div class="modal">
       <h3>Reset Character?</h3>
-      <p class="small-muted">This will erase XP, quests, achievements, streak, attributes, skills and paragon data from local storage on this browser.</p>
+      <p class="small-muted">This will erase all locally saved progress, skills, quests, achievements and paragon values on this browser.</p>
       <div class="modal-actions">
         <button class="btn ghost" onclick="closeResetModal()">Cancel</button>
         <button class="btn danger" onclick="confirmResetCharacter()">Yes, Reset</button>
