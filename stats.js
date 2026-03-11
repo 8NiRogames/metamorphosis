@@ -49,6 +49,14 @@
     });
   }
 
+  function ensureSkillAttached(attr, skill) {
+    const state = window.MetaApp.state;
+    if (!state.selectedSkills[attr]) state.selectedSkills[attr] = [];
+    if (!state.selectedSkills[attr].includes(skill)) {
+      state.selectedSkills[attr].push(skill);
+    }
+  }
+
   function gainAttributeXP(attr, amount) {
     const state = window.MetaApp.state;
     const stat = state.attributeStats[attr];
@@ -69,54 +77,27 @@
     }
   }
 
-  function getAttributeRewardMap(category, amount = 10) {
-    switch (category) {
-      case 'Body':
-        return {
-          Strength: amount,
-          Dexterity: amount,
-          Agility: amount,
-          Endurance: amount * 2
-        };
+  function gainSkillXP(attr, skill, amount) {
+    const state = window.MetaApp.state;
+    ensureSkillAttached(attr, skill);
 
-      case 'Mind':
-        return {
-          Intelligence: amount * 2,
-          Willpower: amount,
-          Wits: amount,
-          Wisdom: amount * 2
-        };
+    const skillData = state.skillValues[skill];
+    if (!skillData || skillData.level >= 100) return;
 
-      case 'Discipline':
-        return {
-          Willpower: amount * 2,
-          Wisdom: amount,
-          Endurance: amount
-        };
+    skillData.xp += amount;
 
-      case 'Social':
-        return {
-          Wits: amount * 2,
-          Wisdom: amount
-        };
+    while (skillData.xp >= skillData.nextXp && skillData.level < 100) {
+      skillData.xp -= skillData.nextXp;
+      skillData.level += 1;
+      skillData.nextXp = Math.floor(skillData.nextXp * 1.1);
 
-      case 'Life':
-        return {
-          Endurance: amount,
-          Wisdom: amount * 2
-        };
-
-      default:
-        return {};
+      gainAttributeXP(attr, 15);
     }
-  }
 
-  function rewardAttributeXP(category, amount = 10) {
-    const rewards = getAttributeRewardMap(category, amount);
-
-    Object.entries(rewards).forEach(([attr, value]) => {
-      gainAttributeXP(attr, value);
-    });
+    if (skillData.level >= 100) {
+      skillData.level = 100;
+      skillData.xp = 0;
+    }
   }
 
   function getAttributeLevel(attr) {
@@ -159,7 +140,7 @@
           <div class="progress-fill" style="width:${getAttributePercent(attr)}%"></div>
         </div>
         <div class="inline-note">XP ${stat.xp} / ${stat.nextXp}</div>
-        <div class="inline-note">Primary attribute grows from quests and skill level-ups. Adding a new skill alone does not increase it.</div>
+        <div class="inline-note">Primary attribute grows from skill level-ups.</div>
 
         <select onchange="addSkillToAttribute('${attr}', this.value)">
           <option value="">Add a skill to ${attr}</option>
@@ -205,13 +186,7 @@
   function addSkillToAttribute(attr, skill) {
     if (!skill) return;
 
-    const state = window.MetaApp.state;
-    if (!state.selectedSkills[attr]) state.selectedSkills[attr] = [];
-
-    if (!state.selectedSkills[attr].includes(skill)) {
-      state.selectedSkills[attr].push(skill);
-    }
-
+    ensureSkillAttached(attr, skill);
     window.MetaApp.saveState();
     window.MetaApp.updateUI();
   }
@@ -223,20 +198,7 @@
     if (!skillData) return;
 
     if (delta > 0) {
-      skillData.xp += delta;
-
-      while (skillData.xp >= skillData.nextXp && skillData.level < 100) {
-        skillData.xp -= skillData.nextXp;
-        skillData.level += 1;
-        skillData.nextXp = Math.floor(skillData.nextXp * 1.1);
-
-        gainAttributeXP(attr, 15);
-      }
-
-      if (skillData.level >= 100) {
-        skillData.level = 100;
-        skillData.xp = 0;
-      }
+      gainSkillXP(attr, skill, delta);
     } else {
       skillData.xp = Math.max(0, skillData.xp + delta);
     }
@@ -256,12 +218,13 @@
   }
 
   window.MetaStats = {
-    rewardAttributeXP,
-    getAttributeRewardMap,
     initializeSkillState,
     renderAttributes,
     getAttributeLevel,
-    getAttributePercent
+    getAttributePercent,
+    gainSkillXP,
+    ensureSkillAttached,
+    gainAttributeXP
   };
 
   window.addSkillToAttribute = addSkillToAttribute;
