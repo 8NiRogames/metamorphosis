@@ -2,7 +2,7 @@
   const state = {
     xp: 0,
     level: 0,
-    nextLevel: 100,
+    nextLevel: 50,
     characterParagon: 0,
 
     completedQuestTotal: 0,
@@ -41,7 +41,7 @@
   function loadState() {
     state.xp = parseInt(localStorage.getItem('meta_xp') || '0', 10);
     state.level = parseInt(localStorage.getItem('meta_level') || '0', 10);
-    state.nextLevel = parseInt(localStorage.getItem('meta_nextLevel') || '100', 10);
+    state.nextLevel = parseInt(localStorage.getItem('meta_nextLevel') || '50', 10);
     state.characterParagon = parseInt(localStorage.getItem('meta_characterParagon') || '0', 10);
 
     state.completedQuestTotal = parseInt(localStorage.getItem('meta_completedQuestTotal') || '0', 10);
@@ -64,7 +64,7 @@
       if (state.level < 100) {
         state.xp -= state.nextLevel;
         state.level += 1;
-        state.nextLevel = Math.floor(state.nextLevel * 1.08 + 5);
+        state.nextLevel = Math.floor(state.nextLevel * 1.04 + 2);
 
         if (state.level >= 100) {
           state.level = 100;
