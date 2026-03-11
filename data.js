@@ -42,16 +42,16 @@ window.MetaData = {
     ],
 
     Endurance: [
-      'Walking',
-      'Long Cycling',
-      'Swimming Endurance',
-      'Cardio Training',
-      'Work Stamina',
-      'Sleep Hygiene',
-      'Recovery Routine',
-      'Backpack Hiking',
-      'Household Chores',
-      'Gardening'
+'Walking',
+'Long Cycling',
+'Swimming Endurance',
+'Cardio Training',
+'Work Stamina',
+'Sleep Hygiene',
+'Recovery Routine',
+'Backpack Hiking',
+'Household Chores',
+'Yard Work'
     ],
 
     Intelligence: [
@@ -141,16 +141,16 @@ window.MetaData = {
     'Basketball': 'Agility',
     'Table Tennis': 'Agility',
 
-'Walking',
-'Long Cycling',
-'Swimming Endurance',
-'Cardio Training',
-'Work Stamina',
-'Sleep Hygiene',
-'Recovery Routine',
-'Backpack Hiking',
-'Household Chores',
-'Yard Work'
+    'Walking': 'Endurance',
+    'Long Cycling': 'Endurance',
+    'Swimming Endurance': 'Endurance',
+    'Cardio Training': 'Endurance',
+    'Work Stamina': 'Endurance',
+    'Sleep Hygiene': 'Endurance',
+    'Recovery Routine': 'Endurance',
+    'Backpack Hiking': 'Endurance',
+    'Household Chores': 'Endurance',
+'Yard Work': 'Endurance',
 
     'Reading': 'Intelligence',
     'Study': 'Intelligence',
@@ -627,18 +627,143 @@ window.MetaData = {
     }
   },
 
-  questTextPools: {
-    genres: [
-      'fantasy',
-      'sci-fi',
-      'history',
-      'psychology',
-      'philosophy',
-      'biography',
-      'economics',
-      'self-development',
-      'mystery',
-      'adventure'
-    ]
-  }
+questTextPools: {
+  genres: [
+    'fantasy',
+    'sci-fi',
+    'history',
+    'psychology',
+    'philosophy',
+    'biography',
+    'economics',
+    'self-development',
+    'mystery',
+    'adventure'
+  ],
+
+  cuisines: [
+    'Italian',
+    'Chinese',
+    'Czech',
+    'Slovak',
+    'Mexican',
+    'Indian',
+    'Mediterranean',
+    'Japanese',
+    'American',
+    'French'
+  ],
+
+  paintStyles: [
+    'fantasy',
+    'sci-fi',
+    'modern',
+    'historical',
+    'grimdark',
+    'post-apocalyptic',
+    'military',
+    'steampunk',
+    'horror',
+    'mythological'
+  ],
+
+  languages: [
+    'English',
+    'German',
+    'Russian',
+    'Slovak',
+    'Czech'
+  ],
+
+  drawingThemes: [
+    'character',
+    'landscape',
+    'object study',
+    'creature',
+    'portrait',
+    'fantasy scene',
+    'sci-fi scene',
+    'architecture',
+    'vehicle',
+    'abstract form'
+  ],
+
+  writingModes: [
+    'journal',
+    'story',
+    'lyrics',
+    'reflection',
+    'character backstory',
+    'scene description',
+    'dialogue',
+    'worldbuilding',
+    'poetry',
+    'idea draft'
+  ],
+
+  photoThemes: [
+    'nature',
+    'architecture',
+    'night lights',
+    'portrait',
+    'street detail',
+    'objects',
+    'sky',
+    'animals',
+    'vehicles',
+    'daily life'
+  ],
+
+  gardenTaskTypes: [
+    'watering',
+    'weeding',
+    'plant care',
+    'soil work',
+    'harvest prep',
+    'seedling care',
+    'garden cleanup',
+    'bed maintenance',
+    'observation',
+    'season prep'
+  ],
+
+  houseZones: [
+    'kitchen',
+    'bathroom',
+    'bedroom',
+    'desk area',
+    'wardrobe',
+    'hallway',
+    'living room',
+    'floor space',
+    'storage area',
+    'car interior'
+  ],
+
+  researchTopics: [
+    'health',
+    'fitness',
+    'finance',
+    'psychology',
+    'language learning',
+    'history',
+    'technology',
+    'gardening',
+    'cooking',
+    'productivity'
+  ],
+
+  planningScopes: [
+    'today',
+    'tomorrow',
+    'this week',
+    'meal prep',
+    'training',
+    'budget',
+    'study session',
+    'project progress',
+    'sleep schedule',
+    'house tasks'
+  ]
+}
 };
