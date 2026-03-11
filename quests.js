@@ -1,6 +1,7 @@
 (function () {
   const { dailyQuestPool, mainQuests } = window.MetaData;
-    function renderAttributeRewards(category, amount = 10) {
+
+  function renderAttributeRewards(category, amount = 10) {
     const rewards = window.MetaStats.getAttributeRewardMap(category, amount);
 
     return Object.entries(rewards)
@@ -68,14 +69,15 @@
 
     window.MetaApp.$('dailyQuestList').innerHTML = quests.map(q => {
       const checked = done.includes(q.id);
+
       return `
         <div class="quest-item">
           <div class="quest-head">
-<div>
-  <div class="quest-title">${q.title}</div>
-  <div class="quest-desc">Daily quest • ${q.xp} main XP reward</div>
-  <div class="small-muted">${renderAttributeRewards(q.category, 10)}</div>
-</div>
+            <div>
+              <div class="quest-title">${q.title}</div>
+              <div class="quest-desc">Daily quest • ${q.xp} main XP reward</div>
+              <div class="small-muted">${renderAttributeRewards(q.category, 10)}</div>
+            </div>
             <span class="tag daily">${q.category}</span>
           </div>
           <div class="checkbox-row">
@@ -105,41 +107,15 @@
 
     const state = window.MetaApp.state;
     state.completedQuestTotal += 1;
-    if (state.dailyCategoryProgress[quest.category] != null) state.dailyCategoryProgress[quest.category] += 1;
 
-    window.MetaStats.rewardAttributeXP(quest.category, 1);
+    if (state.dailyCategoryProgress[quest.category] != null) {
+      state.dailyCategoryProgress[quest.category] += 1;
+    }
+
+    window.MetaStats.rewardAttributeXP(quest.category, 10);
     window.MetaApp.gainXP(quest.xp);
     updateStreakForToday(true);
     renderDailyQuests();
-  }
-
-  function renderMainQuests() {
-    const state = window.MetaApp.state;
-
-    window.MetaApp.$('mainQuestList').innerHTML = mainQuests.map(q => {
-      const current = state.mainQuestProgress[q.id] || 0;
-      const percent = Math.min(100, (current / q.steps) * 100);
-      const done = current >= q.steps;
-
-      return `
-        <div class="quest-item">
-          <div class="quest-head">
-<div>
-  <div class="quest-title">${q.title}</div>
-  <div class="quest-desc">${q.desc}</div>
-  <div class="small-muted">${renderAttributeRewards(getMainQuestCategory(q), 10)}</div>
-</div>
-            <span class="tag main">${current}/${q.steps}</span>
-          </div>
-          <div class="progress-shell"><div class="progress-fill good" style="width:${percent}%"></div></div>
-          <div class="quest-progress-row">
-            <button class="step-btn" onclick="changeMainQuestProgress('${q.id}', -1)">−</button>
-            <div class="small-muted" style="text-align:center;">${done ? 'Completed' : `${q.xpReward} XP on completion`}</div>
-            <button class="step-btn" onclick="changeMainQuestProgress('${q.id}', 1)">+</button>
-          </div>
-        </div>
-      `;
-    }).join('');
   }
 
   function getMainQuestCategory(quest) {
@@ -171,6 +147,35 @@
     return 'Discipline';
   }
 
+  function renderMainQuests() {
+    const state = window.MetaApp.state;
+
+    window.MetaApp.$('mainQuestList').innerHTML = mainQuests.map(q => {
+      const current = state.mainQuestProgress[q.id] || 0;
+      const percent = Math.min(100, (current / q.steps) * 100);
+      const done = current >= q.steps;
+
+      return `
+        <div class="quest-item">
+          <div class="quest-head">
+            <div>
+              <div class="quest-title">${q.title}</div>
+              <div class="quest-desc">${q.desc}</div>
+              <div class="small-muted">${renderAttributeRewards(getMainQuestCategory(q), 10)}</div>
+            </div>
+            <span class="tag main">${current}/${q.steps}</span>
+          </div>
+          <div class="progress-shell"><div class="progress-fill good" style="width:${percent}%"></div></div>
+          <div class="quest-progress-row">
+            <button class="step-btn" onclick="changeMainQuestProgress('${q.id}', -1)">−</button>
+            <div class="small-muted" style="text-align:center;">${done ? 'Completed' : `${q.xpReward} XP on completion`}</div>
+            <button class="step-btn" onclick="changeMainQuestProgress('${q.id}', 1)">+</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
   function changeMainQuestProgress(id, delta) {
     const quest = mainQuests.find(q => q.id === id);
     if (!quest) return;
@@ -188,7 +193,7 @@
       state.completedQuestTotal += 1;
 
       const category = getMainQuestCategory(quest);
-      window.MetaStats.rewardAttributeXP(category, 1);
+      window.MetaStats.rewardAttributeXP(category, 10);
 
       updateStreakForToday(true);
     }
