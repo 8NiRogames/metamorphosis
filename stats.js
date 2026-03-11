@@ -1,5 +1,5 @@
 (function () {
-  const { skillTree } = window.MetaData;
+  const { skillTree, xpConfig } = window.MetaData;
 
   const ATTRS = [
     'Strength',
@@ -12,11 +12,11 @@
     'Wisdom'
   ];
 
-  function makeProgress(level = 0, xp = 0, nextXp = 30, paragon = 0) {
+  function makeProgress(level = 0, xp = 0, nextXp = xpConfig.skill.base, paragon = 0) {
     return { level, xp, nextXp, paragon };
   }
 
-  function normalizeProgress(value, fallbackNextXp = 30) {
+  function normalizeProgress(value, fallbackNextXp = xpConfig.skill.base) {
     if (value && typeof value === 'object') {
       return {
         level: Number(value.level || 0),
@@ -43,11 +43,11 @@
 
     ATTRS.forEach(attr => {
       if (!state.selectedSkills[attr]) state.selectedSkills[attr] = [];
-      if (!state.attributeStats[attr]) state.attributeStats[attr] = makeProgress(0, 0, 40, 0);
-      state.attributeStats[attr] = normalizeProgress(state.attributeStats[attr], 40);
+      if (!state.attributeStats[attr]) state.attributeStats[attr] = makeProgress(0, 0, xpConfig.attribute.base, 0);
+      state.attributeStats[attr] = normalizeProgress(state.attributeStats[attr], xpConfig.attribute.base);
 
       skillTree[attr].forEach(skill => {
-        state.skillValues[skill] = normalizeProgress(state.skillValues[skill], 30);
+        state.skillValues[skill] = normalizeProgress(state.skillValues[skill], xpConfig.skill.base);
       });
     });
   }
@@ -72,7 +72,7 @@
       if (stat.level < 100) {
         stat.xp -= stat.nextXp;
         stat.level += 1;
-        stat.nextXp = Math.floor(stat.nextXp * 1.03 + 1);
+        stat.nextXp = Math.floor(stat.nextXp * xpConfig.attribute.multiplier + xpConfig.attribute.flat);
 
         if (stat.level >= 100) {
           stat.level = 100;
@@ -97,7 +97,7 @@
       if (skillData.level < 100) {
         skillData.xp -= skillData.nextXp;
         skillData.level += 1;
-        skillData.nextXp = Math.floor(skillData.nextXp * 1.025 + 1);
+        skillData.nextXp = Math.floor(skillData.nextXp * xpConfig.skill.multiplier + xpConfig.skill.flat);
 
         gainAttributeXP(attr, 10);
 
