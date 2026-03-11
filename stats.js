@@ -12,11 +12,11 @@
     'Wisdom'
   ];
 
-  function makeProgress(level = 0, xp = 0, nextXp = 60, paragon = 0) {
+  function makeProgress(level = 0, xp = 0, nextXp = 30, paragon = 0) {
     return { level, xp, nextXp, paragon };
   }
 
-  function normalizeProgress(value, fallbackNextXp = 60) {
+  function normalizeProgress(value, fallbackNextXp = 30) {
     if (value && typeof value === 'object') {
       return {
         level: Number(value.level || 0),
@@ -43,11 +43,11 @@
 
     ATTRS.forEach(attr => {
       if (!state.selectedSkills[attr]) state.selectedSkills[attr] = [];
-      if (!state.attributeStats[attr]) state.attributeStats[attr] = makeProgress(0, 0, 80, 0);
-      state.attributeStats[attr] = normalizeProgress(state.attributeStats[attr], 80);
+      if (!state.attributeStats[attr]) state.attributeStats[attr] = makeProgress(0, 0, 40, 0);
+      state.attributeStats[attr] = normalizeProgress(state.attributeStats[attr], 40);
 
       skillTree[attr].forEach(skill => {
-        state.skillValues[skill] = normalizeProgress(state.skillValues[skill], 60);
+        state.skillValues[skill] = normalizeProgress(state.skillValues[skill], 30);
       });
     });
   }
@@ -72,7 +72,7 @@
       if (stat.level < 100) {
         stat.xp -= stat.nextXp;
         stat.level += 1;
-        stat.nextXp = Math.floor(stat.nextXp * 1.06 + 2);
+        stat.nextXp = Math.floor(stat.nextXp * 1.03 + 1);
 
         if (stat.level >= 100) {
           stat.level = 100;
@@ -97,9 +97,9 @@
       if (skillData.level < 100) {
         skillData.xp -= skillData.nextXp;
         skillData.level += 1;
-        skillData.nextXp = Math.floor(skillData.nextXp * 1.05 + 1);
+        skillData.nextXp = Math.floor(skillData.nextXp * 1.025 + 1);
 
-        gainAttributeXP(attr, 12);
+        gainAttributeXP(attr, 10);
 
         if (skillData.level >= 100) {
           skillData.level = 100;
