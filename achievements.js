@@ -1,5 +1,5 @@
 (function () {
-  const { achievementFamilies, mainQuestFamilies } = window.MetaData;
+  const { achievementFamilies } = window.MetaData;
 
   function getFamilyProgress(family) {
     const state = window.MetaApp.state;
@@ -28,6 +28,18 @@
     }
   }
 
+  function getAchievementTierClass(family, progress) {
+    const nextMilestone = family.milestones.find(step => step > progress) || null;
+    const maxMilestone = family.milestones[family.milestones.length - 1];
+
+    if (nextMilestone === null) return 'legendary';
+    if (nextMilestone <= 10) return 'easy';
+    if (nextMilestone <= 100) return 'medium';
+    if (maxMilestone >= 250) return 'legendary';
+
+    return 'medium';
+  }
+
   function getMilestoneCount(family) {
     const progress = getFamilyProgress(family);
     return family.milestones.filter(step => progress >= step).length;
@@ -49,7 +61,7 @@
             <div class="achievement-title">${nextMilestone === null ? '🏆' : '🔒'} ${family.title}</div>
             <div class="achievement-desc">Progress: ${progress} • Next: ${nextMilestone ?? 'Completed'} • Reward: +${family.rewardXp} Character XP</div>
           </div>
-          <span class="tag ${nextMilestone === null ? 'legendary' : (nextMilestone <= 10 ? 'easy' : nextMilestone <= 100 ? 'medium' : 'legendary')}">${unlockedCount}/${family.milestones.length}</span>
+          <span class="tag ${getAchievementTierClass(family, progress)}">${unlockedCount}/${family.milestones.length}</span>
         </div>
         <div class="progress-shell">
           <div class="progress-fill ${nextMilestone === null ? 'good' : ''}" style="width:${percent}%"></div>
@@ -66,13 +78,30 @@
     achievementFamilies.forEach(family => {
       const progress = getFamilyProgress(family);
       const nextMilestone = family.milestones.find(step => step > progress) || null;
+      const maxMilestone = family.milestones[family.milestones.length - 1];
 
-      if (nextMilestone === null || nextMilestone > 100) {
+      if (nextMilestone === null) {
         legendary.push(family);
-      } else if (nextMilestone > 10) {
+        return;
+      }
+
+      if (maxMilestone >= 250) {
+        if (nextMilestone <= 10) {
+          quick.push(family);
+        } else if (nextMilestone <= 100) {
+          steady.push(family);
+        } else {
+          legendary.push(family);
+        }
+        return;
+      }
+
+      if (nextMilestone <= 10) {
+        quick.push(family);
+      } else if (nextMilestone <= 100) {
         steady.push(family);
       } else {
-        quick.push(family);
+        legendary.push(family);
       }
     });
 
