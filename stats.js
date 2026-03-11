@@ -12,8 +12,8 @@
     'Wisdom'
   ];
 
-  function makeProgress(level = 0, xp = 0, nextXp = 100) {
-    return { level, xp, nextXp };
+  function makeProgress(level = 0, xp = 0, nextXp = 100, paragon = 0) {
+    return { level, xp, nextXp, paragon };
   }
 
   function normalizeProgress(value) {
@@ -21,7 +21,8 @@
       return {
         level: Number(value.level || 0),
         xp: Number(value.xp || 0),
-        nextXp: Number(value.nextXp || 100)
+        nextXp: Number(value.nextXp || 100),
+        paragon: Number(value.paragon || 0)
       };
     }
 
@@ -29,7 +30,8 @@
       return {
         level: Math.max(0, Math.min(100, value)),
         xp: 0,
-        nextXp: 100
+        nextXp: 100,
+        paragon: 0
       };
     }
 
@@ -42,6 +44,7 @@
     ATTRS.forEach(attr => {
       if (!state.selectedSkills[attr]) state.selectedSkills[attr] = [];
       if (!state.attributeStats[attr]) state.attributeStats[attr] = makeProgress();
+      state.attributeStats[attr] = normalizeProgress(state.attributeStats[attr]);
 
       skillTree[attr].forEach(skill => {
         state.skillValues[skill] = normalizeProgress(state.skillValues[skill]);
@@ -61,19 +64,23 @@
     const state = window.MetaApp.state;
     const stat = state.attributeStats[attr];
 
-    if (!stat || stat.level >= 100) return;
+    if (!stat) return;
 
     stat.xp += amount;
 
-    while (stat.xp >= stat.nextXp && stat.level < 100) {
-      stat.xp -= stat.nextXp;
-      stat.level += 1;
-      stat.nextXp = Math.floor(stat.nextXp * 1.12);
-    }
+    while (stat.xp >= stat.nextXp) {
+      if (stat.level < 100) {
+        stat.xp -= stat.nextXp;
+        stat.level += 1;
+        stat.nextXp = Math.floor(stat.nextXp * 1.12);
 
-    if (stat.level >= 100) {
-      stat.level = 100;
-      stat.xp = 0;
+        if (stat.level >= 100) {
+          stat.level = 100;
+        }
+      } else {
+        stat.xp -= stat.nextXp;
+        stat.paragon += 1;
+      }
     }
   }
 
@@ -82,21 +89,25 @@
     ensureSkillAttached(attr, skill);
 
     const skillData = state.skillValues[skill];
-    if (!skillData || skillData.level >= 100) return;
+    if (!skillData) return;
 
     skillData.xp += amount;
 
-    while (skillData.xp >= skillData.nextXp && skillData.level < 100) {
-      skillData.xp -= skillData.nextXp;
-      skillData.level += 1;
-      skillData.nextXp = Math.floor(skillData.nextXp * 1.1);
+    while (skillData.xp >= skillData.nextXp) {
+      if (skillData.level < 100) {
+        skillData.xp -= skillData.nextXp;
+        skillData.level += 1;
+        skillData.nextXp = Math.floor(skillData.nextXp * 1.1);
 
-      gainAttributeXP(attr, 15);
-    }
+        gainAttributeXP(attr, 15);
 
-    if (skillData.level >= 100) {
-      skillData.level = 100;
-      skillData.xp = 0;
+        if (skillData.level >= 100) {
+          skillData.level = 100;
+        }
+      } else {
+        skillData.xp -= skillData.nextXp;
+        skillData.paragon += 1;
+      }
     }
   }
 
@@ -110,6 +121,11 @@
     const stat = state.attributeStats[attr];
     if (!stat) return 0;
     return Math.min(100, (stat.xp / stat.nextXp) * 100);
+  }
+
+  function getAttributeParagon(attr) {
+    const state = window.MetaApp.state;
+    return state.attributeStats[attr]?.paragon || 0;
   }
 
   function renderAttributes() {
@@ -134,13 +150,13 @@
       <div class="attr-card">
         <div class="attr-head">
           <div class="attr-title">${attr}</div>
-          <span class="tag">Level ${stat.level}</span>
+          <span class="tag">Level ${stat.level} • Paragon ${stat.paragon}</span>
         </div>
         <div class="progress-shell">
           <div class="progress-fill" style="width:${getAttributePercent(attr)}%"></div>
         </div>
         <div class="inline-note">XP ${stat.xp} / ${stat.nextXp}</div>
-        <div class="inline-note">Primary attribute grows from skill level-ups.</div>
+        <div class="inline-note">Primary attribute grows from skill level-ups. At max level it continues into paragon.</div>
 
         <select onchange="addSkillToAttribute('${attr}', this.value)">
           <option value="">Add a skill to ${attr}</option>
@@ -163,7 +179,7 @@
       <div class="skill-card">
         <div class="skill-head">
           <div class="skill-title">${skill}</div>
-          <span class="tag">Level ${skillData.level}</span>
+          <span class="tag">Level ${skillData.level} • Paragon ${skillData.paragon}</span>
         </div>
         <div class="progress-shell">
           <div class="progress-fill warn" style="width:${percent}%"></div>
@@ -222,6 +238,7 @@
     renderAttributes,
     getAttributeLevel,
     getAttributePercent,
+    getAttributeParagon,
     gainSkillXP,
     ensureSkillAttached,
     gainAttributeXP
