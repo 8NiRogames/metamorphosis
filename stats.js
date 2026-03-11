@@ -69,81 +69,54 @@
     }
   }
 
-  function rewardAttributeXP(category, amount = 10) {
-    function getAttributeRewardMap(category, amount = 10) {
-  switch (category) {
-    case 'Body':
-      return {
-        Strength: amount,
-        Dexterity: amount,
-        Agility: amount,
-        Endurance: amount * 2
-      };
-
-    case 'Mind':
-      return {
-        Intelligence: amount * 2,
-        Willpower: amount,
-        Wits: amount,
-        Wisdom: amount * 2
-      };
-
-    case 'Discipline':
-      return {
-        Willpower: amount * 2,
-        Wisdom: amount,
-        Endurance: amount
-      };
-
-    case 'Social':
-      return {
-        Wits: amount * 2,
-        Wisdom: amount
-      };
-
-    case 'Life':
-      return {
-        Endurance: amount,
-        Wisdom: amount * 2
-      };
-
-    default:
-      return {};
-  }
-}
-    const add = (attr, value) => gainAttributeXP(attr, value);
-
+  function getAttributeRewardMap(category, amount = 10) {
     switch (category) {
       case 'Body':
-        add('Strength', amount);
-        add('Dexterity', amount);
-        add('Agility', amount);
-        add('Endurance', amount * 2);
-        break;
+        return {
+          Strength: amount,
+          Dexterity: amount,
+          Agility: amount,
+          Endurance: amount * 2
+        };
 
       case 'Mind':
-        add('Intelligence', amount * 2);
-        add('Willpower', amount);
-        add('Wits', amount);
-        add('Wisdom', amount * 2);
-        break;
+        return {
+          Intelligence: amount * 2,
+          Willpower: amount,
+          Wits: amount,
+          Wisdom: amount * 2
+        };
 
       case 'Discipline':
-        add('Willpower', amount * 2);
-        add('Wisdom', amount);
-        add('Endurance', amount);
-        break;
+        return {
+          Willpower: amount * 2,
+          Wisdom: amount,
+          Endurance: amount
+        };
 
       case 'Social':
-        add('Wits', amount * 2);
-        add('Wisdom', amount);
-        break;
+        return {
+          Wits: amount * 2,
+          Wisdom: amount
+        };
 
       case 'Life':
-        add('Endurance', amount);
-        add('Wisdom', amount * 2);
-        break;
+        return {
+          Endurance: amount,
+          Wisdom: amount * 2
+        };
+
+      default:
+        return {};
     }
+  }
+
+  function rewardAttributeXP(category, amount = 10) {
+    const rewards = getAttributeRewardMap(category, amount);
+
+    Object.entries(rewards).forEach(([attr, value]) => {
+      gainAttributeXP(attr, value);
+    });
   }
 
   function getAttributeLevel(attr) {
@@ -282,14 +255,14 @@
     window.MetaApp.updateUI();
   }
 
-window.MetaStats = {
-  rewardAttributeXP,
-  getAttributeRewardMap,
-  initializeSkillState,
-  renderAttributes,
-  getAttributeLevel,
-  getAttributePercent
-};
+  window.MetaStats = {
+    rewardAttributeXP,
+    getAttributeRewardMap,
+    initializeSkillState,
+    renderAttributes,
+    getAttributeLevel,
+    getAttributePercent
+  };
 
   window.addSkillToAttribute = addSkillToAttribute;
   window.changeSkillValue = changeSkillValue;
