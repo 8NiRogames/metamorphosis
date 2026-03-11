@@ -1,19 +1,22 @@
 (function () {
-const state = {
-  xp: 0,
-  level: 0,
-  nextLevel: 100,
-  completedQuestTotal: 0,
-  completedDays: 0,
-  streak: 0,
-  mainQuestStepCount: 0,
-  totalXpEarned: 0,
-  attributeStats: {},
-  selectedSkills: {},
-  skillValues: {},
-  dailyCategoryProgress: { Mind: 0, Body: 0, Discipline: 0, Social: 0, Life: 0 },
-  mainQuestProgress: {}
-};
+  const state = {
+    xp: 0,
+    level: 0,
+    nextLevel: 100,
+    characterParagon: 0,
+
+    completedQuestTotal: 0,
+    completedDays: 0,
+    streak: 0,
+    mainQuestStepCount: 0,
+    totalXpEarned: 0,
+
+    attributeStats: {},
+    selectedSkills: {},
+    skillValues: {},
+    dailyCategoryProgress: { Mind: 0, Body: 0, Discipline: 0, Social: 0, Life: 0 },
+    mainQuestProgress: {}
+  };
 
   const $ = (id) => document.getElementById(id);
 
@@ -21,6 +24,8 @@ const state = {
     localStorage.setItem('meta_xp', state.xp);
     localStorage.setItem('meta_level', state.level);
     localStorage.setItem('meta_nextLevel', state.nextLevel);
+    localStorage.setItem('meta_characterParagon', state.characterParagon);
+
     localStorage.setItem('meta_completedQuestTotal', state.completedQuestTotal);
     localStorage.setItem('meta_completedDays', state.completedDays);
     localStorage.setItem('meta_streak', state.streak);
@@ -30,13 +35,15 @@ const state = {
     localStorage.setItem('meta_skillValues', JSON.stringify(state.skillValues));
     localStorage.setItem('meta_dailyCategoryProgress', JSON.stringify(state.dailyCategoryProgress));
     localStorage.setItem('meta_totalXpEarned', state.totalXpEarned);
-localStorage.setItem('meta_attributeStats', JSON.stringify(state.attributeStats));
+    localStorage.setItem('meta_attributeStats', JSON.stringify(state.attributeStats));
   }
 
   function loadState() {
     state.xp = parseInt(localStorage.getItem('meta_xp') || '0', 10);
     state.level = parseInt(localStorage.getItem('meta_level') || '0', 10);
     state.nextLevel = parseInt(localStorage.getItem('meta_nextLevel') || '100', 10);
+    state.characterParagon = parseInt(localStorage.getItem('meta_characterParagon') || '0', 10);
+
     state.completedQuestTotal = parseInt(localStorage.getItem('meta_completedQuestTotal') || '0', 10);
     state.completedDays = parseInt(localStorage.getItem('meta_completedDays') || '0', 10);
     state.streak = parseInt(localStorage.getItem('meta_streak') || '0', 10);
@@ -46,7 +53,7 @@ localStorage.setItem('meta_attributeStats', JSON.stringify(state.attributeStats)
     state.skillValues = JSON.parse(localStorage.getItem('meta_skillValues') || '{}');
     state.dailyCategoryProgress = JSON.parse(localStorage.getItem('meta_dailyCategoryProgress') || '{"Mind":0,"Body":0,"Discipline":0,"Social":0,"Life":0}');
     state.totalXpEarned = parseInt(localStorage.getItem('meta_totalXpEarned') || '0', 10);
-state.attributeStats = JSON.parse(localStorage.getItem('meta_attributeStats') || '{}');
+    state.attributeStats = JSON.parse(localStorage.getItem('meta_attributeStats') || '{}');
   }
 
   function gainXP(amount) {
@@ -54,36 +61,68 @@ state.attributeStats = JSON.parse(localStorage.getItem('meta_attributeStats') ||
     state.totalXpEarned += amount;
 
     while (state.xp >= state.nextLevel) {
-      state.xp -= state.nextLevel;
-      state.level += 1;
-      state.nextLevel = Math.floor(state.nextLevel * 1.22);
+      if (state.level < 100) {
+        state.xp -= state.nextLevel;
+        state.level += 1;
+        state.nextLevel = Math.floor(state.nextLevel * 1.22);
+
+        if (state.level >= 100) {
+          state.level = 100;
+        }
+      } else {
+        state.xp -= state.nextLevel;
+        state.characterParagon += 1;
+      }
     }
 
     updateUI();
     saveState();
   }
 
-function renderHomePreview() {
-  const previews = ['Strength', 'Endurance', 'Intelligence', 'Wisdom'];
+  function getAttributeParagonTotal() {
+    return Object.values(state.attributeStats || {}).reduce((sum, stat) => sum + (stat?.paragon || 0), 0);
+  }
 
-  $('homeSkillPreview').innerHTML = previews.map(attr => {
-    const level = window.MetaStats.getAttributeLevel(attr);
-    const percent = window.MetaStats.getAttributePercent(attr);
+  function getSkillParagonTotal() {
+    return Object.values(state.skillValues || {}).reduce((sum, stat) => sum + (stat?.paragon || 0), 0);
+  }
 
-    return `
-      <div class="mini-stat">
-        <strong>${attr}</strong>
-        <div class="progress-shell"><div class="progress-fill" style="width:${percent}%"></div></div>
-        <div class="small-muted" style="margin-top:6px;">Level ${level}</div>
-      </div>
-    `;
-  }).join('');
-}
+  function getTotalParagon() {
+    return state.characterParagon + getAttributeParagonTotal() + getSkillParagonTotal();
+  }
+
+  function renderHomePreview() {
+    const previews = [
+      'Strength',
+      'Dexterity',
+      'Agility',
+      'Endurance',
+      'Intelligence',
+      'Willpower',
+      'Wits',
+      'Wisdom'
+    ];
+
+    $('homeSkillPreview').innerHTML = previews.map(attr => {
+      const level = window.MetaStats.getAttributeLevel(attr);
+      const percent = window.MetaStats.getAttributePercent(attr);
+      const paragon = window.MetaStats.getAttributeParagon(attr);
+
+      return `
+        <div class="mini-stat">
+          <strong>${attr}</strong>
+          <div class="progress-shell"><div class="progress-fill" style="width:${percent}%"></div></div>
+          <div class="small-muted" style="margin-top:6px;">Level ${level} • Paragon ${paragon}</div>
+        </div>
+      `;
+    }).join('');
+  }
 
   function updateUI() {
     $('xp').textContent = state.xp;
     $('level').textContent = state.level;
     $('nextLevel').textContent = state.nextLevel;
+
     $('homeXp').textContent = state.xp;
     $('homeLevel').textContent = state.level;
     $('homeNextLevel').textContent = state.nextLevel;
@@ -96,6 +135,22 @@ function renderHomePreview() {
     $('completedDaysCount').textContent = state.completedDays;
     $('mainQuestStepCount').textContent = state.mainQuestStepCount;
     $('streakNumber').textContent = state.streak;
+
+    const attributeParagon = getAttributeParagonTotal();
+    const skillParagon = getSkillParagonTotal();
+    const totalParagon = getTotalParagon();
+
+    $('characterParagon').textContent = state.characterParagon;
+    $('totalParagon').textContent = totalParagon;
+    $('paragonCharacterOnly').textContent = state.characterParagon;
+    $('paragonAttributesOnly').textContent = attributeParagon;
+    $('paragonSkillsOnly').textContent = skillParagon;
+
+    $('homeCharacterParagon').textContent = state.characterParagon;
+    $('homeTotalParagon').textContent = totalParagon;
+    $('homeParagonCharacterOnly').textContent = state.characterParagon;
+    $('homeParagonAttributesOnly').textContent = attributeParagon;
+    $('homeParagonSkillsOnly').textContent = skillParagon;
 
     renderHomePreview();
     window.MetaAchievements.renderAchievements();
@@ -177,6 +232,7 @@ function renderHomePreview() {
     loadState,
     gainXP,
     updateUI,
+    getTotalParagon,
     init
   };
 
