@@ -17,7 +17,9 @@
     selectedSkills: {},
     skillValues: {},
     dailyCategoryProgress: { Mind: 0, Body: 0, Discipline: 0, Social: 0, Life: 0 },
-    mainQuestProgress: {}
+    mainQuestProgress: {},
+
+    theme: 'dark'
   };
 
   const $ = (id) => document.getElementById(id);
@@ -38,6 +40,7 @@
     localStorage.setItem('meta_dailyCategoryProgress', JSON.stringify(state.dailyCategoryProgress));
     localStorage.setItem('meta_totalXpEarned', state.totalXpEarned);
     localStorage.setItem('meta_attributeStats', JSON.stringify(state.attributeStats));
+    localStorage.setItem('meta_theme', state.theme);
   }
 
   function loadState() {
@@ -56,6 +59,21 @@
     state.dailyCategoryProgress = JSON.parse(localStorage.getItem('meta_dailyCategoryProgress') || '{"Mind":0,"Body":0,"Discipline":0,"Social":0,"Life":0}');
     state.totalXpEarned = parseInt(localStorage.getItem('meta_totalXpEarned') || '0', 10);
     state.attributeStats = JSON.parse(localStorage.getItem('meta_attributeStats') || '{}');
+    state.theme = localStorage.getItem('meta_theme') || 'dark';
+  }
+
+  function applyTheme() {
+    document.body.setAttribute('data-theme', state.theme);
+    const btn = $('themeToggleBtn');
+    if (btn) {
+      btn.textContent = state.theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+    }
+  }
+
+  function toggleTheme() {
+    state.theme = state.theme === 'dark' ? 'light' : 'dark';
+    applyTheme();
+    saveState();
   }
 
   function gainXP(amount) {
@@ -218,6 +236,7 @@
 
   function init() {
     loadState();
+    applyTheme();
     window.MetaStats.initializeSkillState();
     window.MetaQuests.processMissedDayPenalty();
     setupPageNavigation();
@@ -241,6 +260,7 @@
   window.openResetModal = openResetModal;
   window.closeResetModal = closeResetModal;
   window.confirmResetCharacter = confirmResetCharacter;
+  window.toggleTheme = toggleTheme;
 
   document.addEventListener('DOMContentLoaded', init);
 })();
