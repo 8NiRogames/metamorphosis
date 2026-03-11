@@ -181,9 +181,32 @@
             <div class="small-muted" style="text-align:center;">${progress} ${family.unit}</div>
             <button class="step-btn" onclick="changeMainQuestProgress('${family.id}', 1)">+</button>
           </div>
+
+          <div style="display:flex; gap:10px; margin-top:10px; align-items:center;">
+            <input
+              type="number"
+              min="1"
+              step="1"
+              id="bulk_${family.id}"
+              placeholder="Add amount"
+              style="flex:1; background:#111119; color:var(--text); border:1px solid var(--border); border-radius:10px; padding:10px;"
+            />
+            <button class="btn" onclick="applyMainQuestBulk('${family.id}')">Add</button>
+          </div>
         </div>
       `;
     }).join('');
+  }
+
+  function applyMainQuestBulk(id) {
+    const input = window.MetaApp.$(`bulk_${id}`);
+    if (!input) return;
+
+    const amount = parseInt(input.value, 10);
+    if (!amount || amount < 1) return;
+
+    changeMainQuestProgress(id, amount);
+    input.value = '';
   }
 
   function changeMainQuestProgress(id, delta) {
@@ -199,11 +222,11 @@
     state.mainQuestProgress[id] = nextValue;
 
     if (delta > 0) {
-      state.mainQuestStepCount += 1;
+      state.mainQuestStepCount += delta;
       state.completedQuestTotal += 1;
 
       const attr = skillToAttribute[family.skill];
-      window.MetaStats.gainSkillXP(attr, family.skill, 15);
+      window.MetaStats.gainSkillXP(attr, family.skill, 15 * delta);
       updateStreakForToday(true);
     }
 
@@ -212,6 +235,7 @@
 
     if (newMilestones > oldMilestones) {
       const rewardCount = newMilestones - oldMilestones;
+
       for (let i = 0; i < rewardCount; i++) {
         const attr = skillToAttribute[family.skill];
         window.MetaStats.gainSkillXP(attr, family.skill, 25);
@@ -266,4 +290,5 @@
   window.rerollDailyQuests = rerollDailyQuests;
   window.completeDailyQuest = completeDailyQuest;
   window.changeMainQuestProgress = changeMainQuestProgress;
+  window.applyMainQuestBulk = applyMainQuestBulk;
 })();
