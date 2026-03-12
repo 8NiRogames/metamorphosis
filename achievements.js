@@ -5,6 +5,12 @@ window.MetaAchievements = (function () {
     return window.MetaApp.state;
   }
 
+  function ensureFavorites() {
+    if (!state().achievements.favorites) {
+      state().achievements.favorites = [];
+    }
+  }
+
   function getProgress(family) {
     const s = state();
 
@@ -42,31 +48,59 @@ window.MetaAchievements = (function () {
     return 'legendary';
   }
 
-  function buildCard(family) {
+  function toggleFavorite(id) {
+    ensureFavorites();
+    const arr = state().achievements.favorites;
+    if (arr.includes(id)) {
+      state().achievements.favorites = arr.filter(x => x !== id);
+    } else {
+      arr.push(id);
+    }
+    window.MetaApp.save();
+    renderAchievements();
+  }
+
+  function cardHtml(family, favoriteOnly = false) {
     const progress = getProgress(family);
     const next = nextMilestone(family, progress);
     const unlocked = unlockedCount(family, progress);
     const prev = unlocked > 0 ? family.milestones[unlocked - 1] : 0;
     const percent = next ? Math.min(100, ((progress - prev) / (next - prev)) * 100) : 100;
+    const tier = tierClass(family, progress);
+    const favorite = state().achievements.favorites.includes(family.id);
 
     return `
-      <div class="achievement-item">
+      <div class="achievement-item ${unlocked > 0 ? 'achievement-unlocked' : ''}">
         <div class="achievement-head">
           <div>
             <div class="achievement-title">${next === null ? '🏆' : '🔒'} ${family.title}</div>
             <div class="achievement-desc">Progress: ${progress} • Next: ${next ?? 'Completed'} • Reward: +${family.rewardXp} Character XP</div>
           </div>
-          <span class="tag ${tierClass(family, progress)}">${unlocked}/${family.milestones.length}</span>
+          <span class="tag ${tier}">${unlocked}/${family.milestones.length}</span>
         </div>
 
         <div class="progress-shell">
-          <div class="progress-fill ${next === null ? 'good' : ''}" style="width:${percent}%"></div>
+          <div class="progress-fill animated-fill ${next === null ? 'good' : ''}" style="width:${percent}%"></div>
+        </div>
+
+        <div class="achievement-actions">
+          <button class="favorite-btn ${favorite ? 'active' : ''}" onclick="MetaAchievements.toggleFavorite('${family.id}')">
+            ${favorite ? '★ Favorited' : '☆ Favorite'}
+          </button>
         </div>
       </div>
     `;
   }
 
+  function setTabVisibility(id, visible) {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    btn.classList.toggle('hidden-tab', !visible);
+  }
+
   function renderAchievements() {
+    ensureFavorites();
+
     const quick = [];
     const medium = [];
     const legendary = [];
@@ -79,10 +113,31 @@ window.MetaAchievements = (function () {
       else legendary.push(family);
     });
 
-    document.getElementById('achievementListEasy').innerHTML = quick.map(buildCard).join('');
-    document.getElementById('achievementListMedium').innerHTML = medium.map(buildCard).join('');
-    document.getElementById('achievementListLegendary').innerHTML = legendary.map(buildCard).join('');
+    const favorites = achievementFamilies.filter(f => state().achievements.favorites.includes(f.id));
+
+    document.getElementById('achievementListEasy').innerHTML = quick.length
+      ? quick.map(f => cardHtml(f)).join('')
+      : `<div class="notice-box"><p>No quick achievements yet.</p></div>`;
+
+    document.getElementById('achievementListMedium').innerHTML = medium.length
+      ? medium.map(f => cardHtml(f)).join('')
+      : `<div class="notice-box"><p>No steady achievements yet.</p></div>`;
+
+    document.getElementById('achievementListLegendary').innerHTML = legendary.length
+      ? legendary.map(f => cardHtml(f)).join('')
+      : `<div class="notice-box"><p>No legendary achievements yet.</p></div>`;
+
+    document.getElementById('achievementListFavorites').innerHTML = favorites.length
+      ? favorites.map(f => cardHtml(f, true)).join('')
+      : `<div class="notice-box"><p>No favorite achievements yet.</p></div>`;
+
+    setTabVisibility('tab-achievements-medium', medium.length > 0);
+    setTabVisibility('tab-achievements-legendary', legendary.length > 0);
+    setTabVisibility('tab-achievements-favorites', favorites.length > 0);
   }
 
-  return { renderAchievements };
+  return {
+    toggleFavorite,
+    renderAchievements
+  };
 })();
