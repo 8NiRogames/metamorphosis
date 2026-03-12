@@ -11,6 +11,14 @@ window.MetaApp = (function () {
     window.MetaStore.save(state);
   }
 
+  function safeCall(label, fn) {
+    try {
+      fn();
+    } catch (err) {
+      console.error(`[Metamorphosis] ${label} failed:`, err);
+    }
+  }
+
   function applyTheme() {
     document.body.setAttribute('data-theme', state.ui.theme);
     const btn = $('themeToggleBtn');
@@ -19,7 +27,7 @@ window.MetaApp = (function () {
     }
   }
 
-  function toggleTheme() {
+  function toggleThemeInternal() {
     state.ui.theme = state.ui.theme === 'dark' ? 'light' : 'dark';
     applyTheme();
     save();
@@ -27,109 +35,137 @@ window.MetaApp = (function () {
 
   function setPage(pageKey) {
     state.ui.activePage = pageKey;
-    document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-    document.querySelectorAll('[data-page-link]').forEach(btn => btn.classList.remove('active'));
+
+    document.querySelectorAll('.page').forEach((page) => {
+      page.classList.remove('active');
+    });
+
+    document.querySelectorAll('[data-page-link]').forEach((btn) => {
+      btn.classList.remove('active');
+    });
 
     const page = $(`page-${pageKey}`);
-    if (page) page.classList.add('active');
+    if (page) {
+      page.classList.add('active');
+    }
 
-    document.querySelectorAll(`[data-page-link="${pageKey}"]`).forEach(btn => btn.classList.add('active'));
+    document.querySelectorAll(`[data-page-link="${pageKey}"]`).forEach((btn) => {
+      btn.classList.add('active');
+    });
+
     save();
   }
 
   function setupNavigation() {
-    document.querySelectorAll('[data-page-link]').forEach(btn => {
-      btn.addEventListener('click', () => setPage(btn.dataset.pageLink));
+    document.querySelectorAll('[data-page-link]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        setPage(btn.dataset.pageLink);
+      });
     });
 
-    document.querySelectorAll('.tab-btn').forEach(btn => {
+    document.querySelectorAll('.tab-btn').forEach((btn) => {
       btn.addEventListener('click', () => {
         const group = btn.dataset.subtab;
         const target = btn.dataset.target;
 
-        document.querySelectorAll(`.tab-btn[data-subtab="${group}"]`).forEach(b => b.classList.remove('active'));
-        document.querySelectorAll(`#page-${group} .subsection`).forEach(sec => sec.classList.remove('active'));
+        document
+          .querySelectorAll(`.tab-btn[data-subtab="${group}"]`)
+          .forEach((b) => b.classList.remove('active'));
+
+        document
+          .querySelectorAll(`#page-${group} .subsection`)
+          .forEach((sec) => sec.classList.remove('active'));
 
         btn.classList.add('active');
-        $(`sub-${group}-${target}`).classList.add('active');
+
+        const targetNode = $(`sub-${group}-${target}`);
+        if (targetNode) {
+          targetNode.classList.add('active');
+        }
       });
     });
   }
 
   function renderHome() {
     const c = state.progression.character;
-    $('homeXp').textContent = c.xp;
-    $('homeLevel').textContent = c.level;
-    $('homeNextLevel').textContent = c.nextXp;
-    $('homeCharacterParagon').textContent = c.paragon;
+
+    if ($('homeXp')) $('homeXp').textContent = c.xp;
+    if ($('homeLevel')) $('homeLevel').textContent = c.level;
+    if ($('homeNextLevel')) $('homeNextLevel').textContent = c.nextXp;
+    if ($('homeCharacterParagon')) $('homeCharacterParagon').textContent = c.paragon;
 
     const percent = Math.max(0, Math.min(100, (c.xp / c.nextXp) * 100));
-    $('homeXpFill').style.width = `${percent}%`;
+    if ($('homeXpFill')) $('homeXpFill').style.width = `${percent}%`;
 
-    $('homeDisplayName').textContent = state.profile.displayName;
-    $('homeProfileTitle').textContent = state.profile.title;
-    $('homeAvatarIcon').textContent = state.profile.avatar.portraitValue || '🜂';
+    if ($('homeDisplayName')) $('homeDisplayName').textContent = state.profile.displayName;
+    if ($('homeProfileTitle')) $('homeProfileTitle').textContent = state.profile.title;
+    if ($('homeAvatarIcon')) $('homeAvatarIcon').textContent = state.profile.avatar.portraitValue || '🜂';
 
-    window.MetaProgression.renderHomePreview();
+    safeCall('renderHomePreview', () => window.MetaProgression.renderHomePreview());
   }
 
   function renderStats() {
     const c = state.progression.character;
-    $('xp').textContent = c.xp;
-    $('level').textContent = c.level;
-    $('nextLevel').textContent = c.nextXp;
+
+    if ($('xp')) $('xp').textContent = c.xp;
+    if ($('level')) $('level').textContent = c.level;
+    if ($('nextLevel')) $('nextLevel').textContent = c.nextXp;
 
     const percent = Math.max(0, Math.min(100, (c.xp / c.nextXp) * 100));
-    $('xpfill').style.width = `${percent}%`;
+    if ($('xpfill')) $('xpfill').style.width = `${percent}%`;
 
-    $('questCompletionCount').textContent = state.quests.stats.completedTotal;
-    $('completedDaysCount').textContent = state.quests.stats.completedDays;
-    $('mainQuestStepCount').textContent = state.quests.stats.mainStepsTotal;
-    $('streakNumber').textContent = state.quests.stats.streak;
+    if ($('questCompletionCount')) $('questCompletionCount').textContent = state.quests.stats.completedTotal;
+    if ($('completedDaysCount')) $('completedDaysCount').textContent = state.quests.stats.completedDays;
+    if ($('mainQuestStepCount')) $('mainQuestStepCount').textContent = state.quests.stats.mainStepsTotal;
+    if ($('streakNumber')) $('streakNumber').textContent = state.quests.stats.streak;
 
     const paragon = window.MetaProgression.getTotalParagon();
-    $('characterParagon').textContent = paragon.character;
-    $('totalParagon').textContent = paragon.total;
-    $('paragonCharacterOnly').textContent = paragon.character;
-    $('paragonAttributesOnly').textContent = paragon.attributes;
-    $('paragonSkillsOnly').textContent = paragon.skills;
 
-    $('homeParagonCharacterOnly').textContent = paragon.character;
-    $('homeParagonAttributesOnly').textContent = paragon.attributes;
-    $('homeParagonSkillsOnly').textContent = paragon.skills;
-    $('homeTotalParagon').textContent = paragon.total;
+    if ($('characterParagon')) $('characterParagon').textContent = paragon.character;
+    if ($('totalParagon')) $('totalParagon').textContent = paragon.total;
+    if ($('paragonCharacterOnly')) $('paragonCharacterOnly').textContent = paragon.character;
+    if ($('paragonAttributesOnly')) $('paragonAttributesOnly').textContent = paragon.attributes;
+    if ($('paragonSkillsOnly')) $('paragonSkillsOnly').textContent = paragon.skills;
 
-    window.MetaProgression.renderAttributes();
+    if ($('homeParagonCharacterOnly')) $('homeParagonCharacterOnly').textContent = paragon.character;
+    if ($('homeParagonAttributesOnly')) $('homeParagonAttributesOnly').textContent = paragon.attributes;
+    if ($('homeParagonSkillsOnly')) $('homeParagonSkillsOnly').textContent = paragon.skills;
+    if ($('homeTotalParagon')) $('homeTotalParagon').textContent = paragon.total;
+
+    safeCall('renderAttributes', () => window.MetaProgression.renderAttributes());
   }
 
   function renderAll() {
-    renderHome();
-    renderStats();
-    window.MetaQuests.renderDailyQuests();
-    window.MetaQuests.renderMainQuests();
-    window.MetaQuests.bindSearchAndFilter();
-    window.MetaAchievements.renderAchievements();
-    window.MetaModules.renderJournal();
-    window.MetaModules.renderGallery();
-    window.MetaModules.renderCalendar();
-    window.MetaModules.renderFinance();
-    window.MetaModules.renderMeta();
-    window.MetaModules.renderCommunity();
+    safeCall('renderHome', renderHome);
+    safeCall('renderStats', renderStats);
+    safeCall('renderDailyQuests', () => window.MetaQuests.renderDailyQuests());
+    safeCall('renderMainQuests', () => window.MetaQuests.renderMainQuests());
+    safeCall('bindSearchAndFilter', () => window.MetaQuests.bindSearchAndFilter());
+    safeCall('renderAchievements', () => window.MetaAchievements.renderAchievements());
+    safeCall('renderJournal', () => window.MetaModules.renderJournal());
+    safeCall('renderGallery', () => window.MetaModules.renderGallery());
+    safeCall('renderCalendar', () => window.MetaModules.renderCalendar());
+    safeCall('renderFinance', () => window.MetaModules.renderFinance());
+    safeCall('renderMeta', () => window.MetaModules.renderMeta());
+    safeCall('renderCommunity', () => window.MetaModules.renderCommunity());
   }
 
-  function openResetModal() {
-    $('resetModal').classList.add('active');
+  function openResetModalInternal() {
+    const node = $('resetModal');
+    if (node) node.classList.add('active');
   }
 
-  function closeResetModal() {
-    $('resetModal').classList.remove('active');
+  function closeResetModalInternal() {
+    const node = $('resetModal');
+    if (node) node.classList.remove('active');
   }
 
-  function confirmResetCharacter() {
+  function confirmResetCharacterInternal() {
     state = window.MetaStore.reset();
     applyTheme();
     renderAll();
-    closeResetModal();
+    closeResetModalInternal();
+    setPage('home');
   }
 
   function initMidnightRefresh() {
@@ -143,40 +179,42 @@ window.MetaApp = (function () {
   function init() {
     load();
     applyTheme();
-    window.MetaQuests.processMissedDayPenalty();
+    safeCall('processMissedDayPenalty', () => window.MetaQuests.processMissedDayPenalty());
     setupNavigation();
-    setPage(state.ui.activePage || 'home');
     renderAll();
+    setPage(state.ui.activePage || 'home');
     initMidnightRefresh();
   }
 
   return {
-    get state() { return state; },
+    get state() {
+      return state;
+    },
     $,
     save,
     renderAll,
-    init
+    init,
+    toggleThemeInternal,
+    openResetModalInternal,
+    closeResetModalInternal,
+    confirmResetCharacterInternal
   };
 })();
 
 function toggleTheme() {
-  window.MetaApp.state.ui.theme = window.MetaApp.state.ui.theme === 'dark' ? 'light' : 'dark';
-  document.body.setAttribute('data-theme', window.MetaApp.state.ui.theme);
-  const btn = document.getElementById('themeToggleBtn');
-  btn.textContent = window.MetaApp.state.ui.theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
-  window.MetaApp.save();
+  window.MetaApp.toggleThemeInternal();
 }
 
 function openResetModal() {
-  document.getElementById('resetModal').classList.add('active');
+  window.MetaApp.openResetModalInternal();
 }
 
 function closeResetModal() {
-  document.getElementById('resetModal').classList.remove('active');
+  window.MetaApp.closeResetModalInternal();
 }
 
 function confirmResetCharacter() {
-  location.reload(window.MetaStore.reset());
+  window.MetaApp.confirmResetCharacterInternal();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
