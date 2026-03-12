@@ -171,13 +171,14 @@
         <div class="page-header">
           <div>
             <h2 class="page-title">Quests</h2>
-            <p class="page-subtitle">Search, filter and track daily quests and long-form quest families.</p>
+            <p class="page-subtitle">Search, filter, favorite and track daily quests and long-form quest families.</p>
           </div>
         </div>
 
         <div class="tab-row">
           <button class="tab-btn active" data-subtab="quests" data-target="daily">Daily Quests</button>
           <button class="tab-btn" data-subtab="quests" data-target="main">Main Quests</button>
+          <button class="tab-btn" data-subtab="quests" data-target="favorites">Favorites</button>
         </div>
 
         <div class="subsection active" id="sub-quests-daily">
@@ -223,6 +224,18 @@
             </div>
 
             <div class="quest-list" id="mainQuestList"></div>
+          </div>
+        </div>
+
+        <div class="subsection" id="sub-quests-favorites">
+          <div class="section-card">
+            <div class="section-crest">
+              <span class="crest-wing"></span>
+              <span class="crest-core">★</span>
+              <span class="crest-wing"></span>
+            </div>
+            <h3>Favorite Quests</h3>
+            <div class="quest-list" id="favoriteQuestList"></div>
           </div>
         </div>
       </section>
