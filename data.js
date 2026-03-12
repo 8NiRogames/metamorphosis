@@ -8,14 +8,102 @@ window.MetaData = {
   progressionSteps: [1, 5, 10, 13, 25, 50, 100, 250, 500, 666, 1000],
 
   skillTree: {
-    Strength: ['Calisthenics', 'Gym Training', 'Manual Labor', 'Heavy Carrying', 'Core Training'],
-    Dexterity: ['Typing', 'Drawing', 'Mini Painting', 'DIY Repairs', 'First Aid'],
-    Agility: ['Running', 'Cycling', 'Swimming', 'Hiking', 'Stretching'],
-    Endurance: ['Walking', 'Long Cycling', 'Cardio Training', 'Sleep Hygiene', 'Household Chores'],
-    Intelligence: ['Reading', 'Study', 'Language Learning', 'Writing', 'Planning'],
-    Willpower: ['Meditation', 'No Sugary Drinks', 'No Doomscrolling', 'Routine Keeping', 'Task Finishing'],
-    Wits: ['Humor', 'Improvisation', 'Roleplay', 'Debate', 'Observation'],
-    Wisdom: ['Cooking', 'Journaling', 'Budgeting', 'Gardening', 'Life Balance']
+    Strength: [
+      'Calisthenics',
+      'Gym Training',
+      'Manual Labor',
+      'Heavy Carrying',
+      'Core Training',
+      'Push Strength',
+      'Pull Strength',
+      'Grip Strength',
+      'Resistance Training',
+      'Functional Strength'
+    ],
+    Dexterity: [
+      'Typing',
+      'Drawing',
+      'Mini Painting',
+      'DIY Repairs',
+      'First Aid',
+      'Tool Handling',
+      'Detail Work',
+      'Handwriting',
+      'Photo Editing',
+      'Mouse Precision'
+    ],
+    Agility: [
+      'Running',
+      'Cycling',
+      'Swimming',
+      'Hiking',
+      'Stretching',
+      'Mobility Training',
+      'Balance',
+      'Footwork',
+      'Reaction Speed',
+      'Jump Training'
+    ],
+    Endurance: [
+      'Walking',
+      'Long Cycling',
+      'Cardio Training',
+      'Sleep Hygiene',
+      'Household Chores',
+      'Work Stamina',
+      'Long Distance Walking',
+      'Recovery Routine',
+      'Consistency',
+      'Backpack Carry'
+    ],
+    Intelligence: [
+      'Reading',
+      'Study',
+      'Language Learning',
+      'Writing',
+      'Planning',
+      'Research',
+      'Critical Thinking',
+      'Problem Solving',
+      'Memory Training',
+      'Computer Skills'
+    ],
+    Willpower: [
+      'Meditation',
+      'No Sugary Drinks',
+      'No Doomscrolling',
+      'Routine Keeping',
+      'Task Finishing',
+      'Impulse Control',
+      'Sleep Discipline',
+      'Focus Training',
+      'Stress Management',
+      'Self-Control'
+    ],
+    Wits: [
+      'Humor',
+      'Improvisation',
+      'Roleplay',
+      'Debate',
+      'Observation',
+      'Conversation Timing',
+      'Social Reading',
+      'Fast Thinking',
+      'Adaptability',
+      'Pattern Spotting'
+    ],
+    Wisdom: [
+      'Cooking',
+      'Journaling',
+      'Budgeting',
+      'Gardening',
+      'Life Balance',
+      'Self-Reflection',
+      'Emotional Insight',
+      'Animal Care',
+      'Practical Judgment',
+      'Long-Term Thinking'
+    ]
   },
 
   skillToAttribute: {
@@ -24,48 +112,88 @@ window.MetaData = {
     'Manual Labor': 'Strength',
     'Heavy Carrying': 'Strength',
     'Core Training': 'Strength',
+    'Push Strength': 'Strength',
+    'Pull Strength': 'Strength',
+    'Grip Strength': 'Strength',
+    'Resistance Training': 'Strength',
+    'Functional Strength': 'Strength',
 
     'Typing': 'Dexterity',
     'Drawing': 'Dexterity',
     'Mini Painting': 'Dexterity',
     'DIY Repairs': 'Dexterity',
     'First Aid': 'Dexterity',
+    'Tool Handling': 'Dexterity',
+    'Detail Work': 'Dexterity',
+    'Handwriting': 'Dexterity',
+    'Photo Editing': 'Dexterity',
+    'Mouse Precision': 'Dexterity',
 
     'Running': 'Agility',
     'Cycling': 'Agility',
     'Swimming': 'Agility',
     'Hiking': 'Agility',
     'Stretching': 'Agility',
+    'Mobility Training': 'Agility',
+    'Balance': 'Agility',
+    'Footwork': 'Agility',
+    'Reaction Speed': 'Agility',
+    'Jump Training': 'Agility',
 
     'Walking': 'Endurance',
     'Long Cycling': 'Endurance',
     'Cardio Training': 'Endurance',
     'Sleep Hygiene': 'Endurance',
     'Household Chores': 'Endurance',
+    'Work Stamina': 'Endurance',
+    'Long Distance Walking': 'Endurance',
+    'Recovery Routine': 'Endurance',
+    'Consistency': 'Endurance',
+    'Backpack Carry': 'Endurance',
 
     'Reading': 'Intelligence',
     'Study': 'Intelligence',
     'Language Learning': 'Intelligence',
     'Writing': 'Intelligence',
     'Planning': 'Intelligence',
+    'Research': 'Intelligence',
+    'Critical Thinking': 'Intelligence',
+    'Problem Solving': 'Intelligence',
+    'Memory Training': 'Intelligence',
+    'Computer Skills': 'Intelligence',
 
     'Meditation': 'Willpower',
     'No Sugary Drinks': 'Willpower',
     'No Doomscrolling': 'Willpower',
     'Routine Keeping': 'Willpower',
     'Task Finishing': 'Willpower',
+    'Impulse Control': 'Willpower',
+    'Sleep Discipline': 'Willpower',
+    'Focus Training': 'Willpower',
+    'Stress Management': 'Willpower',
+    'Self-Control': 'Willpower',
 
     'Humor': 'Wits',
     'Improvisation': 'Wits',
     'Roleplay': 'Wits',
     'Debate': 'Wits',
     'Observation': 'Wits',
+    'Conversation Timing': 'Wits',
+    'Social Reading': 'Wits',
+    'Fast Thinking': 'Wits',
+    'Adaptability': 'Wits',
+    'Pattern Spotting': 'Wits',
 
     'Cooking': 'Wisdom',
     'Journaling': 'Wisdom',
     'Budgeting': 'Wisdom',
     'Gardening': 'Wisdom',
-    'Life Balance': 'Wisdom'
+    'Life Balance': 'Wisdom',
+    'Self-Reflection': 'Wisdom',
+    'Emotional Insight': 'Wisdom',
+    'Animal Care': 'Wisdom',
+    'Practical Judgment': 'Wisdom',
+    'Long-Term Thinking': 'Wisdom'
   },
 
   questSkillRotation: [
@@ -84,7 +212,21 @@ window.MetaData = {
     'Gardening',
     'Mini Painting',
     'Drawing',
-    'Household Chores'
+    'Household Chores',
+    'Study',
+    'Research',
+    'Typing',
+    'Budgeting',
+    'Hiking',
+    'Cardio Training',
+    'Routine Keeping',
+    'Observation',
+    'Problem Solving',
+    'Tool Handling',
+    'Balance',
+    'Work Stamina',
+    'Self-Reflection',
+    'Emotional Insight'
   ],
 
   questGenerators: {
@@ -167,6 +309,76 @@ window.MetaData = {
       { text: 'Clean one messy surface area', amount: 1 },
       { text: 'Do one useful household task', amount: 1 },
       { text: 'Reset your desk or work area', amount: 1 }
+    ],
+    Study: [
+      { text: 'Study one topic for 20 minutes', amount: 20 },
+      { text: 'Make notes from one learning session', amount: 1 },
+      { text: 'Review previously learned material', amount: 1 }
+    ],
+    Research: [
+      { text: 'Research one topic in depth', amount: 1 },
+      { text: 'Compare two sources on one subject', amount: 2 },
+      { text: 'Collect references for one topic', amount: 1 }
+    ],
+    Typing: [
+      { text: 'Do a 10-minute typing session', amount: 10 },
+      { text: 'Practice speed typing', amount: 1 },
+      { text: 'Write text cleanly without distractions', amount: 1 }
+    ],
+    Budgeting: [
+      { text: 'Record today’s expenses', amount: 1 },
+      { text: 'Review one spending category', amount: 1 },
+      { text: 'Plan one purchase priority', amount: 1 }
+    ],
+    Hiking: [
+      { text: 'Do a short hike or trail walk', amount: 1 },
+      { text: 'Walk a route with elevation', amount: 1 },
+      { text: 'Spend a focused session outdoors', amount: 1 }
+    ],
+    'Cardio Training': [
+      { text: 'Do 15 minutes of cardio', amount: 15 },
+      { text: 'Complete one cardio session', amount: 1 },
+      { text: 'Push through a higher-intensity interval', amount: 1 }
+    ],
+    'Routine Keeping': [
+      { text: 'Follow your planned routine today', amount: 1 },
+      { text: 'Complete your morning structure', amount: 1 },
+      { text: 'Keep discipline through one full block', amount: 1 }
+    ],
+    Observation: [
+      { text: 'Notice 5 details in your environment', amount: 5 },
+      { text: 'Observe one social situation carefully', amount: 1 },
+      { text: 'Write down something subtle you noticed', amount: 1 }
+    ],
+    'Problem Solving': [
+      { text: 'Solve one practical problem', amount: 1 },
+      { text: 'Break one task into smaller steps', amount: 1 },
+      { text: 'Fix one issue that was blocking progress', amount: 1 }
+    ],
+    'Tool Handling': [
+      { text: 'Use tools for one practical task', amount: 1 },
+      { text: 'Do one small repair properly', amount: 1 },
+      { text: 'Practice precision with a tool-based task', amount: 1 }
+    ],
+    Balance: [
+      { text: 'Do one balance-focused exercise', amount: 1 },
+      { text: 'Practice stability and posture', amount: 1 },
+      { text: 'Add balance work to movement practice', amount: 1 }
+    ],
+    'Work Stamina': [
+      { text: 'Stay focused through one long work block', amount: 1 },
+      { text: 'Push through one tiring but useful task', amount: 1 },
+      { text: 'Finish one demanding session without quitting', amount: 1 }
+    ],
+    'Self-Reflection': [
+      { text: 'Reflect on one decision honestly', amount: 1 },
+      { text: 'Write what you learned from today', amount: 1 },
+      { text: 'Identify one repeating pattern in yourself', amount: 1 }
+    ],
+    'Emotional Insight': [
+      { text: 'Name one feeling and why it is there', amount: 1 },
+      { text: 'Track your emotional response to one event', amount: 1 },
+      { text: 'Reflect on what you needed today emotionally', amount: 1 }
     ]
   },
 
@@ -188,16 +400,16 @@ window.MetaData = {
   ],
 
   achievementFamilies: [
-    { id: 'ach_skill_reading', title: 'Reading Mastery', type: 'skill_level', skill: 'Reading', milestones: [1,5,10,13,25,50,100], rewardXp: 60 },
-    { id: 'ach_skill_cycling', title: 'Cycling Mastery', type: 'skill_level', skill: 'Cycling', milestones: [1,5,10,13,25,50,100], rewardXp: 60 },
-    { id: 'ach_skill_journaling', title: 'Journaling Mastery', type: 'skill_level', skill: 'Journaling', milestones: [1,5,10,13,25,50,100], rewardXp: 60 },
-    { id: 'ach_attr_strength', title: 'Strength Ascension', type: 'attribute_level', attribute: 'Strength', milestones: [1,5,10,13,25,50,100], rewardXp: 80 },
-    { id: 'ach_attr_intelligence', title: 'Intelligence Ascension', type: 'attribute_level', attribute: 'Intelligence', milestones: [1,5,10,13,25,50,100], rewardXp: 80 },
-    { id: 'ach_daily_total', title: 'Daily Quest Completion', type: 'daily_total', milestones: [1,5,10,13,25,50,100,250,500,666,1000], rewardXp: 50 },
-    { id: 'ach_main_total', title: 'Main Quest Progress', type: 'main_total', milestones: [1,5,10,13,25,50,100,250,500,666,1000], rewardXp: 70 },
-    { id: 'ach_streak', title: 'Streak Keeper', type: 'streak', milestones: [1,5,10,13,25,50,100,250,500,666,1000], rewardXp: 90 },
-    { id: 'ach_books_family', title: 'Books Read', type: 'main_family', familyId: 'mq_books_read', milestones: [1,5,10,13,25,50,100,250,500,666,1000], rewardXp: 70 },
-    { id: 'ach_cycling_family', title: 'Cycling Distance', type: 'main_family', familyId: 'mq_cycling_km', milestones: [1,5,10,13,25,50,100,250,500,666,1000], rewardXp: 70 }
+    { id: 'ach_skill_reading', title: 'Reading Mastery', type: 'skill_level', skill: 'Reading', milestones: [1, 5, 10, 13, 25, 50, 100], rewardXp: 60 },
+    { id: 'ach_skill_cycling', title: 'Cycling Mastery', type: 'skill_level', skill: 'Cycling', milestones: [1, 5, 10, 13, 25, 50, 100], rewardXp: 60 },
+    { id: 'ach_skill_journaling', title: 'Journaling Mastery', type: 'skill_level', skill: 'Journaling', milestones: [1, 5, 10, 13, 25, 50, 100], rewardXp: 60 },
+    { id: 'ach_attr_strength', title: 'Strength Ascension', type: 'attribute_level', attribute: 'Strength', milestones: [1, 5, 10, 13, 25, 50, 100], rewardXp: 80 },
+    { id: 'ach_attr_intelligence', title: 'Intelligence Ascension', type: 'attribute_level', attribute: 'Intelligence', milestones: [1, 5, 10, 13, 25, 50, 100], rewardXp: 80 },
+    { id: 'ach_daily_total', title: 'Daily Quest Completion', type: 'daily_total', milestones: [1, 5, 10, 13, 25, 50, 100, 250, 500, 666, 1000], rewardXp: 50 },
+    { id: 'ach_main_total', title: 'Main Quest Progress', type: 'main_total', milestones: [1, 5, 10, 13, 25, 50, 100, 250, 500, 666, 1000], rewardXp: 70 },
+    { id: 'ach_streak', title: 'Streak Keeper', type: 'streak', milestones: [1, 5, 10, 13, 25, 50, 100, 250, 500, 666, 1000], rewardXp: 90 },
+    { id: 'ach_books_family', title: 'Books Read', type: 'main_family', familyId: 'mq_books_read', milestones: [1, 5, 10, 13, 25, 50, 100, 250, 500, 666, 1000], rewardXp: 70 },
+    { id: 'ach_cycling_family', title: 'Cycling Distance', type: 'main_family', familyId: 'mq_cycling_km', milestones: [1, 5, 10, 13, 25, 50, 100, 250, 500, 666, 1000], rewardXp: 70 }
   ],
 
   qaItems: [
@@ -209,21 +421,19 @@ window.MetaData = {
 
   patchNotes: [
     {
-      version: 'v1.1 Foundation',
+      version: 'v1.2 Polish',
       items: [
-        'Modular state architecture',
-        'Search in quests',
-        'Main quest filter by skill',
-        'Journal / Gallery / Calendar / Finance foundations',
-        'Q&A and planned patches section',
-        'Community and privacy foundation'
+        'Mobile sidebar',
+        'Desktop collapsible sidebar',
+        'Gallery uploads',
+        'Favorites for quests and achievements'
       ]
     },
     {
-      version: 'Planned v1.2',
+      version: 'Planned v1.3',
       items: [
         'Journal expansion',
-        'Gallery folders and image pipeline',
+        'Gallery privacy',
         'Calendar reminders',
         'Finance detail tracking'
       ]
