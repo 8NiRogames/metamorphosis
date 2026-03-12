@@ -77,14 +77,74 @@ window.MetaModules = (function () {
     renderGallery();
   }
 
-  function renderGallery() {
+  function populateGalleryFolderSelect() {
+    const select = document.getElementById('galleryTargetFolder');
+    if (!select) return;
     const folders = state().gallery.folderOrder.map(id => state().gallery.folders[id]);
-    document.getElementById('galleryFolderList').innerHTML = folders.length ? folders.map(folder => `
-      <div class="module-card">
-        <h4>${folder.name}</h4>
-        <p class="small-muted">Visibility: ${folder.visibility} • Images: ${folder.itemIds.length}</p>
-      </div>
-    `).join('') : `<div class="notice-box"><p>No gallery folders yet.</p></div>`;
+    select.innerHTML = folders.length
+      ? folders.map(folder => `<option value="${folder.id}">${folder.name}</option>`).join('')
+      : `<option value="">No folders yet</option>`;
+  }
+
+  function addGalleryImage() {
+    const folderId = document.getElementById('galleryTargetFolder').value;
+    const title = document.getElementById('galleryImageTitle').value.trim();
+    const description = document.getElementById('galleryImageDescription').value.trim();
+    const fileInput = document.getElementById('galleryImageFile');
+    const file = fileInput.files?.[0];
+
+    if (!folderId || !file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const id = uid('img');
+      state().gallery.images[id] = {
+        id,
+        folderId,
+        title: title || file.name,
+        description,
+        src: reader.result,
+        createdAt: new Date().toISOString(),
+        visibility: 'inherited'
+      };
+
+      state().gallery.folders[folderId].itemIds.unshift(id);
+
+      document.getElementById('galleryImageTitle').value = '';
+      document.getElementById('galleryImageDescription').value = '';
+      fileInput.value = '';
+
+      window.MetaApp.save();
+      renderGallery();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function renderGallery() {
+    populateGalleryFolderSelect();
+
+    const folders = state().gallery.folderOrder.map(id => state().gallery.folders[id]);
+    document.getElementById('galleryFolderList').innerHTML = folders.length ? folders.map(folder => {
+      const images = folder.itemIds.map(id => state().gallery.images[id]).filter(Boolean);
+      return `
+        <div class="gallery-folder-card">
+          <h4>${folder.name}</h4>
+          <p class="small-muted">Visibility: ${folder.visibility} • Images: ${folder.itemIds.length}</p>
+
+          ${images.length ? `
+            <div class="gallery-image-grid">
+              ${images.map(image => `
+                <div class="gallery-image-card">
+                  <img src="${image.src}" alt="${image.title}" />
+                  <h4>${image.title}</h4>
+                  <p>${image.description || 'No description'}</p>
+                </div>
+              `).join('')}
+            </div>
+          ` : `<div class="notice-box"><p>No images in this folder yet.</p></div>`}
+        </div>
+      `;
+    }).join('') : `<div class="notice-box"><p>No gallery folders yet.</p></div>`;
   }
 
   function addCalendarEvent() {
@@ -195,6 +255,7 @@ window.MetaModules = (function () {
   return {
     addJournalEntry,
     addGalleryFolder,
+    addGalleryImage,
     addCalendarEvent,
     addFinanceEntry,
     renderJournal,
