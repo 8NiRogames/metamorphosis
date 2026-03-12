@@ -111,6 +111,14 @@ body[data-theme="light"] select option {
   min-height: 100vh;
 }
 
+.mobile-nav-toggle {
+  display: none;
+}
+
+.sidebar-backdrop {
+  display: none;
+}
+
 .sidebar {
   position: sticky;
   top: 0;
@@ -125,6 +133,54 @@ body[data-theme="light"] select option {
   box-shadow: inset -2px 0 0 rgba(255,255,255,.03);
   display: flex;
   flex-direction: column;
+  transition: transform .25s ease, width .25s ease;
+  z-index: 50;
+}
+
+.sidebar.collapsed {
+  width: 92px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.sidebar.collapsed .brand p,
+.sidebar.collapsed .nav-card-desc,
+.sidebar.collapsed .theme-toggle {
+  display: none;
+}
+
+.sidebar.collapsed .brand h1 {
+  font-size: 14px;
+  letter-spacing: .8px;
+}
+
+.sidebar.collapsed .nav-card {
+  padding: 12px 10px;
+}
+
+.sidebar.collapsed .nav-card-title {
+  font-size: 12px;
+}
+
+.sidebar-top-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.sidebar-pin-toggle {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border: 2px solid var(--border);
+  background:
+    var(--metal-texture),
+    linear-gradient(180deg, var(--panel-3), var(--panel));
+  color: var(--text);
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: "Cinzel", Georgia, serif;
 }
 
 .brand,
@@ -140,7 +196,9 @@ body[data-theme="light"] select option {
 .modal,
 .streak-box,
 .module-card,
-.notice-box {
+.notice-box,
+.gallery-folder-card,
+.gallery-image-card {
   position: relative;
   border: 2px solid var(--border);
   box-shadow: var(--shadow), var(--inner-shadow);
@@ -158,7 +216,9 @@ body[data-theme="light"] select option {
 .modal,
 .streak-box,
 .module-card,
-.notice-box {
+.notice-box,
+.gallery-folder-card,
+.gallery-image-card {
   background:
     var(--parchment-texture),
     linear-gradient(180deg, var(--card-3), var(--card));
@@ -171,7 +231,9 @@ body[data-theme="light"] .skill-card,
 body[data-theme="light"] .attr-card,
 body[data-theme="light"] .mini-stat,
 body[data-theme="light"] .module-card,
-body[data-theme="light"] .notice-box {
+body[data-theme="light"] .notice-box,
+body[data-theme="light"] .gallery-folder-card,
+body[data-theme="light"] .gallery-image-card {
   box-shadow:
     0 8px 18px rgba(76,54,18,.14),
     inset 0 1px 0 rgba(255,255,255,.45),
@@ -180,7 +242,8 @@ body[data-theme="light"] .notice-box {
 
 .brand {
   padding: 16px;
-  margin-bottom: 18px;
+  margin-bottom: 0;
+  flex: 1;
 }
 
 .brand h1 {
@@ -294,6 +357,7 @@ body[data-theme="light"] .nav-card-desc {
 
 .main {
   padding: 24px;
+  min-width: 0;
 }
 
 .page {
@@ -567,16 +631,27 @@ body[data-theme="light"] .progress-shell {
   height: 100%;
   width: 0%;
   background: var(--bar-fill);
-  transition: width .25s ease;
+  transition: width .45s ease;
 }
 
 .hero-bar .progress-fill {
   background: var(--hero-fill);
 }
 
+.animated-fill {
+  animation: shimmerFill 2.6s linear infinite;
+  background-size: 200% 100%;
+}
+
 .progress-fill.good { background: linear-gradient(90deg, #4f7c37, #7daa55); }
 .progress-fill.warn { background: linear-gradient(90deg, #9d6d1b, #d9a140); }
 .progress-fill.danger { background: linear-gradient(90deg, #7a1f1f, #b94444); }
+
+@keyframes shimmerFill {
+  0% { filter: brightness(1); background-position: 0% 0%; }
+  50% { filter: brightness(1.12); background-position: 100% 0%; }
+  100% { filter: brightness(1); background-position: 200% 0%; }
+}
 
 .tab-row {
   display: flex;
@@ -590,6 +665,10 @@ body[data-theme="light"] .progress-shell {
   border-radius: 10px;
   text-transform: uppercase;
   transition: filter .15s ease, border-color .15s ease;
+}
+
+.tab-btn.hidden-tab {
+  display: none;
 }
 
 .tab-btn.active {
@@ -629,6 +708,7 @@ body[data-theme="light"] .tab-btn.active {
 input[type="text"],
 input[type="number"],
 input[type="date"],
+input[type="file"],
 select,
 textarea {
   width: 100%;
@@ -644,6 +724,7 @@ textarea {
 body[data-theme="light"] input[type="text"],
 body[data-theme="light"] input[type="number"],
 body[data-theme="light"] input[type="date"],
+body[data-theme="light"] input[type="file"],
 body[data-theme="light"] select,
 body[data-theme="light"] textarea {
   background:
@@ -701,14 +782,21 @@ textarea:focus {
 .favorite-btn.active {
   border-color: var(--legendary);
   color: #ffd98f;
+  box-shadow: 0 0 12px rgba(208,161,60,.18);
 }
 
 .quest-list,
 .achievement-list,
 .skill-list,
-.module-list {
+.module-list,
+.gallery-image-grid {
   display: grid;
   gap: 12px;
+}
+
+.gallery-image-grid {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin-top: 12px;
 }
 
 .quest-item,
@@ -716,9 +804,21 @@ textarea:focus {
 .skill-card,
 .attr-card,
 .module-card,
-.notice-box {
+.notice-box,
+.gallery-folder-card,
+.gallery-image-card {
   padding: 14px;
   color: var(--text);
+}
+
+.achievement-item.achievement-unlocked {
+  animation: achievementPulse 1s ease;
+}
+
+@keyframes achievementPulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 rgba(208,161,60,0); }
+  40% { transform: scale(1.015); box-shadow: 0 0 22px rgba(208,161,60,.28); }
+  100% { transform: scale(1); box-shadow: var(--shadow), var(--inner-shadow); }
 }
 
 .quest-head,
@@ -769,7 +869,9 @@ textarea:focus {
 .achievement-title,
 .attr-title,
 .skill-title,
-.module-card h4 {
+.module-card h4,
+.gallery-folder-card h4,
+.gallery-image-card h4 {
   font-family: "Cinzel", Georgia, serif;
   text-transform: uppercase;
   font-size: 15px;
@@ -779,13 +881,16 @@ textarea:focus {
 
 .quest-desc,
 .achievement-desc,
-.module-card p {
+.module-card p,
+.gallery-folder-card p,
+.gallery-image-card p {
   color: var(--muted);
   font-size: 14px;
   line-height: 1.45;
 }
 
-.quest-actions {
+.quest-actions,
+.achievement-actions {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
@@ -873,6 +978,19 @@ textarea:focus {
   color: var(--muted);
 }
 
+.gallery-folder-card {
+  margin-bottom: 12px;
+}
+
+.gallery-image-card img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  margin-bottom: 10px;
+}
+
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -913,11 +1031,51 @@ textarea:focus {
     grid-template-columns: 1fr;
   }
 
+  .mobile-nav-toggle {
+    display: inline-flex;
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 70;
+    border: 2px solid var(--border);
+    background:
+      var(--metal-texture),
+      linear-gradient(180deg, var(--panel-3), var(--panel));
+    color: var(--text);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-family: "Cinzel", Georgia, serif;
+    cursor: pointer;
+  }
+
   .sidebar {
-    position: static;
-    height: auto;
-    border-right: 0;
-    border-bottom: 3px solid var(--border);
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: min(88vw, 340px);
+    transform: translateX(-100%);
+    border-right: 3px solid var(--border);
+  }
+
+  .sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
+  .sidebar-backdrop.open {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 60;
+  }
+
+  .sidebar-pin-toggle {
+    display: none;
+  }
+
+  .main {
+    padding: 64px 16px 18px;
   }
 
   .toolbar-grid,
@@ -933,5 +1091,37 @@ textarea:focus {
 
   .equipment-column {
     grid-template-columns: repeat(5, 1fr);
+  }
+
+  .equipment-slot {
+    min-height: 58px;
+  }
+
+  .page-title {
+    font-size: 24px;
+  }
+
+  .section-card {
+    padding: 16px;
+  }
+
+  .tab-row {
+    gap: 8px;
+  }
+
+  .tab-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .quest-progress-row,
+  .skill-progress-row {
+    grid-template-columns: 36px 1fr 36px;
+  }
+
+  .step-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
   }
 }
