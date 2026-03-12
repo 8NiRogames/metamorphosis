@@ -76,6 +76,9 @@ window.MetaProgression = (function () {
     } else {
       skillData.xp = Math.max(0, skillData.xp + delta);
     }
+
+    window.MetaApp.save();
+    window.MetaApp.renderAll();
   }
 
   function addSkillToAttribute(attribute, skill) {
@@ -90,6 +93,18 @@ window.MetaProgression = (function () {
     state().progression.selectedSkills[attribute] = selected.filter(s => s !== skill);
     window.MetaApp.save();
     window.MetaApp.renderAll();
+  }
+
+  function toggleAttribute(attribute) {
+    const collapsed = state().ui.collapsedAttributes || {};
+    collapsed[attribute] = !collapsed[attribute];
+    state().ui.collapsedAttributes = collapsed;
+    window.MetaApp.save();
+    renderAttributes();
+  }
+
+  function isCollapsed(attribute) {
+    return !!state().ui.collapsedAttributes?.[attribute];
   }
 
   function getTotalParagon() {
@@ -140,11 +155,15 @@ window.MetaProgression = (function () {
       .join('');
 
     const percent = Math.min(100, (stat.xp / stat.nextXp) * 100);
+    const collapsed = isCollapsed(attribute);
 
     return `
       <div class="attr-card">
-        <div class="attr-head">
-          <div class="attr-title">${attribute}</div>
+        <div class="attr-head" onclick="MetaProgression.toggleAttribute('${attribute}')">
+          <div class="attr-head-left">
+            <div class="attr-toggle">${collapsed ? '+' : '−'}</div>
+            <div class="attr-title">${attribute}</div>
+          </div>
           <span class="tag">Level ${stat.level} • Paragon ${stat.paragon}</span>
         </div>
 
@@ -154,16 +173,18 @@ window.MetaProgression = (function () {
 
         <div class="small-muted" style="margin-top:8px;">XP ${stat.xp} / ${stat.nextXp}</div>
 
-        <div class="field" style="margin-top:10px;">
-          <label>Add Skill</label>
-          <select onchange="MetaProgression.addSkillToAttribute('${attribute}', this.value)">
-            <option value="">Choose a skill for ${attribute}</option>
-            ${options}
-          </select>
-        </div>
+        <div class="attr-body ${collapsed ? 'collapsed' : ''}">
+          <div class="field" style="margin-top:10px;">
+            <label>Add Skill</label>
+            <select onchange="MetaProgression.addSkillToAttribute('${attribute}', this.value)">
+              <option value="">Choose a skill for ${attribute}</option>
+              ${options}
+            </select>
+          </div>
 
-        <div class="skill-list" style="margin-top:12px;">
-          ${selected.map(skill => renderSkillCard(attribute, skill)).join('')}
+          <div class="skill-list" style="margin-top:12px;">
+            ${selected.length ? selected.map(skill => renderSkillCard(attribute, skill)).join('') : `<div class="notice-box"><p>No skills selected yet.</p></div>`}
+          </div>
         </div>
       </div>
     `;
@@ -205,6 +226,7 @@ window.MetaProgression = (function () {
     changeSkillXP,
     addSkillToAttribute,
     removeSkillFromAttribute,
+    toggleAttribute,
     getTotalParagon,
     renderHomePreview,
     renderAttributes
