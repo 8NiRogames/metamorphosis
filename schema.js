@@ -5,10 +5,12 @@ window.MetaSchema = {
     const attributes = {};
     const selectedSkills = {};
     const skills = {};
+    const collapsedAttributes = {};
 
     Object.keys(skillTree).forEach(attr => {
       attributes[attr] = { level: 0, xp: 0, nextXp: xpConfig.attribute.base, paragon: 0 };
       selectedSkills[attr] = [];
+      collapsedAttributes[attr] = false;
       skillTree[attr].forEach(skill => {
         skills[skill] = { level: 0, xp: 0, nextXp: xpConfig.skill.base, paragon: 0, attribute: attr };
       });
@@ -16,7 +18,7 @@ window.MetaSchema = {
 
     return {
       meta: {
-        version: '1.1.0',
+        version: '1.1.1',
         saveFormat: 1,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
@@ -55,6 +57,10 @@ window.MetaSchema = {
           doneIds: []
         },
         mainFamilies: {},
+        favorites: {
+          dailyIds: [],
+          mainIds: []
+        },
         stats: {
           completedTotal: 0,
           completedDays: 0,
@@ -134,6 +140,7 @@ window.MetaSchema = {
       ui: {
         activePage: 'home',
         theme: 'dark',
+        collapsedAttributes,
         searchQueries: {
           dailyQuests: '',
           mainQuests: ''
