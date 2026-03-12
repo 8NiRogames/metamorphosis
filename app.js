@@ -140,6 +140,7 @@ window.MetaApp = (function () {
     safeCall('renderStats', renderStats);
     safeCall('renderDailyQuests', () => window.MetaQuests.renderDailyQuests());
     safeCall('renderMainQuests', () => window.MetaQuests.renderMainQuests());
+    safeCall('renderFavoriteQuests', () => window.MetaQuests.renderFavoritesQuests());
     safeCall('bindSearchAndFilter', () => window.MetaQuests.bindSearchAndFilter());
     safeCall('renderAchievements', () => window.MetaAchievements.renderAchievements());
     safeCall('renderJournal', () => window.MetaModules.renderJournal());
