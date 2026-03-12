@@ -26,6 +26,12 @@ window.MetaQuests = (function () {
     return state().ui.filters.mainQuestSkill || 'all';
   }
 
+  function ensureFavorites() {
+    if (!state().quests.favorites) {
+      state().quests.favorites = { dailyIds: [], mainIds: [] };
+    }
+  }
+
   function generateDailyQuests() {
     const pool = [...questSkillRotation];
     const pickedSkills = [];
@@ -57,9 +63,16 @@ window.MetaQuests = (function () {
   }
 
   function ensureDailyState() {
+    ensureFavorites();
     if (state().quests.daily.date !== todayKey()) {
       generateDailyQuests();
+      cleanupFavoriteDailyIds();
     }
+  }
+
+  function cleanupFavoriteDailyIds() {
+    const activeIds = new Set(state().quests.daily.active.map(q => q.id));
+    state().quests.favorites.dailyIds = state().quests.favorites.dailyIds.filter(id => activeIds.has(id));
   }
 
   function rerollDailyQuests() {
@@ -70,8 +83,9 @@ window.MetaQuests = (function () {
     }
     generateDailyQuests();
     state().quests.daily.rerollUsed = true;
+    cleanupFavoriteDailyIds();
     window.MetaApp.save();
-    renderDailyQuests();
+    window.MetaApp.renderAll();
   }
 
   function completeDailyQuest(id) {
@@ -82,7 +96,6 @@ window.MetaQuests = (function () {
     if (!quest) return;
 
     state().quests.daily.doneIds.push(id);
-    state().quests.questsHistory = state().quests.questsHistory || [];
     state().quests.history.push({
       id: `qh_${Date.now()}`,
       questId: id,
@@ -170,6 +183,32 @@ window.MetaQuests = (function () {
     input.value = '';
   }
 
+  function toggleFavoriteDaily(id) {
+    ensureFavorites();
+    const arr = state().quests.favorites.dailyIds;
+    if (arr.includes(id)) {
+      state().quests.favorites.dailyIds = arr.filter(x => x !== id);
+    } else {
+      arr.push(id);
+    }
+    window.MetaApp.save();
+    renderDailyQuests();
+    renderFavoritesQuests();
+  }
+
+  function toggleFavoriteMain(id) {
+    ensureFavorites();
+    const arr = state().quests.favorites.mainIds;
+    if (arr.includes(id)) {
+      state().quests.favorites.mainIds = arr.filter(x => x !== id);
+    } else {
+      arr.push(id);
+    }
+    window.MetaApp.save();
+    renderMainQuests();
+    renderFavoritesQuests();
+  }
+
   function renderDailyQuests() {
     ensureDailyState();
 
@@ -182,6 +221,8 @@ window.MetaQuests = (function () {
 
     document.getElementById('dailyQuestList').innerHTML = quests.map(item => {
       const checked = state().quests.daily.doneIds.includes(item.id);
+      const favorite = state().quests.favorites.dailyIds.includes(item.id);
+
       return `
         <div class="quest-item">
           <div class="quest-head">
@@ -198,6 +239,12 @@ window.MetaQuests = (function () {
             <input type="checkbox" ${checked ? 'checked' : ''} onchange="MetaQuests.completeDailyQuest('${item.id}')">
             <span class="small-muted">Mark completed</span>
           </div>
+
+          <div class="quest-actions">
+            <button class="favorite-btn ${favorite ? 'active' : ''}" onclick="MetaQuests.toggleFavoriteDaily('${item.id}')">
+              ${favorite ? '★ Favorited' : '☆ Favorite'}
+            </button>
+          </div>
         </div>
       `;
     }).join('');
@@ -208,6 +255,8 @@ window.MetaQuests = (function () {
   }
 
   function renderMainQuests() {
+    ensureFavorites();
+
     const search = getMainSearch();
     const filter = getMainFilter();
 
@@ -229,6 +278,7 @@ window.MetaQuests = (function () {
       const next = progressionSteps.find(step => step > progress) || null;
       const prev = progressionSteps.filter(step => step <= progress).slice(-1)[0] || 0;
       const percent = next ? Math.min(100, ((progress - prev) / (next - prev)) * 100) : 100;
+      const favorite = state().quests.favorites.mainIds.includes(family.id);
 
       return `
         <div class="quest-item">
@@ -265,9 +315,75 @@ window.MetaQuests = (function () {
               <button class="btn" onclick="MetaQuests.applyMainQuestBulk('${family.id}')">Add</button>
             </div>
           </div>
+
+          <div class="quest-actions">
+            <button class="favorite-btn ${favorite ? 'active' : ''}" onclick="MetaQuests.toggleFavoriteMain('${family.id}')">
+              ${favorite ? '★ Favorited' : '☆ Favorite'}
+            </button>
+          </div>
         </div>
       `;
     }).join('');
+  }
+
+  function renderFavoritesQuests() {
+    ensureFavorites();
+    ensureDailyState();
+
+    const daily = state().quests.daily.active.filter(q => state().quests.favorites.dailyIds.includes(q.id));
+    const main = mainQuestFamilies.filter(q => state().quests.favorites.mainIds.includes(q.id));
+
+    const container = document.getElementById('favoriteQuestList');
+
+    if (!daily.length && !main.length) {
+      container.innerHTML = `<div class="notice-box"><p>No favorite quests yet.</p></div>`;
+      return;
+    }
+
+    container.innerHTML = `
+      ${daily.length ? `
+        <div class="notice-box">
+          <p><strong>Favorite Daily Quests</strong></p>
+        </div>
+        ${daily.map(item => `
+          <div class="quest-item">
+            <div class="quest-head">
+              <div>
+                <div class="quest-title">${item.title}</div>
+                <div class="quest-desc">+${item.xpReward} Character XP • +${item.skillXpReward} ${item.skill} XP • +${item.attributeXpReward} ${item.attribute} XP</div>
+              </div>
+              <span class="tag daily">${item.skill}</span>
+            </div>
+            <div class="quest-actions">
+              <button class="favorite-btn active" onclick="MetaQuests.toggleFavoriteDaily('${item.id}')">★ Favorited</button>
+            </div>
+          </div>
+        `).join('')}
+      ` : ''}
+
+      ${main.length ? `
+        <div class="notice-box">
+          <p><strong>Favorite Main Quests</strong></p>
+        </div>
+        ${main.map(family => {
+          const record = state().quests.mainFamilies[family.id] || { progress: 0, milestonesCompleted: 0 };
+          return `
+            <div class="quest-item">
+              <div class="quest-head">
+                <div>
+                  <div class="quest-title">${family.title}</div>
+                  <div class="quest-desc">Skill: ${family.skill} • Progress: ${record.progress} ${family.unit}</div>
+                </div>
+                <span class="tag main">${family.skill}</span>
+              </div>
+              <div class="quest-actions">
+                <button class="favorite-btn active" onclick="MetaQuests.toggleFavoriteMain('${family.id}')">★ Favorited</button>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      ` : ''}
+    `;
   }
 
   function bindSearchAndFilter() {
@@ -306,8 +422,15 @@ window.MetaQuests = (function () {
     completeDailyQuest,
     changeMainQuestProgress,
     applyMainQuestBulk,
+    toggleFavoriteDaily,
+    toggleFavoriteMain,
     renderDailyQuests,
     renderMainQuests,
+    renderFavoritesQuests,
     bindSearchAndFilter
   };
 })();
+
+function rerollDailyQuests() {
+  window.MetaQuests.rerollDailyQuests();
+}
