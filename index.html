@@ -11,32 +11,63 @@
     <aside class="sidebar">
       <div class="brand">
         <h1>METAMORPHOSIS</h1>
-        <p>Dark fantasy life RPG with quests, achievements, attributes, skills, paragon progression and long-term growth.</p>
+        <p>Life RPG system for growth, records, planning and progression.</p>
       </div>
 
       <div class="nav-grid">
         <button class="nav-card active" data-page-link="home">
           <span class="nav-card-title">🏠 Home</span>
-          <span class="nav-card-desc">Main hub and character overview.</span>
+          <span class="nav-card-desc">Character overview and avatar hub.</span>
         </button>
+
         <button class="nav-card" data-page-link="quests">
           <span class="nav-card-title">📜 Quests</span>
-          <span class="nav-card-desc">Daily challenges and long-term quest families.</span>
+          <span class="nav-card-desc">Daily quests, main quest families, filters and search.</span>
         </button>
+
         <button class="nav-card" data-page-link="achievements">
           <span class="nav-card-title">🏆 Achievements</span>
-          <span class="nav-card-desc">Milestones, mastery and legendary progress.</span>
+          <span class="nav-card-desc">Quick, steady and legendary milestones.</span>
         </button>
+
         <button class="nav-card" data-page-link="stats">
           <span class="nav-card-title">📊 Statistics</span>
-          <span class="nav-card-desc">Attributes, skills, XP and paragon progression.</span>
+          <span class="nav-card-desc">Attributes, skills, XP and paragon overview.</span>
+        </button>
+
+        <button class="nav-card" data-page-link="journal">
+          <span class="nav-card-title">📖 Journal</span>
+          <span class="nav-card-desc">Roadmap-ready journal module foundation.</span>
+        </button>
+
+        <button class="nav-card" data-page-link="gallery">
+          <span class="nav-card-title">🖼️ Gallery</span>
+          <span class="nav-card-desc">Roadmap-ready gallery and folder foundation.</span>
+        </button>
+
+        <button class="nav-card" data-page-link="calendar">
+          <span class="nav-card-title">🗓️ Calendar</span>
+          <span class="nav-card-desc">Planning and reminder foundation.</span>
+        </button>
+
+        <button class="nav-card" data-page-link="finance">
+          <span class="nav-card-title">💰 Finance</span>
+          <span class="nav-card-desc">Income, expenses, investments and wishlist foundation.</span>
+        </button>
+
+        <button class="nav-card" data-page-link="meta">
+          <span class="nav-card-title">📚 Q&A / Patches</span>
+          <span class="nav-card-desc">Project help, changelog and roadmap.</span>
+        </button>
+
+        <button class="nav-card" data-page-link="community">
+          <span class="nav-card-title">👥 Community</span>
+          <span class="nav-card-desc">Future multiplayer, profiles and privacy systems.</span>
         </button>
       </div>
 
       <div class="sidebar-footer">
-        <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()">
-          🌙 Switch Theme
-        </button>
+        <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()">🌙 Dark Mode</button>
       </div>
     </aside>
 
@@ -45,7 +76,7 @@
         <div class="page-header">
           <div>
             <h2 class="page-title">Home</h2>
-            <p class="page-subtitle">Your current character overview. This page now serves as the first avatar and equipment hub.</p>
+            <p class="page-subtitle">Character overview, avatar frame and equipment staging area.</p>
           </div>
         </div>
 
@@ -75,10 +106,10 @@
 
               <div class="avatar-inner">
                 <div class="avatar-icon-ring">
-                  <div class="avatar-icon">🜂</div>
+                  <div class="avatar-icon" id="homeAvatarIcon">🜂</div>
                 </div>
-                <div class="avatar-nameplate">The Ongoing Self</div>
-                <div class="avatar-subtitle">Future avatar, portrait and cosmetics will live here.</div>
+                <div class="avatar-nameplate" id="homeDisplayName">The Ongoing Self</div>
+                <div class="avatar-subtitle" id="homeProfileTitle">Future portrait, cosmetics and equipped visuals will live here.</div>
               </div>
             </div>
 
@@ -97,8 +128,9 @@
 
           <p style="margin: 12px 0 0;">
             Level <strong id="homeLevel">0</strong>
-            • XP <strong id="homeXp">0</strong> / <strong id="homeNextLevel">100</strong>
+            • XP <strong id="homeXp">0</strong> / <strong id="homeNextLevel">50</strong>
           </p>
+
           <p class="small-muted" style="margin:8px 0 0;">
             Character Paragon: <strong id="homeCharacterParagon">0</strong>
             • Total Paragon: <strong id="homeTotalParagon">0</strong>
@@ -139,7 +171,7 @@
         <div class="page-header">
           <div>
             <h2 class="page-title">Quests</h2>
-            <p class="page-subtitle">Daily rotating quests and long-form progression paths.</p>
+            <p class="page-subtitle">Search, filter and track daily quests and long-form quest families.</p>
           </div>
         </div>
 
@@ -156,13 +188,17 @@
               <span class="crest-wing"></span>
             </div>
 
-            <div class="top-tools">
-              <div>
-                <h3 style="margin:0;">Today's Rotation</h3>
-                <div class="small-muted">Skill-based daily tasks chosen from your world of progress.</div>
+            <div class="toolbar-grid">
+              <div class="field">
+                <label>Search daily quests</label>
+                <input type="text" id="dailyQuestSearch" placeholder="Search title, skill, attribute..." />
               </div>
-              <button class="btn" id="rerollButton" onclick="rerollDailyQuests()">🎲 Reroll Once Today</button>
+              <div class="field compact">
+                <label>&nbsp;</label>
+                <button class="btn" id="rerollButton" onclick="rerollDailyQuests()">🎲 Reroll Once Today</button>
+              </div>
             </div>
+
             <div class="quest-list" id="dailyQuestList"></div>
           </div>
         </div>
@@ -175,8 +211,17 @@
               <span class="crest-wing"></span>
             </div>
 
-            <h3>Main Quests</h3>
-            <p class="small-muted">Long-form milestone families. Add progress manually or in bulk.</p>
+            <div class="toolbar-grid">
+              <div class="field">
+                <label>Search main quests</label>
+                <input type="text" id="mainQuestSearch" placeholder="Search by title or skill..." />
+              </div>
+              <div class="field">
+                <label>Filter by skill</label>
+                <select id="mainQuestSkillFilter"></select>
+              </div>
+            </div>
+
             <div class="quest-list" id="mainQuestList"></div>
           </div>
         </div>
@@ -186,7 +231,7 @@
         <div class="page-header">
           <div>
             <h2 class="page-title">Achievements</h2>
-            <p class="page-subtitle">Quick victories, steady growth and legendary milestones.</p>
+            <p class="page-subtitle">Milestones across skills, attributes, quests and streaks.</p>
           </div>
         </div>
 
@@ -206,6 +251,7 @@
             <div class="achievement-list" id="achievementListEasy"></div>
           </div>
         </div>
+
         <div class="subsection" id="sub-achievements-medium">
           <div class="section-card">
             <div class="section-crest">
@@ -216,6 +262,7 @@
             <div class="achievement-list" id="achievementListMedium"></div>
           </div>
         </div>
+
         <div class="subsection" id="sub-achievements-legendary">
           <div class="section-card">
             <div class="section-crest">
@@ -232,7 +279,7 @@
         <div class="page-header">
           <div>
             <h2 class="page-title">Statistics</h2>
-            <p class="page-subtitle">Your ledger of progress, skills and paragon ascent.</p>
+            <p class="page-subtitle">Character progression, paragon and skill architecture.</p>
           </div>
           <button class="btn danger" onclick="openResetModal()">Reset Character</button>
         </div>
@@ -248,7 +295,7 @@
           <div class="grid two">
             <div>
               <p style="margin-top:0;">Level <strong id="level">0</strong></p>
-              <p>XP <strong id="xp">0</strong> / <strong id="nextLevel">100</strong></p>
+              <p>XP <strong id="xp">0</strong> / <strong id="nextLevel">50</strong></p>
               <div class="progress-shell hero-bar">
                 <div class="progress-fill" id="xpfill"></div>
               </div>
@@ -295,7 +342,7 @@
         <div class="streak-box">
           <div class="small-muted">Current Streak</div>
           <div class="streak-number" id="streakNumber">0</div>
-          <div class="small-muted">+1 if you complete at least one quest today. −1 if you complete none.</div>
+          <div class="small-muted">+1 if at least one quest was completed today. −1 if none were completed.</div>
         </div>
 
         <div class="grid two">
@@ -308,6 +355,7 @@
             <h3>Physical Attributes</h3>
             <div class="skill-list" id="physicalAttributes"></div>
           </div>
+
           <div class="section-card">
             <div class="section-crest">
               <span class="crest-wing"></span>
@@ -319,24 +367,267 @@
           </div>
         </div>
       </section>
+
+      <section class="page" id="page-journal">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Journal</h2>
+            <p class="page-subtitle">Foundation for future journal entries, tags, internal links and external references.</p>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-crest">
+            <span class="crest-wing"></span>
+            <span class="crest-core">✎</span>
+            <span class="crest-wing"></span>
+          </div>
+
+          <div class="toolbar-grid">
+            <div class="field">
+              <label>Entry title</label>
+              <input type="text" id="journalTitle" placeholder="Title..." />
+            </div>
+            <div class="field">
+              <label>Category</label>
+              <input type="text" id="journalCategory" placeholder="Reflection / Progress / Idea..." />
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Content</label>
+            <textarea id="journalContent" rows="6" placeholder="Write your note..."></textarea>
+          </div>
+
+          <div class="toolbar-grid">
+            <div class="field">
+              <label>Tags</label>
+              <input type="text" id="journalTags" placeholder="growth, idea, quest..." />
+            </div>
+            <div class="field">
+              <label>External link</label>
+              <input type="text" id="journalLink" placeholder="https://..." />
+            </div>
+          </div>
+
+          <div class="button-row">
+            <button class="btn primary" onclick="MetaModules.addJournalEntry()">Save Entry</button>
+          </div>
+
+          <div class="module-list" id="journalList"></div>
+        </div>
+      </section>
+
+      <section class="page" id="page-gallery">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Gallery</h2>
+            <p class="page-subtitle">Foundation for folders, image records and future uploads.</p>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-crest">
+            <span class="crest-wing"></span>
+            <span class="crest-core">🖼</span>
+            <span class="crest-wing"></span>
+          </div>
+
+          <div class="toolbar-grid">
+            <div class="field">
+              <label>Folder name</label>
+              <input type="text" id="galleryFolderName" placeholder="Miniatures / Concepts / References..." />
+            </div>
+            <div class="field compact">
+              <label>&nbsp;</label>
+              <button class="btn primary" onclick="MetaModules.addGalleryFolder()">Create Folder</button>
+            </div>
+          </div>
+
+          <div class="module-list" id="galleryFolderList"></div>
+        </div>
+      </section>
+
+      <section class="page" id="page-calendar">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Calendar</h2>
+            <p class="page-subtitle">Foundation for events, notes, reminders and future quest scheduling.</p>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-crest">
+            <span class="crest-wing"></span>
+            <span class="crest-core">🗓</span>
+            <span class="crest-wing"></span>
+          </div>
+
+          <div class="toolbar-grid">
+            <div class="field">
+              <label>Event title</label>
+              <input type="text" id="calendarTitle" placeholder="Swimming / Read / DnD..." />
+            </div>
+            <div class="field">
+              <label>Date</label>
+              <input type="date" id="calendarDate" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Note</label>
+            <textarea id="calendarNote" rows="4" placeholder="Optional event note..."></textarea>
+          </div>
+
+          <div class="button-row">
+            <button class="btn primary" onclick="MetaModules.addCalendarEvent()">Save Event</button>
+          </div>
+
+          <div class="module-list" id="calendarList"></div>
+        </div>
+      </section>
+
+      <section class="page" id="page-finance">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Finance</h2>
+            <p class="page-subtitle">Foundation for income, expenses, investments and purchase priorities.</p>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-crest">
+            <span class="crest-wing"></span>
+            <span class="crest-core">¤</span>
+            <span class="crest-wing"></span>
+          </div>
+
+          <div class="toolbar-grid">
+            <div class="field">
+              <label>Entry title</label>
+              <input type="text" id="financeTitle" placeholder="Paint set / Salary / ETF..." />
+            </div>
+            <div class="field">
+              <label>Type</label>
+              <select id="financeType">
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+                <option value="investment">Investment</option>
+                <option value="wishlist">Wishlist</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="toolbar-grid">
+            <div class="field">
+              <label>Amount</label>
+              <input type="number" id="financeAmount" placeholder="0" />
+            </div>
+            <div class="field">
+              <label>Priority / note</label>
+              <input type="text" id="financePriority" placeholder="low / medium / high / optional..." />
+            </div>
+          </div>
+
+          <div class="button-row">
+            <button class="btn primary" onclick="MetaModules.addFinanceEntry()">Save Entry</button>
+          </div>
+
+          <div class="module-list" id="financeList"></div>
+        </div>
+      </section>
+
+      <section class="page" id="page-meta">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Q&A / Patches</h2>
+            <p class="page-subtitle">Project help, patch notes and roadmap visibility.</p>
+          </div>
+        </div>
+
+        <div class="grid two">
+          <div class="section-card">
+            <div class="section-crest">
+              <span class="crest-wing"></span>
+              <span class="crest-core">?</span>
+              <span class="crest-wing"></span>
+            </div>
+            <h3>Q&A</h3>
+            <div class="module-list" id="qaList"></div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-crest">
+              <span class="crest-wing"></span>
+              <span class="crest-core">⚒</span>
+              <span class="crest-wing"></span>
+            </div>
+            <h3>Planned Patches</h3>
+            <div class="module-list" id="patchList"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-community">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Community</h2>
+            <p class="page-subtitle">Foundation for multiplayer, profiles, friends and privacy controls.</p>
+          </div>
+        </div>
+
+        <div class="grid two">
+          <div class="section-card">
+            <div class="section-crest">
+              <span class="crest-wing"></span>
+              <span class="crest-core">👤</span>
+              <span class="crest-wing"></span>
+            </div>
+            <h3>Profile Visibility</h3>
+            <div class="module-list" id="communityVisibilityList"></div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-crest">
+              <span class="crest-wing"></span>
+              <span class="crest-core">🤝</span>
+              <span class="crest-wing"></span>
+            </div>
+            <h3>Future Friends System</h3>
+            <div class="notice-box">
+              <p>This section is prepared for:</p>
+              <ul>
+                <li>accounts</li>
+                <li>public / friends-only profiles</li>
+                <li>friend requests</li>
+                <li>module privacy</li>
+                <li>folder-level and item-level visibility</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
 
   <div class="modal-backdrop" id="resetModal">
     <div class="modal">
       <h3>Reset Character?</h3>
-      <p class="small-muted">This will erase all locally saved progress, skills, quests, achievements and paragon values on this browser.</p>
+      <p class="small-muted">This will erase all Metamorphosis local data in this browser.</p>
       <div class="modal-actions">
-        <button class="btn ghost" onclick="closeResetModal()">Cancel</button>
+        <button class="btn" onclick="closeResetModal()">Cancel</button>
         <button class="btn danger" onclick="confirmResetCharacter()">Yes, Reset</button>
       </div>
     </div>
   </div>
 
   <script src="data.js"></script>
-  <script src="stats.js"></script>
+  <script src="schema.js"></script>
+  <script src="store.js"></script>
+  <script src="progression.js"></script>
   <script src="quests.js"></script>
   <script src="achievements.js"></script>
+  <script src="modules.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
