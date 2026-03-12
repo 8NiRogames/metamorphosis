@@ -1,200 +1,47 @@
-(function () {
-  const { xpConfig } = window.MetaData;
-
-  const state = {
-    xp: 0,
-    level: 0,
-    nextLevel: xpConfig.character.base,
-    characterParagon: 0,
-
-    completedQuestTotal: 0,
-    completedDays: 0,
-    streak: 0,
-    mainQuestStepCount: 0,
-    totalXpEarned: 0,
-
-    attributeStats: {},
-    selectedSkills: {},
-    skillValues: {},
-    dailyCategoryProgress: { Mind: 0, Body: 0, Discipline: 0, Social: 0, Life: 0 },
-    mainQuestProgress: {},
-
-    theme: 'dark'
-  };
+window.MetaApp = (function () {
+  let state = null;
 
   const $ = (id) => document.getElementById(id);
 
-  function saveState() {
-    localStorage.setItem('meta_xp', state.xp);
-    localStorage.setItem('meta_level', state.level);
-    localStorage.setItem('meta_nextLevel', state.nextLevel);
-    localStorage.setItem('meta_characterParagon', state.characterParagon);
-
-    localStorage.setItem('meta_completedQuestTotal', state.completedQuestTotal);
-    localStorage.setItem('meta_completedDays', state.completedDays);
-    localStorage.setItem('meta_streak', state.streak);
-    localStorage.setItem('meta_mainQuestStepCount', state.mainQuestStepCount);
-    localStorage.setItem('meta_mainQuestProgress', JSON.stringify(state.mainQuestProgress));
-    localStorage.setItem('meta_selectedSkills', JSON.stringify(state.selectedSkills));
-    localStorage.setItem('meta_skillValues', JSON.stringify(state.skillValues));
-    localStorage.setItem('meta_dailyCategoryProgress', JSON.stringify(state.dailyCategoryProgress));
-    localStorage.setItem('meta_totalXpEarned', state.totalXpEarned);
-    localStorage.setItem('meta_attributeStats', JSON.stringify(state.attributeStats));
-    localStorage.setItem('meta_theme', state.theme);
+  function load() {
+    state = window.MetaStore.load();
   }
 
-  function loadState() {
-    state.xp = parseInt(localStorage.getItem('meta_xp') || '0', 10);
-    state.level = parseInt(localStorage.getItem('meta_level') || '0', 10);
-    state.nextLevel = parseInt(localStorage.getItem('meta_nextLevel') || String(xpConfig.character.base), 10);
-    state.characterParagon = parseInt(localStorage.getItem('meta_characterParagon') || '0', 10);
-
-    state.completedQuestTotal = parseInt(localStorage.getItem('meta_completedQuestTotal') || '0', 10);
-    state.completedDays = parseInt(localStorage.getItem('meta_completedDays') || '0', 10);
-    state.streak = parseInt(localStorage.getItem('meta_streak') || '0', 10);
-    state.mainQuestStepCount = parseInt(localStorage.getItem('meta_mainQuestStepCount') || '0', 10);
-    state.mainQuestProgress = JSON.parse(localStorage.getItem('meta_mainQuestProgress') || '{}');
-    state.selectedSkills = JSON.parse(localStorage.getItem('meta_selectedSkills') || '{}');
-    state.skillValues = JSON.parse(localStorage.getItem('meta_skillValues') || '{}');
-    state.dailyCategoryProgress = JSON.parse(localStorage.getItem('meta_dailyCategoryProgress') || '{"Mind":0,"Body":0,"Discipline":0,"Social":0,"Life":0}');
-    state.totalXpEarned = parseInt(localStorage.getItem('meta_totalXpEarned') || '0', 10);
-    state.attributeStats = JSON.parse(localStorage.getItem('meta_attributeStats') || '{}');
-    state.theme = localStorage.getItem('meta_theme') || 'dark';
+  function save() {
+    window.MetaStore.save(state);
   }
 
   function applyTheme() {
-    document.body.setAttribute('data-theme', state.theme);
+    document.body.setAttribute('data-theme', state.ui.theme);
     const btn = $('themeToggleBtn');
     if (btn) {
-      btn.textContent = state.theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+      btn.textContent = state.ui.theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
     }
   }
 
   function toggleTheme() {
-    state.theme = state.theme === 'dark' ? 'light' : 'dark';
+    state.ui.theme = state.ui.theme === 'dark' ? 'light' : 'dark';
     applyTheme();
-    saveState();
-  }
-
-  function gainXP(amount) {
-    state.xp += amount;
-    state.totalXpEarned += amount;
-
-    while (state.xp >= state.nextLevel) {
-      if (state.level < 100) {
-        state.xp -= state.nextLevel;
-        state.level += 1;
-        state.nextLevel = Math.floor(state.nextLevel * xpConfig.character.multiplier + xpConfig.character.flat);
-
-        if (state.level >= 100) {
-          state.level = 100;
-        }
-      } else {
-        state.xp -= state.nextLevel;
-        state.characterParagon += 1;
-      }
-    }
-
-    updateUI();
-    saveState();
-  }
-
-  function getAttributeParagonTotal() {
-    return Object.values(state.attributeStats || {}).reduce((sum, stat) => sum + (stat?.paragon || 0), 0);
-  }
-
-  function getSkillParagonTotal() {
-    return Object.values(state.skillValues || {}).reduce((sum, stat) => sum + (stat?.paragon || 0), 0);
-  }
-
-  function getTotalParagon() {
-    return state.characterParagon + getAttributeParagonTotal() + getSkillParagonTotal();
-  }
-
-  function renderHomePreview() {
-    const previews = [
-      'Strength',
-      'Dexterity',
-      'Agility',
-      'Endurance',
-      'Intelligence',
-      'Willpower',
-      'Wits',
-      'Wisdom'
-    ];
-
-    $('homeSkillPreview').innerHTML = previews.map(attr => {
-      const level = window.MetaStats.getAttributeLevel(attr);
-      const percent = window.MetaStats.getAttributePercent(attr);
-      const paragon = window.MetaStats.getAttributeParagon(attr);
-
-      return `
-        <div class="mini-stat">
-          <strong>${attr}</strong>
-          <div class="progress-shell"><div class="progress-fill" style="width:${percent}%"></div></div>
-          <div class="small-muted" style="margin-top:6px;">Level ${level} • Paragon ${paragon}</div>
-        </div>
-      `;
-    }).join('');
-  }
-
-  function updateUI() {
-    $('xp').textContent = state.xp;
-    $('level').textContent = state.level;
-    $('nextLevel').textContent = state.nextLevel;
-
-    $('homeXp').textContent = state.xp;
-    $('homeLevel').textContent = state.level;
-    $('homeNextLevel').textContent = state.nextLevel;
-
-    const percent = Math.max(0, Math.min(100, (state.xp / state.nextLevel) * 100));
-    $('xpfill').style.width = percent + '%';
-    $('homeXpFill').style.width = percent + '%';
-
-    $('questCompletionCount').textContent = state.completedQuestTotal;
-    $('completedDaysCount').textContent = state.completedDays;
-    $('mainQuestStepCount').textContent = state.mainQuestStepCount;
-    $('streakNumber').textContent = state.streak;
-
-    const attributeParagon = getAttributeParagonTotal();
-    const skillParagon = getSkillParagonTotal();
-    const totalParagon = getTotalParagon();
-
-    $('characterParagon').textContent = state.characterParagon;
-    $('totalParagon').textContent = totalParagon;
-    $('paragonCharacterOnly').textContent = state.characterParagon;
-    $('paragonAttributesOnly').textContent = attributeParagon;
-    $('paragonSkillsOnly').textContent = skillParagon;
-
-    $('homeCharacterParagon').textContent = state.characterParagon;
-    $('homeTotalParagon').textContent = totalParagon;
-    $('homeParagonCharacterOnly').textContent = state.characterParagon;
-    $('homeParagonAttributesOnly').textContent = attributeParagon;
-    $('homeParagonSkillsOnly').textContent = skillParagon;
-
-    renderHomePreview();
-    window.MetaAchievements.renderAchievements();
-    window.MetaQuests.renderMainQuests();
-    window.MetaStats.renderAttributes();
+    save();
   }
 
   function setPage(pageKey) {
+    state.ui.activePage = pageKey;
     document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
     document.querySelectorAll('[data-page-link]').forEach(btn => btn.classList.remove('active'));
 
-    const page = $('page-' + pageKey);
+    const page = $(`page-${pageKey}`);
     if (page) page.classList.add('active');
 
     document.querySelectorAll(`[data-page-link="${pageKey}"]`).forEach(btn => btn.classList.add('active'));
+    save();
   }
 
-  function setupPageNavigation() {
+  function setupNavigation() {
     document.querySelectorAll('[data-page-link]').forEach(btn => {
       btn.addEventListener('click', () => setPage(btn.dataset.pageLink));
     });
-  }
 
-  function setupSubtabs() {
     document.querySelectorAll('.tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const group = btn.dataset.subtab;
@@ -204,9 +51,70 @@
         document.querySelectorAll(`#page-${group} .subsection`).forEach(sec => sec.classList.remove('active'));
 
         btn.classList.add('active');
-        $('sub-' + group + '-' + target).classList.add('active');
+        $(`sub-${group}-${target}`).classList.add('active');
       });
     });
+  }
+
+  function renderHome() {
+    const c = state.progression.character;
+    $('homeXp').textContent = c.xp;
+    $('homeLevel').textContent = c.level;
+    $('homeNextLevel').textContent = c.nextXp;
+    $('homeCharacterParagon').textContent = c.paragon;
+
+    const percent = Math.max(0, Math.min(100, (c.xp / c.nextXp) * 100));
+    $('homeXpFill').style.width = `${percent}%`;
+
+    $('homeDisplayName').textContent = state.profile.displayName;
+    $('homeProfileTitle').textContent = state.profile.title;
+    $('homeAvatarIcon').textContent = state.profile.avatar.portraitValue || '🜂';
+
+    window.MetaProgression.renderHomePreview();
+  }
+
+  function renderStats() {
+    const c = state.progression.character;
+    $('xp').textContent = c.xp;
+    $('level').textContent = c.level;
+    $('nextLevel').textContent = c.nextXp;
+
+    const percent = Math.max(0, Math.min(100, (c.xp / c.nextXp) * 100));
+    $('xpfill').style.width = `${percent}%`;
+
+    $('questCompletionCount').textContent = state.quests.stats.completedTotal;
+    $('completedDaysCount').textContent = state.quests.stats.completedDays;
+    $('mainQuestStepCount').textContent = state.quests.stats.mainStepsTotal;
+    $('streakNumber').textContent = state.quests.stats.streak;
+
+    const paragon = window.MetaProgression.getTotalParagon();
+    $('characterParagon').textContent = paragon.character;
+    $('totalParagon').textContent = paragon.total;
+    $('paragonCharacterOnly').textContent = paragon.character;
+    $('paragonAttributesOnly').textContent = paragon.attributes;
+    $('paragonSkillsOnly').textContent = paragon.skills;
+
+    $('homeParagonCharacterOnly').textContent = paragon.character;
+    $('homeParagonAttributesOnly').textContent = paragon.attributes;
+    $('homeParagonSkillsOnly').textContent = paragon.skills;
+    $('homeTotalParagon').textContent = paragon.total;
+
+    window.MetaProgression.renderAttributes();
+  }
+
+  function renderAll() {
+    renderHome();
+    renderStats();
+    window.MetaQuests.renderDailyQuests();
+    window.MetaQuests.renderMainQuests();
+    window.MetaQuests.bindSearchAndFilter();
+    window.MetaAchievements.renderAchievements();
+    window.MetaModules.renderJournal();
+    window.MetaModules.renderGallery();
+    window.MetaModules.renderCalendar();
+    window.MetaModules.renderFinance();
+    window.MetaModules.renderMeta();
+    window.MetaModules.renderCommunity();
   }
 
   function openResetModal() {
@@ -218,10 +126,10 @@
   }
 
   function confirmResetCharacter() {
-    Object.keys(localStorage).forEach(key => {
-      if (key.startsWith('meta_')) localStorage.removeItem(key);
-    });
-    location.reload();
+    state = window.MetaStore.reset();
+    applyTheme();
+    renderAll();
+    closeResetModal();
   }
 
   function initMidnightRefresh() {
@@ -229,38 +137,48 @@
     const next = new Date();
     next.setHours(24, 0, 0, 0);
     const ms = next.getTime() - now.getTime();
-    setTimeout(() => {
-      location.reload();
-    }, ms);
+    setTimeout(() => location.reload(), ms);
   }
 
   function init() {
-    loadState();
+    load();
     applyTheme();
-    window.MetaStats.initializeSkillState();
     window.MetaQuests.processMissedDayPenalty();
-    setupPageNavigation();
-    setupSubtabs();
-    window.MetaQuests.renderDailyQuests();
-    updateUI();
+    setupNavigation();
+    setPage(state.ui.activePage || 'home');
+    renderAll();
     initMidnightRefresh();
   }
 
-  window.MetaApp = {
-    state,
+  return {
+    get state() { return state; },
     $,
-    saveState,
-    loadState,
-    gainXP,
-    updateUI,
-    getTotalParagon,
+    save,
+    renderAll,
     init
   };
-
-  window.openResetModal = openResetModal;
-  window.closeResetModal = closeResetModal;
-  window.confirmResetCharacter = confirmResetCharacter;
-  window.toggleTheme = toggleTheme;
-
-  document.addEventListener('DOMContentLoaded', init);
 })();
+
+function toggleTheme() {
+  window.MetaApp.state.ui.theme = window.MetaApp.state.ui.theme === 'dark' ? 'light' : 'dark';
+  document.body.setAttribute('data-theme', window.MetaApp.state.ui.theme);
+  const btn = document.getElementById('themeToggleBtn');
+  btn.textContent = window.MetaApp.state.ui.theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+  window.MetaApp.save();
+}
+
+function openResetModal() {
+  document.getElementById('resetModal').classList.add('active');
+}
+
+function closeResetModal() {
+  document.getElementById('resetModal').classList.remove('active');
+}
+
+function confirmResetCharacter() {
+  location.reload(window.MetaStore.reset());
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  window.MetaApp.init();
+});
