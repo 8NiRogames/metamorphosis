@@ -1,70 +1,66 @@
-(function () {
+window.MetaAchievements = (function () {
   const { achievementFamilies } = window.MetaData;
 
-  function getFamilyProgress(family) {
-    const state = window.MetaApp.state;
+  function state() {
+    return window.MetaApp.state;
+  }
+
+  function getProgress(family) {
+    const s = state();
 
     switch (family.type) {
       case 'skill_level':
-        return state.skillValues[family.skill]?.level || 0;
-
+        return s.progression.skills[family.skill]?.level || 0;
       case 'attribute_level':
-        return state.attributeStats[family.attribute]?.level || 0;
-
+        return s.progression.attributes[family.attribute]?.level || 0;
       case 'daily_total':
-        return state.completedQuestTotal;
-
+        return s.quests.stats.completedTotal;
       case 'main_total':
-        return state.mainQuestStepCount;
-
+        return s.quests.stats.mainStepsTotal;
       case 'streak':
-        return state.streak;
-
+        return s.quests.stats.streak;
       case 'main_family':
-        return state.mainQuestProgress[family.familyId] || 0;
-
+        return s.quests.mainFamilies[family.familyId]?.progress || 0;
       default:
         return 0;
     }
   }
 
-  function getAchievementTierClass(family, progress) {
-    const nextMilestone = family.milestones.find(step => step > progress) || null;
-    const maxMilestone = family.milestones[family.milestones.length - 1];
-
-    if (nextMilestone === null) return 'legendary';
-    if (nextMilestone <= 10) return 'easy';
-    if (nextMilestone <= 100) return 'medium';
-    if (maxMilestone >= 250) return 'legendary';
-
-    return 'medium';
+  function nextMilestone(family, progress) {
+    return family.milestones.find(m => m > progress) || null;
   }
 
-  function getMilestoneCount(family) {
-    const progress = getFamilyProgress(family);
-    return family.milestones.filter(step => progress >= step).length;
+  function unlockedCount(family, progress) {
+    return family.milestones.filter(m => progress >= m).length;
   }
 
-  function buildAchievementCard(family) {
-    const progress = getFamilyProgress(family);
-    const unlockedCount = getMilestoneCount(family);
-    const nextMilestone = family.milestones.find(step => step > progress) || null;
-    const prevMilestone = unlockedCount > 0 ? family.milestones[unlockedCount - 1] : 0;
-    const percent = nextMilestone
-      ? Math.min(100, ((progress - prevMilestone) / (nextMilestone - prevMilestone)) * 100)
-      : 100;
+  function tierClass(family, progress) {
+    const next = nextMilestone(family, progress);
+    if (next === null) return 'legendary';
+    if (next <= 10) return 'easy';
+    if (next <= 100) return 'medium';
+    return 'legendary';
+  }
+
+  function buildCard(family) {
+    const progress = getProgress(family);
+    const next = nextMilestone(family, progress);
+    const unlocked = unlockedCount(family, progress);
+    const prev = unlocked > 0 ? family.milestones[unlocked - 1] : 0;
+    const percent = next ? Math.min(100, ((progress - prev) / (next - prev)) * 100) : 100;
 
     return `
-      <div class="achievement-item ${nextMilestone === null ? 'unlocked' : ''}">
+      <div class="achievement-item">
         <div class="achievement-head">
           <div>
-            <div class="achievement-title">${nextMilestone === null ? '🏆' : '🔒'} ${family.title}</div>
-            <div class="achievement-desc">Progress: ${progress} • Next: ${nextMilestone ?? 'Completed'} • Reward: +${family.rewardXp} Character XP</div>
+            <div class="achievement-title">${next === null ? '🏆' : '🔒'} ${family.title}</div>
+            <div class="achievement-desc">Progress: ${progress} • Next: ${next ?? 'Completed'} • Reward: +${family.rewardXp} Character XP</div>
           </div>
-          <span class="tag ${getAchievementTierClass(family, progress)}">${unlockedCount}/${family.milestones.length}</span>
+          <span class="tag ${tierClass(family, progress)}">${unlocked}/${family.milestones.length}</span>
         </div>
+
         <div class="progress-shell">
-          <div class="progress-fill ${nextMilestone === null ? 'good' : ''}" style="width:${percent}%"></div>
+          <div class="progress-fill ${next === null ? 'good' : ''}" style="width:${percent}%"></div>
         </div>
       </div>
     `;
@@ -72,45 +68,21 @@
 
   function renderAchievements() {
     const quick = [];
-    const steady = [];
+    const medium = [];
     const legendary = [];
 
     achievementFamilies.forEach(family => {
-      const progress = getFamilyProgress(family);
-      const nextMilestone = family.milestones.find(step => step > progress) || null;
-      const maxMilestone = family.milestones[family.milestones.length - 1];
-
-      if (nextMilestone === null) {
-        legendary.push(family);
-        return;
-      }
-
-      if (maxMilestone >= 250) {
-        if (nextMilestone <= 10) {
-          quick.push(family);
-        } else if (nextMilestone <= 100) {
-          steady.push(family);
-        } else {
-          legendary.push(family);
-        }
-        return;
-      }
-
-      if (nextMilestone <= 10) {
-        quick.push(family);
-      } else if (nextMilestone <= 100) {
-        steady.push(family);
-      } else {
-        legendary.push(family);
-      }
+      const progress = getProgress(family);
+      const tier = tierClass(family, progress);
+      if (tier === 'easy') quick.push(family);
+      else if (tier === 'medium') medium.push(family);
+      else legendary.push(family);
     });
 
-    window.MetaApp.$('achievementListEasy').innerHTML = quick.map(buildAchievementCard).join('');
-    window.MetaApp.$('achievementListMedium').innerHTML = steady.map(buildAchievementCard).join('');
-    window.MetaApp.$('achievementListLegendary').innerHTML = legendary.map(buildAchievementCard).join('');
+    document.getElementById('achievementListEasy').innerHTML = quick.map(buildCard).join('');
+    document.getElementById('achievementListMedium').innerHTML = medium.map(buildCard).join('');
+    document.getElementById('achievementListLegendary').innerHTML = legendary.map(buildCard).join('');
   }
 
-  window.MetaAchievements = {
-    renderAchievements
-  };
+  return { renderAchievements };
 })();
