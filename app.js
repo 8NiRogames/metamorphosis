@@ -27,9 +27,46 @@ window.MetaApp = (function () {
     }
   }
 
+  function applySidebarState() {
+    const sidebar = $('sidebar');
+    const backdrop = $('sidebarBackdrop');
+    const pin = $('sidebarPinToggle');
+
+    if (!sidebar) return;
+
+    sidebar.classList.toggle('collapsed', !!state.ui.sidebarCollapsed);
+    sidebar.classList.toggle('mobile-open', !!state.ui.mobileSidebarOpen);
+
+    if (backdrop) {
+      backdrop.classList.toggle('open', !!state.ui.mobileSidebarOpen);
+    }
+
+    if (pin) {
+      pin.textContent = state.ui.sidebarCollapsed ? '⇥' : '⇤';
+    }
+  }
+
   function toggleThemeInternal() {
     state.ui.theme = state.ui.theme === 'dark' ? 'light' : 'dark';
     applyTheme();
+    save();
+  }
+
+  function toggleSidebarCollapsedInternal() {
+    state.ui.sidebarCollapsed = !state.ui.sidebarCollapsed;
+    applySidebarState();
+    save();
+  }
+
+  function toggleSidebarInternal() {
+    state.ui.mobileSidebarOpen = !state.ui.mobileSidebarOpen;
+    applySidebarState();
+    save();
+  }
+
+  function closeSidebarInternal() {
+    state.ui.mobileSidebarOpen = false;
+    applySidebarState();
     save();
   }
 
@@ -53,6 +90,7 @@ window.MetaApp = (function () {
       btn.classList.add('active');
     });
 
+    closeSidebarInternal();
     save();
   }
 
@@ -65,6 +103,8 @@ window.MetaApp = (function () {
 
     document.querySelectorAll('.tab-btn').forEach((btn) => {
       btn.addEventListener('click', () => {
+        if (btn.classList.contains('hidden-tab')) return;
+
         const group = btn.dataset.subtab;
         const target = btn.dataset.target;
 
@@ -149,6 +189,7 @@ window.MetaApp = (function () {
     safeCall('renderFinance', () => window.MetaModules.renderFinance());
     safeCall('renderMeta', () => window.MetaModules.renderMeta());
     safeCall('renderCommunity', () => window.MetaModules.renderCommunity());
+    applySidebarState();
   }
 
   function openResetModalInternal() {
@@ -180,6 +221,7 @@ window.MetaApp = (function () {
   function init() {
     load();
     applyTheme();
+    applySidebarState();
     safeCall('processMissedDayPenalty', () => window.MetaQuests.processMissedDayPenalty());
     setupNavigation();
     renderAll();
@@ -196,6 +238,9 @@ window.MetaApp = (function () {
     renderAll,
     init,
     toggleThemeInternal,
+    toggleSidebarCollapsedInternal,
+    toggleSidebarInternal,
+    closeSidebarInternal,
     openResetModalInternal,
     closeResetModalInternal,
     confirmResetCharacterInternal
@@ -204,6 +249,18 @@ window.MetaApp = (function () {
 
 function toggleTheme() {
   window.MetaApp.toggleThemeInternal();
+}
+
+function toggleSidebarCollapsed() {
+  window.MetaApp.toggleSidebarCollapsedInternal();
+}
+
+function toggleSidebar() {
+  window.MetaApp.toggleSidebarInternal();
+}
+
+function closeSidebar() {
+  window.MetaApp.closeSidebarInternal();
 }
 
 function openResetModal() {
