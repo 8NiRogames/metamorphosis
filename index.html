@@ -7,11 +7,17 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <button class="mobile-nav-toggle" id="mobileNavToggle" onclick="toggleSidebar()">☰ Menu</button>
+  <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
+
   <div class="app">
-    <aside class="sidebar">
-      <div class="brand">
-        <h1>METAMORPHOSIS</h1>
-        <p>Life RPG system for growth, records, planning and progression.</p>
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-top-row">
+        <div class="brand">
+          <h1>METAMORPHOSIS</h1>
+          <p>Life RPG system for growth, records, planning and progression.</p>
+        </div>
+        <button class="sidebar-pin-toggle" id="sidebarPinToggle" onclick="toggleSidebarCollapsed()">⇤</button>
       </div>
 
       <div class="nav-grid">
@@ -42,7 +48,7 @@
 
         <button class="nav-card" data-page-link="gallery">
           <span class="nav-card-title">🖼️ Gallery</span>
-          <span class="nav-card-desc">Roadmap-ready gallery and folder foundation.</span>
+          <span class="nav-card-desc">Folders, image cards and uploads.</span>
         </button>
 
         <button class="nav-card" data-page-link="calendar">
@@ -123,7 +129,7 @@
           </div>
 
           <div class="progress-shell hero-bar">
-            <div class="progress-fill" id="homeXpFill"></div>
+            <div class="progress-fill animated-fill" id="homeXpFill"></div>
           </div>
 
           <p style="margin: 12px 0 0;">
@@ -248,10 +254,11 @@
           </div>
         </div>
 
-        <div class="tab-row">
-          <button class="tab-btn active" data-subtab="achievements" data-target="easy">Quick</button>
-          <button class="tab-btn" data-subtab="achievements" data-target="medium">Steady</button>
-          <button class="tab-btn" data-subtab="achievements" data-target="legendary">Legendary</button>
+        <div class="tab-row" id="achievementTabs">
+          <button class="tab-btn active" id="tab-achievements-easy" data-subtab="achievements" data-target="easy">Quick</button>
+          <button class="tab-btn" id="tab-achievements-medium" data-subtab="achievements" data-target="medium">Steady</button>
+          <button class="tab-btn" id="tab-achievements-legendary" data-subtab="achievements" data-target="legendary">Legendary</button>
+          <button class="tab-btn" id="tab-achievements-favorites" data-subtab="achievements" data-target="favorites">Favorites</button>
         </div>
 
         <div class="subsection active" id="sub-achievements-easy">
@@ -286,6 +293,17 @@
             <div class="achievement-list" id="achievementListLegendary"></div>
           </div>
         </div>
+
+        <div class="subsection" id="sub-achievements-favorites">
+          <div class="section-card">
+            <div class="section-crest">
+              <span class="crest-wing"></span>
+              <span class="crest-core">★</span>
+              <span class="crest-wing"></span>
+            </div>
+            <div class="achievement-list" id="achievementListFavorites"></div>
+          </div>
+        </div>
       </section>
 
       <section class="page" id="page-stats">
@@ -310,7 +328,7 @@
               <p style="margin-top:0;">Level <strong id="level">0</strong></p>
               <p>XP <strong id="xp">0</strong> / <strong id="nextLevel">50</strong></p>
               <div class="progress-shell hero-bar">
-                <div class="progress-fill" id="xpfill"></div>
+                <div class="progress-fill animated-fill" id="xpfill"></div>
               </div>
               <p class="small-muted" style="margin-top:8px;">
                 Character Paragon: <strong id="characterParagon">0</strong>
@@ -435,7 +453,7 @@
         <div class="page-header">
           <div>
             <h2 class="page-title">Gallery</h2>
-            <p class="page-subtitle">Foundation for folders, image records and future uploads.</p>
+            <p class="page-subtitle">Folders, image cards and uploads.</p>
           </div>
         </div>
 
@@ -454,6 +472,33 @@
             <div class="field compact">
               <label>&nbsp;</label>
               <button class="btn primary" onclick="MetaModules.addGalleryFolder()">Create Folder</button>
+            </div>
+          </div>
+
+          <div class="toolbar-grid">
+            <div class="field">
+              <label>Folder</label>
+              <select id="galleryTargetFolder"></select>
+            </div>
+            <div class="field">
+              <label>Image title</label>
+              <input type="text" id="galleryImageTitle" placeholder="Knight WIP / Reference / Diorama..." />
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Image description</label>
+            <textarea id="galleryImageDescription" rows="3" placeholder="Optional description..."></textarea>
+          </div>
+
+          <div class="toolbar-grid">
+            <div class="field">
+              <label>Image file</label>
+              <input type="file" id="galleryImageFile" accept="image/*" />
+            </div>
+            <div class="field compact">
+              <label>&nbsp;</label>
+              <button class="btn primary" onclick="MetaModules.addGalleryImage()">Upload Image</button>
             </div>
           </div>
 
