@@ -1,175 +1,248 @@
-(function () {
-  const {
-    questGenerators,
-    questSkillRotation,
-    skillToAttribute,
-    questTextPools,
-    mainQuestFamilies,
-    progressionSteps
-  } = window.MetaData;
+window.MetaQuests = (function () {
+  const { questSkillRotation, questGenerators, mainQuestFamilies, progressionSteps, skillToAttribute } = window.MetaData;
 
-  function getTodayKey() {
-    const now = new Date();
-    const y = now.getFullYear();
-    const m = String(now.getMonth() + 1).padStart(2, '0');
-    const d = String(now.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
+  function state() {
+    return window.MetaApp.state;
+  }
+
+  function todayKey() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   }
 
   function randomFrom(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
   }
 
-  function fillTemplate(text) {
-    return text.replace(/\{(\w+)\}/g, (_, key) => {
-      const pool = questTextPools[key];
-      return pool && pool.length ? randomFrom(pool) : key;
-    });
+  function getDailySearch() {
+    return state().ui.searchQueries.dailyQuests.toLowerCase().trim();
   }
 
-  function buildDailyQuest(skill, template, idx) {
-    const attr = skillToAttribute[skill];
-    return {
-      id: `dq_${getTodayKey()}_${idx}_${skill.replace(/\s+/g, '_')}`,
-      title: fillTemplate(template.text),
-      skill,
-      attribute: attr,
-      skillXp: 20,
-      xp: 20,
-      metaType: template.type,
-      metaAmount: template.amount
-    };
+  function getMainSearch() {
+    return state().ui.searchQueries.mainQuests.toLowerCase().trim();
   }
 
-  function createFreshDailyQuestSet() {
-    const skillPool = [...questSkillRotation];
-    const chosenSkills = [];
+  function getMainFilter() {
+    return state().ui.filters.mainQuestSkill || 'all';
+  }
 
-    while (chosenSkills.length < 5 && skillPool.length) {
-      const idx = Math.floor(Math.random() * skillPool.length);
-      chosenSkills.push(skillPool.splice(idx, 1)[0]);
+  function generateDailyQuests() {
+    const pool = [...questSkillRotation];
+    const pickedSkills = [];
+
+    while (pickedSkills.length < 5 && pool.length) {
+      const i = Math.floor(Math.random() * pool.length);
+      pickedSkills.push(pool.splice(i, 1)[0]);
     }
 
-    const selected = chosenSkills.map((skill, index) => {
-      const templates = questGenerators[skill] || [];
-      const template = randomFrom(templates);
-      return buildDailyQuest(skill, template, index);
+    const quests = pickedSkills.map((skill, idx) => {
+      const template = randomFrom(questGenerators[skill]);
+      const attribute = skillToAttribute[skill];
+      return {
+        id: `dq_${todayKey()}_${idx}_${skill.replace(/\s+/g, '_')}`,
+        title: template.text,
+        skill,
+        attribute,
+        xpReward: 20,
+        skillXpReward: 20,
+        attributeXpReward: 10,
+        completed: false
+      };
     });
 
-    localStorage.setItem('meta_dailyQuestSet', JSON.stringify(selected));
-    localStorage.setItem('meta_dailyQuestDone', JSON.stringify([]));
-    localStorage.setItem('meta_dailyQuestDate', getTodayKey());
-
-    return selected;
+    state().quests.daily.date = todayKey();
+    state().quests.daily.rerollUsed = false;
+    state().quests.daily.active = quests;
+    state().quests.daily.doneIds = [];
   }
 
-  function getTodayQuests() {
-    const today = getTodayKey();
-    const storedDate = localStorage.getItem('meta_dailyQuestDate');
-    let storedQuests = JSON.parse(localStorage.getItem('meta_dailyQuestSet') || '[]');
-    let done = JSON.parse(localStorage.getItem('meta_dailyQuestDone') || '[]');
-    let rerollDate = localStorage.getItem('meta_dailyQuestRerollDate');
-
-    if (storedDate !== today) {
-      storedQuests = createFreshDailyQuestSet();
-      done = [];
-      localStorage.setItem('meta_dailyQuestRerollDate', '');
-      rerollDate = '';
+  function ensureDailyState() {
+    if (state().quests.daily.date !== todayKey()) {
+      generateDailyQuests();
     }
-
-    return { quests: storedQuests, done, rerollDate };
   }
 
   function rerollDailyQuests() {
-    const today = getTodayKey();
-    const rerollDate = localStorage.getItem('meta_dailyQuestRerollDate');
-
-    if (rerollDate === today) {
+    ensureDailyState();
+    if (state().quests.daily.rerollUsed) {
       alert('You already rerolled daily quests today.');
       return;
     }
-
-    createFreshDailyQuestSet();
-    localStorage.setItem('meta_dailyQuestRerollDate', today);
+    generateDailyQuests();
+    state().quests.daily.rerollUsed = true;
+    window.MetaApp.save();
     renderDailyQuests();
   }
 
+  function completeDailyQuest(id) {
+    ensureDailyState();
+    if (state().quests.daily.doneIds.includes(id)) return;
+
+    const quest = state().quests.daily.active.find(q => q.id === id);
+    if (!quest) return;
+
+    state().quests.daily.doneIds.push(id);
+    state().quests.questsHistory = state().quests.questsHistory || [];
+    state().quests.history.push({
+      id: `qh_${Date.now()}`,
+      questId: id,
+      completedAt: new Date().toISOString()
+    });
+
+    state().quests.stats.completedTotal += 1;
+
+    window.MetaProgression.gainSkillXP(quest.attribute, quest.skill, quest.skillXpReward);
+    window.MetaProgression.gainCharacterXP(quest.xpReward);
+    bumpDailyCompletion();
+    window.MetaApp.save();
+    window.MetaApp.renderAll();
+  }
+
+  function bumpDailyCompletion() {
+    const key = todayKey();
+    const stats = state().quests.stats;
+    if (stats.streakDateProcessed !== key) {
+      stats.streak += 1;
+      stats.completedDays += 1;
+      stats.streakDateProcessed = key;
+    }
+  }
+
+  function processMissedDayPenalty() {
+    const stats = state().quests.stats;
+    const key = todayKey();
+    if (stats.lastPenaltyCheck === key) return;
+
+    if (stats.streakDateProcessed && stats.streakDateProcessed !== key) {
+      const current = new Date(`${key}T00:00:00`);
+      const last = new Date(`${stats.streakDateProcessed}T00:00:00`);
+      const diff = Math.floor((current - last) / (1000 * 60 * 60 * 24));
+      if (diff >= 1) stats.streak -= 1;
+    }
+
+    stats.lastPenaltyCheck = key;
+  }
+
+  function milestoneCount(progress) {
+    return progressionSteps.filter(step => progress >= step).length;
+  }
+
+  function changeMainQuestProgress(id, delta) {
+    const family = mainQuestFamilies.find(f => f.id === id);
+    if (!family) return;
+
+    const record = state().quests.mainFamilies[id] || { progress: 0, milestonesCompleted: 0 };
+    const oldValue = record.progress;
+    const nextValue = Math.max(0, oldValue + delta);
+    if (nextValue === oldValue) return;
+
+    record.progress = nextValue;
+
+    const oldCount = milestoneCount(oldValue);
+    const newCount = milestoneCount(nextValue);
+
+    if (delta > 0) {
+      state().quests.stats.mainStepsTotal += delta;
+      state().quests.stats.completedTotal += 1;
+      bumpDailyCompletion();
+      window.MetaProgression.gainSkillXP(skillToAttribute[family.skill], family.skill, 15 * delta);
+    }
+
+    if (newCount > oldCount) {
+      const rewardCount = newCount - oldCount;
+      for (let i = 0; i < rewardCount; i++) {
+        window.MetaProgression.gainSkillXP(skillToAttribute[family.skill], family.skill, 25);
+        window.MetaProgression.gainCharacterXP(family.rewardXp);
+      }
+      record.milestonesCompleted = newCount;
+    }
+
+    state().quests.mainFamilies[id] = record;
+    window.MetaApp.save();
+    window.MetaApp.renderAll();
+  }
+
+  function applyMainQuestBulk(id) {
+    const input = document.getElementById(`bulk_${id}`);
+    const value = parseInt(input.value, 10);
+    if (!value || value < 1) return;
+    changeMainQuestProgress(id, value);
+    input.value = '';
+  }
+
   function renderDailyQuests() {
-    const { quests, done, rerollDate } = getTodayQuests();
+    ensureDailyState();
 
-    window.MetaApp.$('dailyQuestList').innerHTML = quests.map(q => {
-      const checked = done.includes(q.id);
+    const q = getDailySearch();
+    const quests = state().quests.daily.active.filter(item => {
+      if (!q) return true;
+      const hay = `${item.title} ${item.skill} ${item.attribute}`.toLowerCase();
+      return hay.includes(q);
+    });
 
+    document.getElementById('dailyQuestList').innerHTML = quests.map(item => {
+      const checked = state().quests.daily.doneIds.includes(item.id);
       return `
         <div class="quest-item">
           <div class="quest-head">
             <div>
-              <div class="quest-title">${q.title}</div>
-              <div class="quest-desc">+${q.xp} Character XP • +${q.skillXp} ${q.skill} XP</div>
-              <div class="small-muted">Attribute: ${q.attribute}</div>
+              <div class="quest-title">${item.title}</div>
+              <div class="quest-desc">
+                +${item.xpReward} Character XP • +${item.skillXpReward} ${item.skill} XP • +${item.attributeXpReward} ${item.attribute} XP
+              </div>
             </div>
-            <span class="tag daily">${q.skill}</span>
+            <span class="tag daily">${item.skill}</span>
           </div>
+
           <div class="checkbox-row">
-            <input type="checkbox" ${checked ? 'checked' : ''} onchange="completeDailyQuest('${q.id}')">
+            <input type="checkbox" ${checked ? 'checked' : ''} onchange="MetaQuests.completeDailyQuest('${item.id}')">
             <span class="small-muted">Mark completed</span>
           </div>
         </div>
       `;
     }).join('');
 
-    const rerollBtn = window.MetaApp.$('rerollButton');
-    if (rerollBtn) {
-      rerollBtn.disabled = rerollDate === getTodayKey();
-      rerollBtn.textContent = rerollDate === getTodayKey() ? '🎲 Reroll Used Today' : '🎲 Reroll Once Today';
-    }
-  }
-
-  function completeDailyQuest(id) {
-    const { quests, done } = getTodayQuests();
-    if (done.includes(id)) return;
-
-    const quest = quests.find(q => q.id === id);
-    if (!quest) return;
-
-    done.push(id);
-    localStorage.setItem('meta_dailyQuestDone', JSON.stringify(done));
-
-    const state = window.MetaApp.state;
-    state.completedQuestTotal += 1;
-
-    window.MetaStats.gainSkillXP(quest.attribute, quest.skill, quest.skillXp);
-    window.MetaApp.gainXP(quest.xp);
-
-    updateStreakForToday(true);
-    renderDailyQuests();
-  }
-
-  function getUnlockedMilestoneCount(progress) {
-    return progressionSteps.filter(step => progress >= step).length;
+    const btn = document.getElementById('rerollButton');
+    btn.disabled = state().quests.daily.rerollUsed;
+    btn.textContent = state().quests.daily.rerollUsed ? '🎲 Reroll Used Today' : '🎲 Reroll Once Today';
   }
 
   function renderMainQuests() {
-    const state = window.MetaApp.state;
+    const search = getMainSearch();
+    const filter = getMainFilter();
 
-    window.MetaApp.$('mainQuestList').innerHTML = mainQuestFamilies.map(family => {
-      const progress = state.mainQuestProgress[family.id] || 0;
-      const unlockedCount = getUnlockedMilestoneCount(progress);
-      const nextMilestone = family.milestones.find(step => step > progress) || null;
-      const prevMilestone = unlockedCount > 0 ? family.milestones[unlockedCount - 1] : 0;
-      const percent = nextMilestone
-        ? Math.min(100, ((progress - prevMilestone) / (nextMilestone - prevMilestone)) * 100)
-        : 100;
+    document.getElementById('mainQuestSkillFilter').innerHTML = `
+      <option value="all">All skills</option>
+      ${[...new Set(mainQuestFamilies.map(q => q.skill))].sort().map(skill => `<option value="${skill}" ${filter === skill ? 'selected' : ''}>${skill}</option>`).join('')}
+    `;
+
+    const filtered = mainQuestFamilies.filter(family => {
+      const matchesSkill = filter === 'all' || family.skill === filter;
+      const hay = `${family.title} ${family.skill}`.toLowerCase();
+      const matchesSearch = !search || hay.includes(search);
+      return matchesSkill && matchesSearch;
+    });
+
+    document.getElementById('mainQuestList').innerHTML = filtered.map(family => {
+      const record = state().quests.mainFamilies[family.id] || { progress: 0, milestonesCompleted: 0 };
+      const progress = record.progress;
+      const next = progressionSteps.find(step => step > progress) || null;
+      const prev = progressionSteps.filter(step => step <= progress).slice(-1)[0] || 0;
+      const percent = next ? Math.min(100, ((progress - prev) / (next - prev)) * 100) : 100;
 
       return `
         <div class="quest-item">
           <div class="quest-head">
             <div>
               <div class="quest-title">${family.title}</div>
-              <div class="quest-desc">Skill: ${family.skill} • Progress: ${progress} ${family.unit}</div>
-              <div class="small-muted">Next milestone: ${nextMilestone ?? 'Completed'} • Reward: +${family.rewardXp} Character XP • +25 ${family.skill} XP</div>
+              <div class="quest-desc">
+                Skill: ${family.skill} • Progress: ${progress} ${family.unit} • Next milestone: ${next ?? 'Completed'}
+              </div>
+              <div class="small-muted">
+                +${family.rewardXp} Character XP • +25 ${family.skill} XP on milestone
+              </div>
             </div>
-            <span class="tag main">${unlockedCount}/${family.milestones.length}</span>
+            <span class="tag main">${record.milestonesCompleted}/${progressionSteps.length}</span>
           </div>
 
           <div class="progress-shell">
@@ -177,118 +250,64 @@
           </div>
 
           <div class="quest-progress-row">
-            <button class="step-btn" onclick="changeMainQuestProgress('${family.id}', -1)">−</button>
+            <button class="step-btn" onclick="MetaQuests.changeMainQuestProgress('${family.id}', -1)">−</button>
             <div class="small-muted" style="text-align:center;">${progress} ${family.unit}</div>
-            <button class="step-btn" onclick="changeMainQuestProgress('${family.id}', 1)">+</button>
+            <button class="step-btn" onclick="MetaQuests.changeMainQuestProgress('${family.id}', 1)">+</button>
           </div>
 
-          <div style="display:flex; gap:10px; margin-top:10px; align-items:center;">
-            <input
-              type="number"
-              min="1"
-              step="1"
-              id="bulk_${family.id}"
-              placeholder="Add amount"
-              style="flex:1; background:#111119; color:var(--text); border:1px solid var(--border); border-radius:10px; padding:10px;"
-            />
-            <button class="btn" onclick="applyMainQuestBulk('${family.id}')">Add</button>
+          <div class="toolbar-grid" style="margin-top:10px; margin-bottom:0;">
+            <div class="field">
+              <label>Add bulk progress</label>
+              <input type="number" id="bulk_${family.id}" min="1" step="1" placeholder="Add amount" />
+            </div>
+            <div class="field compact">
+              <label>&nbsp;</label>
+              <button class="btn" onclick="MetaQuests.applyMainQuestBulk('${family.id}')">Add</button>
+            </div>
           </div>
         </div>
       `;
     }).join('');
   }
 
-  function applyMainQuestBulk(id) {
-    const input = window.MetaApp.$(`bulk_${id}`);
-    if (!input) return;
+  function bindSearchAndFilter() {
+    const daily = document.getElementById('dailyQuestSearch');
+    const main = document.getElementById('mainQuestSearch');
+    const filter = document.getElementById('mainQuestSkillFilter');
 
-    const amount = parseInt(input.value, 10);
-    if (!amount || amount < 1) return;
-
-    changeMainQuestProgress(id, amount);
-    input.value = '';
-  }
-
-  function changeMainQuestProgress(id, delta) {
-    const family = mainQuestFamilies.find(q => q.id === id);
-    if (!family) return;
-
-    const state = window.MetaApp.state;
-    const oldValue = state.mainQuestProgress[id] || 0;
-    const nextValue = Math.max(0, oldValue + delta);
-
-    if (nextValue === oldValue) return;
-
-    state.mainQuestProgress[id] = nextValue;
-
-    if (delta > 0) {
-      state.mainQuestStepCount += delta;
-      state.completedQuestTotal += 1;
-
-      const attr = skillToAttribute[family.skill];
-      window.MetaStats.gainSkillXP(attr, family.skill, 15 * delta);
-      updateStreakForToday(true);
+    if (daily && !daily.dataset.bound) {
+      daily.dataset.bound = '1';
+      daily.addEventListener('input', e => {
+        state().ui.searchQueries.dailyQuests = e.target.value;
+        renderDailyQuests();
+      });
     }
 
-    const oldMilestones = family.milestones.filter(step => oldValue >= step).length;
-    const newMilestones = family.milestones.filter(step => nextValue >= step).length;
+    if (main && !main.dataset.bound) {
+      main.dataset.bound = '1';
+      main.addEventListener('input', e => {
+        state().ui.searchQueries.mainQuests = e.target.value;
+        renderMainQuests();
+      });
+    }
 
-    if (newMilestones > oldMilestones) {
-      const rewardCount = newMilestones - oldMilestones;
-
-      for (let i = 0; i < rewardCount; i++) {
-        const attr = skillToAttribute[family.skill];
-        window.MetaStats.gainSkillXP(attr, family.skill, 25);
-        window.MetaApp.gainXP(family.rewardXp);
-      }
-    } else {
-      window.MetaApp.updateUI();
-      window.MetaApp.saveState();
+    if (filter && !filter.dataset.bound) {
+      filter.dataset.bound = '1';
+      filter.addEventListener('change', e => {
+        state().ui.filters.mainQuestSkill = e.target.value;
+        renderMainQuests();
+      });
     }
   }
 
-  function updateStreakForToday(hadQuestCompletion) {
-    const today = getTodayKey();
-    const lastProcessed = localStorage.getItem('meta_streakDateProcessed');
-    const state = window.MetaApp.state;
-
-    if (hadQuestCompletion && lastProcessed !== today) {
-      state.streak += 1;
-      state.completedDays += 1;
-      localStorage.setItem('meta_streakDateProcessed', today);
-    }
-
-    window.MetaApp.saveState();
-    window.MetaApp.updateUI();
-  }
-
-  function processMissedDayPenalty() {
-    const today = getTodayKey();
-    const lastPenaltyCheck = localStorage.getItem('meta_lastPenaltyCheck');
-    const lastPositiveDay = localStorage.getItem('meta_streakDateProcessed');
-    const state = window.MetaApp.state;
-
-    if (lastPenaltyCheck === today) return;
-
-    if (lastPositiveDay && lastPositiveDay !== today) {
-      const todayDate = new Date(today + 'T00:00:00');
-      const positiveDate = new Date(lastPositiveDay + 'T00:00:00');
-      const diffDays = Math.floor((todayDate - positiveDate) / (1000 * 60 * 60 * 24));
-      if (diffDays >= 1) state.streak -= 1;
-    }
-
-    localStorage.setItem('meta_lastPenaltyCheck', today);
-    window.MetaApp.saveState();
-  }
-
-  window.MetaQuests = {
+  return {
+    processMissedDayPenalty,
+    rerollDailyQuests,
+    completeDailyQuest,
+    changeMainQuestProgress,
+    applyMainQuestBulk,
     renderDailyQuests,
     renderMainQuests,
-    processMissedDayPenalty
+    bindSearchAndFilter
   };
-
-  window.rerollDailyQuests = rerollDailyQuests;
-  window.completeDailyQuest = completeDailyQuest;
-  window.changeMainQuestProgress = changeMainQuestProgress;
-  window.applyMainQuestBulk = applyMainQuestBulk;
 })();
