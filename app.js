@@ -34,15 +34,27 @@ window.MetaApp = (function () {
 
     if (!sidebar) return;
 
-    sidebar.classList.toggle('collapsed', !!state.ui.sidebarCollapsed);
-    sidebar.classList.toggle('mobile-open', !!state.ui.mobileSidebarOpen);
+    const mobile = window.innerWidth <= 1180;
+
+    document.body.classList.toggle('sidebar-collapsed', !!state.ui.sidebarCollapsed && !mobile);
+    document.body.classList.toggle('mobile-sidebar-open', !!state.ui.mobileSidebarOpen && mobile);
+
+    if (mobile) {
+      sidebar.classList.remove('collapsed');
+      sidebar.classList.toggle('mobile-open', !!state.ui.mobileSidebarOpen);
+    } else {
+      sidebar.classList.remove('mobile-open');
+      sidebar.classList.toggle('collapsed', !!state.ui.sidebarCollapsed);
+      state.ui.mobileSidebarOpen = false;
+    }
 
     if (backdrop) {
-      backdrop.classList.toggle('open', !!state.ui.mobileSidebarOpen);
+      backdrop.classList.toggle('open', !!state.ui.mobileSidebarOpen && mobile);
     }
 
     if (pin) {
       pin.textContent = state.ui.sidebarCollapsed ? '⇥' : '⇤';
+      pin.setAttribute('aria-label', state.ui.sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar');
     }
   }
 
@@ -53,18 +65,21 @@ window.MetaApp = (function () {
   }
 
   function toggleSidebarCollapsedInternal() {
+    if (window.innerWidth <= 1180) return;
     state.ui.sidebarCollapsed = !state.ui.sidebarCollapsed;
     applySidebarState();
     save();
   }
 
   function toggleSidebarInternal() {
+    if (window.innerWidth > 1180) return;
     state.ui.mobileSidebarOpen = !state.ui.mobileSidebarOpen;
     applySidebarState();
     save();
   }
 
   function closeSidebarInternal() {
+    if (window.innerWidth > 1180) return;
     state.ui.mobileSidebarOpen = false;
     applySidebarState();
     save();
@@ -90,14 +105,20 @@ window.MetaApp = (function () {
       btn.classList.add('active');
     });
 
-    closeSidebarInternal();
+    if (window.innerWidth <= 1180) {
+      state.ui.mobileSidebarOpen = false;
+      applySidebarState();
+    }
+
     save();
   }
 
   function setupNavigation() {
     document.querySelectorAll('[data-page-link]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        setPage(btn.dataset.pageLink);
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const pageKey = btn.dataset.pageLink;
+        setPage(pageKey);
       });
     });
 
@@ -123,6 +144,10 @@ window.MetaApp = (function () {
           targetNode.classList.add('active');
         }
       });
+    });
+
+    window.addEventListener('resize', () => {
+      applySidebarState();
     });
   }
 
