@@ -18,7 +18,7 @@ window.MetaSchema = {
 
     return {
       meta: {
-        version: '1.1.1',
+        version: '1.2.0',
         saveFormat: 1,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
@@ -73,6 +73,7 @@ window.MetaSchema = {
       },
 
       achievements: {
+        favorites: [],
         unlockedLog: []
       },
 
@@ -140,6 +141,8 @@ window.MetaSchema = {
       ui: {
         activePage: 'home',
         theme: 'dark',
+        sidebarCollapsed: false,
+        mobileSidebarOpen: false,
         collapsedAttributes,
         searchQueries: {
           dailyQuests: '',
