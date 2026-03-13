@@ -18,7 +18,7 @@ window.MetaSchema = {
 
     return {
       meta: {
-        version: '1.2.0',
+        version: '1.3.0',
         saveFormat: 1,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
@@ -85,6 +85,7 @@ window.MetaSchema = {
       gallery: {
         folders: {},
         images: {},
+        favorites: [],
         folderOrder: []
       },
 
