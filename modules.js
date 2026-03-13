@@ -41,6 +41,12 @@ window.MetaModules = (function () {
     }
   }
 
+  function ensureFinanceUiState() {
+    if (!state().ui.financeTab) {
+      state().ui.financeTab = 'all';
+    }
+  }
+
   function isGalleryFolderCollapsed(id) {
     ensureGalleryCollapseState();
     return !!state().ui.collapsedGalleryFolders[id];
@@ -58,6 +64,31 @@ window.MetaModules = (function () {
     const d = new Date(dateString);
     if (Number.isNaN(d.getTime())) return dateString;
     return d.toLocaleString();
+  }
+
+  function isToday(dateString) {
+    if (!dateString) return false;
+    const d = new Date(dateString);
+    const now = new Date();
+    return d.getFullYear() === now.getFullYear() &&
+      d.getMonth() === now.getMonth() &&
+      d.getDate() === now.getDate();
+  }
+
+  function isFuture(dateString) {
+    if (!dateString) return false;
+    const d = new Date(dateString + 'T23:59:59');
+    const now = new Date();
+    return d.getTime() > now.getTime() && !isToday(dateString);
+  }
+
+  function escapeHtml(str) {
+    return String(str || '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
   }
 
   function openImagePreview(imageId) {
@@ -121,20 +152,29 @@ window.MetaModules = (function () {
       });
     });
 
-    const modal = document.getElementById('imagePreviewModal');
-    if (modal && !modal.dataset.bound) {
-      modal.dataset.bound = '1';
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-          closeImagePreview();
-        }
+    const imageModal = document.getElementById('imagePreviewModal');
+    if (imageModal && !imageModal.dataset.bound) {
+      imageModal.dataset.bound = '1';
+      imageModal.addEventListener('click', (e) => {
+        if (e.target === imageModal) closeImagePreview();
+      });
+    }
+
+    const financeModal = document.getElementById('financeTypeModal');
+    if (financeModal && !financeModal.dataset.bound) {
+      financeModal.dataset.bound = '1';
+      financeModal.addEventListener('click', (e) => {
+        if (e.target === financeModal) closeFinanceTypeModal();
       });
     }
 
     if (!document.body.dataset.previewEscapeBound) {
       document.body.dataset.previewEscapeBound = '1';
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') closeImagePreview();
+        if (e.key === 'Escape') {
+          closeImagePreview();
+          closeFinanceTypeModal();
+        }
       });
     }
   }
@@ -228,7 +268,7 @@ window.MetaModules = (function () {
     return `
       <div class="link-pill-row">
         ${list.map(item => `
-          <div class="link-pill">${item.type}:${item.id}</div>
+          <div class="link-pill">${escapeHtml(item.type)}:${escapeHtml(item.id)}</div>
         `).join('')}
       </div>
     `;
@@ -254,11 +294,11 @@ window.MetaModules = (function () {
 
     document.getElementById('journalList').innerHTML = list.length ? list.map(entry => `
       <div class="module-card">
-        <h4>${entry.title}</h4>
-        <p><strong>Category:</strong> ${entry.category}</p>
-        <p>${entry.content}</p>
-        <p class="small-muted">Tags: ${(entry.tags || []).join(', ') || 'none'} • Visibility: ${entry.visibility}</p>
-        ${entry.linkedExternal?.length ? `<p class="small-muted">Link: ${entry.linkedExternal[0].url}</p>` : ''}
+        <h4>${escapeHtml(entry.title)}</h4>
+        <p><strong>Category:</strong> ${escapeHtml(entry.category)}</p>
+        <p>${escapeHtml(entry.content)}</p>
+        <p class="small-muted">Tags: ${escapeHtml((entry.tags || []).join(', ') || 'none')} • Visibility: ${escapeHtml(entry.visibility)}</p>
+        ${entry.linkedExternal?.length ? `<p class="small-muted">Link: ${escapeHtml(entry.linkedExternal[0].url)}</p>` : ''}
         ${renderInternalLinks(entry.linkedInternal)}
         <div class="module-actions">
           <button class="action-btn" onclick="MetaModules.startEditJournalEntry('${entry.id}')">Edit</button>
@@ -306,6 +346,22 @@ window.MetaModules = (function () {
     renderGallery();
   }
 
+  function setGalleryFolderVisibility(id, visibility) {
+    const folder = state().gallery.folders[id];
+    if (!folder) return;
+    folder.visibility = visibility;
+    window.MetaApp.save();
+    renderGallery();
+  }
+
+  function setGalleryImageVisibility(id, visibility) {
+    const image = state().gallery.images[id];
+    if (!image) return;
+    image.visibility = visibility;
+    window.MetaApp.save();
+    renderGallery();
+  }
+
   function deleteGalleryFolder(id) {
     const folder = state().gallery.folders[id];
     if (!folder) return;
@@ -332,7 +388,7 @@ window.MetaModules = (function () {
     const folders = state().gallery.folderOrder.map(id => state().gallery.folders[id]).filter(Boolean);
 
     select.innerHTML = folders.length
-      ? folders.map(folder => `<option value="${folder.id}">${folder.name}</option>`).join('')
+      ? folders.map(folder => `<option value="${folder.id}">${escapeHtml(folder.name)}</option>`).join('')
       : `<option value="">No folders yet</option>`;
   }
 
@@ -473,14 +529,25 @@ window.MetaModules = (function () {
               <div class="gallery-folder-head-left">
                 <div class="gallery-folder-toggle">${collapsed ? '+' : '−'}</div>
                 <div>
-                  <h4>${folder.name}</h4>
-                  <p class="small-muted">Visibility: ${folder.visibility} • Images: ${folder.itemIds.length}</p>
+                  <h4>${escapeHtml(folder.name)}</h4>
+                  <p class="small-muted">Visibility: ${escapeHtml(folder.visibility)} • Images: ${folder.itemIds.length}</p>
                 </div>
               </div>
               <span class="tag">${folder.itemIds.length}</span>
             </div>
 
             <div class="gallery-folder-body ${collapsed ? 'collapsed' : ''}">
+              <div class="toolbar-grid two-cols">
+                <div class="field">
+                  <label>Folder visibility</label>
+                  <select onchange="MetaModules.setGalleryFolderVisibility('${folder.id}', this.value)">
+                    <option value="private" ${folder.visibility === 'private' ? 'selected' : ''}>Private</option>
+                    <option value="friends" ${folder.visibility === 'friends' ? 'selected' : ''}>Friends</option>
+                    <option value="public" ${folder.visibility === 'public' ? 'selected' : ''}>Public</option>
+                  </select>
+                </div>
+              </div>
+
               <div class="gallery-folder-actions">
                 <button class="action-btn" onclick="event.stopPropagation(); MetaModules.renameGalleryFolder('${folder.id}')">Rename</button>
                 <button class="action-btn danger" onclick="event.stopPropagation(); MetaModules.deleteGalleryFolder('${folder.id}')">Delete Folder</button>
@@ -495,18 +562,28 @@ window.MetaModules = (function () {
                     return `
                       <div class="gallery-image-card">
                         <button class="gallery-thumb-button" data-image-id="${image.id}" type="button">
-                          <img src="${image.src}" alt="${image.title}" />
+                          <img src="${image.src}" alt="${escapeHtml(image.title)}" />
                         </button>
 
-                        <h4>${image.title}</h4>
-                        <p>${image.description || 'No description'}</p>
+                        <h4>${escapeHtml(image.title)}</h4>
+                        <p>${escapeHtml(image.description || 'No description')}</p>
+
+                        <div class="field" style="margin-top:8px;">
+                          <label>Image visibility</label>
+                          <select onchange="MetaModules.setGalleryImageVisibility('${image.id}', this.value)">
+                            <option value="inherited" ${image.visibility === 'inherited' ? 'selected' : ''}>Inherited</option>
+                            <option value="private" ${image.visibility === 'private' ? 'selected' : ''}>Private</option>
+                            <option value="friends" ${image.visibility === 'friends' ? 'selected' : ''}>Friends</option>
+                            <option value="public" ${image.visibility === 'public' ? 'selected' : ''}>Public</option>
+                          </select>
+                        </div>
 
                         ${otherFolders.length ? `
                           <div class="field" style="margin-top:8px;">
                             <label>Move to folder</label>
                             <select onchange="MetaModules.moveGalleryImage('${image.id}', this.value)">
                               <option value="">Choose folder</option>
-                              ${otherFolders.map(f => `<option value="${f.id}">${f.name}</option>`).join('')}
+                              ${otherFolders.map(f => `<option value="${f.id}">${escapeHtml(f.name)}</option>`).join('')}
                             </select>
                           </div>
                         ` : ''}
@@ -542,6 +619,10 @@ window.MetaModules = (function () {
     const title = document.getElementById('calendarTitle').value.trim();
     const date = document.getElementById('calendarDate').value.trim();
     const note = document.getElementById('calendarNote').value.trim();
+    const visibility = document.getElementById('calendarVisibility').value;
+    const link = document.getElementById('calendarLink').value.trim();
+    const reminder = document.getElementById('calendarReminder').value === 'true';
+
     if (!title || !date) return;
 
     const id = uid('event');
@@ -550,29 +631,113 @@ window.MetaModules = (function () {
       title,
       date,
       note,
-      visibility: 'private',
-      reminder: true
+      visibility,
+      link,
+      reminder
     };
     state().calendar.order.unshift(id);
 
-    ['calendarTitle', 'calendarDate', 'calendarNote'].forEach(id => {
+    ['calendarTitle', 'calendarDate', 'calendarNote', 'calendarLink'].forEach(id => {
       document.getElementById(id).value = '';
     });
+    document.getElementById('calendarVisibility').value = 'private';
+    document.getElementById('calendarReminder').value = 'true';
 
+    window.MetaApp.save();
+    renderCalendar();
+  }
+
+  function editCalendarEvent(id) {
+    const event = state().calendar.events[id];
+    if (!event) return;
+
+    const title = prompt('Event title:', event.title || '');
+    if (title === null) return;
+
+    const note = prompt('Event note:', event.note || '');
+    if (note === null) return;
+
+    const link = prompt('Event link:', event.link || '');
+    if (link === null) return;
+
+    event.title = title.trim() || event.title;
+    event.note = note.trim();
+    event.link = link.trim();
+
+    window.MetaApp.save();
+    renderCalendar();
+  }
+
+  function deleteCalendarEvent(id) {
+    if (!state().calendar.events[id]) return;
+    delete state().calendar.events[id];
+    state().calendar.order = state().calendar.order.filter(x => x !== id);
+    window.MetaApp.save();
+    renderCalendar();
+  }
+
+  function toggleCalendarReminder(id) {
+    const event = state().calendar.events[id];
+    if (!event) return;
+    event.reminder = !event.reminder;
+    window.MetaApp.save();
+    renderCalendar();
+  }
+
+  function setCalendarVisibility(id, value) {
+    const event = state().calendar.events[id];
+    if (!event) return;
+    event.visibility = value;
     window.MetaApp.save();
     renderCalendar();
   }
 
   function renderCalendar() {
     const events = state().calendar.order.map(id => state().calendar.events[id]).filter(Boolean);
-    document.getElementById('calendarList').innerHTML = events.length ? events.map(event => `
-      <div class="module-card">
-        <h4>${event.title}</h4>
-        <p><strong>Date:</strong> ${event.date}</p>
-        <p>${event.note || 'No note'}</p>
-        <p class="small-muted">Visibility: ${event.visibility} • Reminder: ${event.reminder ? 'on' : 'off'}</p>
-      </div>
-    `).join('') : `<div class="notice-box"><p>No calendar events yet.</p></div>`;
+
+    document.getElementById('calendarList').innerHTML = events.length ? events.map(event => {
+      const today = isToday(event.date);
+      const future = isFuture(event.date);
+      return `
+        <div class="module-card">
+          <div class="quest-head">
+            <div>
+              <h4>${escapeHtml(event.title)}</h4>
+              <p><strong>Date:</strong> ${escapeHtml(event.date)}</p>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              ${today ? '<span class="tag today">Today</span>' : ''}
+              ${future ? '<span class="tag upcoming">Upcoming</span>' : ''}
+            </div>
+          </div>
+
+          <p>${escapeHtml(event.note || 'No note')}</p>
+          ${event.link ? `<p class="small-muted">Link: ${escapeHtml(event.link)}</p>` : ''}
+          
+          <div class="toolbar-grid two-cols">
+            <div class="field">
+              <label>Visibility</label>
+              <select onchange="MetaModules.setCalendarVisibility('${event.id}', this.value)">
+                <option value="private" ${event.visibility === 'private' ? 'selected' : ''}>Private</option>
+                <option value="friends" ${event.visibility === 'friends' ? 'selected' : ''}>Friends</option>
+                <option value="public" ${event.visibility === 'public' ? 'selected' : ''}>Public</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Reminder</label>
+              <button class="btn" onclick="MetaModules.toggleCalendarReminder('${event.id}')">${event.reminder ? 'Turn Off' : 'Turn On'}</button>
+            </div>
+          </div>
+
+          <p class="small-muted">Visibility: ${escapeHtml(event.visibility)} • Reminder: ${event.reminder ? 'on' : 'off'}</p>
+
+          <div class="module-actions">
+            <button class="action-btn" onclick="MetaModules.editCalendarEvent('${event.id}')">Edit</button>
+            <button class="action-btn danger" onclick="MetaModules.deleteCalendarEvent('${event.id}')">Delete</button>
+          </div>
+        </div>
+      `;
+    }).join('') : `<div class="notice-box"><p>No calendar events yet.</p></div>`;
   }
 
   function addFinanceEntry() {
@@ -580,7 +745,14 @@ window.MetaModules = (function () {
     const type = document.getElementById('financeType').value;
     const amount = document.getElementById('financeAmount').value.trim();
     const priority = document.getElementById('financePriority').value.trim();
+    const link = document.getElementById('financeLink').value.trim();
+    let visibility = document.getElementById('financeVisibility').value;
+
     if (!title) return;
+
+    if (type === 'wishlist') {
+      visibility = 'friends';
+    }
 
     const id = uid('finance');
     state().finance.entries[id] = {
@@ -589,18 +761,134 @@ window.MetaModules = (function () {
       type,
       amount: Number(amount || 0),
       priority,
-      visibility: 'private',
+      link,
+      visibility,
       createdAt: new Date().toISOString()
     };
     state().finance.order.unshift(id);
 
-    ['financeTitle', 'financeAmount', 'financePriority'].forEach(id => {
+    ['financeTitle', 'financeAmount', 'financePriority', 'financeLink'].forEach(id => {
       document.getElementById(id).value = '';
     });
     document.getElementById('financeType').value = 'income';
+    document.getElementById('financeVisibility').value = 'private';
 
     window.MetaApp.save();
     renderFinance();
+  }
+
+  function editFinanceEntry(id) {
+    const item = state().finance.entries[id];
+    if (!item) return;
+
+    const title = prompt('Entry title:', item.title || '');
+    if (title === null) return;
+
+    const amount = prompt('Amount:', String(item.amount ?? 0));
+    if (amount === null) return;
+
+    const priority = prompt('Priority / note:', item.priority || '');
+    if (priority === null) return;
+
+    const link = prompt('Link:', item.link || '');
+    if (link === null) return;
+
+    item.title = title.trim() || item.title;
+    item.amount = Number(amount || 0);
+    item.priority = priority.trim();
+    item.link = link.trim();
+
+    window.MetaApp.save();
+    renderFinance();
+    renderFinanceTypeModal();
+  }
+
+  function deleteFinanceEntry(id) {
+    if (!state().finance.entries[id]) return;
+    delete state().finance.entries[id];
+    state().finance.order = state().finance.order.filter(x => x !== id);
+    window.MetaApp.save();
+    renderFinance();
+    renderFinanceTypeModal();
+  }
+
+  function setFinanceVisibility(id, visibility) {
+    const item = state().finance.entries[id];
+    if (!item) return;
+    item.visibility = visibility;
+    window.MetaApp.save();
+    renderFinance();
+    renderFinanceTypeModal();
+  }
+
+  function setFinanceTab(tab) {
+    ensureFinanceUiState();
+    state().ui.financeTab = tab;
+    window.MetaApp.save();
+
+    document.querySelectorAll('.finance-type-tab').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.financeTab === tab);
+    });
+
+    renderFinance();
+  }
+
+  function getFinanceEntriesByTab(tab) {
+    const entries = state().finance.order.map(id => state().finance.entries[id]).filter(Boolean);
+    if (!tab || tab === 'all') return entries;
+    return entries.filter(entry => entry.type === tab);
+  }
+
+  function openFinanceTypeModal() {
+    const modal = document.getElementById('financeTypeModal');
+    if (!modal) return;
+    renderFinanceTypeModal();
+    modal.classList.add('active');
+  }
+
+  function closeFinanceTypeModal() {
+    const modal = document.getElementById('financeTypeModal');
+    if (!modal) return;
+    modal.classList.remove('active');
+  }
+
+  function renderFinanceTypeModal() {
+    const titleNode = document.getElementById('financeTypeModalTitle');
+    const listNode = document.getElementById('financeTypeModalList');
+    if (!titleNode || !listNode) return;
+
+    ensureFinanceUiState();
+    const tab = state().ui.financeTab || 'all';
+    const label = tab === 'all' ? 'All Finance Entries' : `${tab.charAt(0).toUpperCase() + tab.slice(1)} Entries`;
+    titleNode.textContent = label;
+
+    const entries = getFinanceEntriesByTab(tab);
+
+    listNode.innerHTML = entries.length ? entries.map(item => `
+      <div class="module-card">
+        <h4>${escapeHtml(item.title)}</h4>
+        <p><strong>Type:</strong> ${escapeHtml(item.type)}</p>
+        <p><strong>Amount:</strong> ${item.amount}</p>
+        <p class="small-muted">Priority: ${escapeHtml(item.priority || 'none')} • Visibility: ${escapeHtml(item.visibility)}</p>
+        ${item.link ? `<p class="small-muted">Link: ${escapeHtml(item.link)}</p>` : ''}
+
+        <div class="toolbar-grid two-cols">
+          <div class="field">
+            <label>Visibility</label>
+            <select onchange="MetaModules.setFinanceVisibility('${item.id}', this.value)">
+              <option value="private" ${item.visibility === 'private' ? 'selected' : ''}>Private</option>
+              <option value="friends" ${item.visibility === 'friends' ? 'selected' : ''}>Friends</option>
+              <option value="public" ${item.visibility === 'public' ? 'selected' : ''}>Public</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="module-actions">
+          <button class="action-btn" onclick="MetaModules.editFinanceEntry('${item.id}')">Edit</button>
+          <button class="action-btn danger" onclick="MetaModules.deleteFinanceEntry('${item.id}')">Delete</button>
+        </div>
+      </div>
+    `).join('') : `<div class="notice-box"><p>No entries in this tab.</p></div>`;
   }
 
   function updateFinanceSummary() {
@@ -634,6 +922,7 @@ window.MetaModules = (function () {
     if (balanceNode) balanceNode.textContent = balance;
 
     drawFinanceChart(income, expense, investment, wishlist);
+    drawFinanceBalanceChart(income, expense, investment, balance);
   }
 
   function drawFinanceChart(income, expense, investment, wishlist) {
@@ -644,20 +933,20 @@ window.MetaModules = (function () {
     if (!ctx) return;
 
     const parentWidth = canvas.parentElement ? canvas.parentElement.clientWidth : 900;
-    const width = Math.max(320, parentWidth - 4);
+    const width = Math.max(320, parentWidth - 8);
     canvas.width = width;
-    canvas.height = 220;
+    canvas.height = 240;
 
     const values = [income, expense, investment, wishlist];
     const labels = ['Income', 'Expense', 'Investment', 'Wishlist'];
+    const colors = ['#5f8f46', '#b8862f', '#7660b4', '#c99a45'];
     const max = Math.max(...values, 1);
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    const padding = 36;
-    const usableHeight = canvas.height - 70;
+    const usableHeight = canvas.height - 80;
     const slotWidth = canvas.width / values.length;
-    const barWidth = Math.min(64, slotWidth - 40);
+    const barWidth = Math.min(70, slotWidth - 36);
 
     ctx.font = '14px Arial';
     ctx.textAlign = 'center';
@@ -666,50 +955,117 @@ window.MetaModules = (function () {
     values.forEach((value, i) => {
       const barHeight = (value / max) * usableHeight;
       const x = i * slotWidth + (slotWidth / 2) - (barWidth / 2);
-      const y = canvas.height - 32 - barHeight;
+      const y = canvas.height - 40 - barHeight;
 
-      ctx.fillStyle = '#c99a45';
+      ctx.fillStyle = colors[i];
       ctx.fillRect(x, y, barWidth, barHeight);
 
       ctx.fillStyle = '#f0e3c8';
       ctx.fillText(String(value), x + (barWidth / 2), y - 10);
-      ctx.fillText(labels[i], x + (barWidth / 2), canvas.height - 12);
+      ctx.fillText(labels[i], x + (barWidth / 2), canvas.height - 15);
     });
 
     ctx.strokeStyle = 'rgba(255,255,255,0.12)';
     ctx.beginPath();
-    ctx.moveTo(padding / 2, canvas.height - 32);
-    ctx.lineTo(canvas.width - padding / 2, canvas.height - 32);
+    ctx.moveTo(20, canvas.height - 40);
+    ctx.lineTo(canvas.width - 20, canvas.height - 40);
+    ctx.stroke();
+  }
+
+  function drawFinanceBalanceChart(income, expense, investment, balance) {
+    const canvas = document.getElementById('financeBalanceChart');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const parentWidth = canvas.parentElement ? canvas.parentElement.clientWidth : 900;
+    const width = Math.max(320, parentWidth - 8);
+    canvas.width = width;
+    canvas.height = 240;
+
+    const values = [income, expense + investment, Math.max(0, balance)];
+    const labels = ['Resources In', 'Resources Out', 'Balance'];
+    const colors = ['#5f8f46', '#7a1f1f', '#c99a45'];
+    const max = Math.max(...values, 1);
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const usableHeight = canvas.height - 80;
+    const slotWidth = canvas.width / values.length;
+    const barWidth = Math.min(80, slotWidth - 40);
+
+    ctx.font = '14px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    values.forEach((value, i) => {
+      const barHeight = (value / max) * usableHeight;
+      const x = i * slotWidth + (slotWidth / 2) - (barWidth / 2);
+      const y = canvas.height - 40 - barHeight;
+
+      ctx.fillStyle = colors[i];
+      ctx.fillRect(x, y, barWidth, barHeight);
+
+      ctx.fillStyle = '#f0e3c8';
+      ctx.fillText(String(value), x + (barWidth / 2), y - 10);
+      ctx.fillText(labels[i], x + (barWidth / 2), canvas.height - 15);
+    });
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+    ctx.beginPath();
+    ctx.moveTo(20, canvas.height - 40);
+    ctx.lineTo(canvas.width - 20, canvas.height - 40);
     ctx.stroke();
   }
 
   function renderFinance() {
-    const entries = state().finance.order.map(id => state().finance.entries[id]).filter(Boolean);
+    ensureFinanceUiState();
+    const tab = state().ui.financeTab || 'all';
+
+    document.querySelectorAll('.finance-type-tab').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.financeTab === tab);
+    });
+
+    const entries = getFinanceEntriesByTab(tab);
     document.getElementById('financeList').innerHTML = entries.length ? entries.map(item => `
       <div class="module-card">
-        <h4>${item.title}</h4>
-        <p><strong>Type:</strong> ${item.type}</p>
+        <div class="quest-head">
+          <div>
+            <h4>${escapeHtml(item.title)}</h4>
+            <p><strong>Type:</strong> ${escapeHtml(item.type)}</p>
+          </div>
+          <span class="tag">${item.amount}</span>
+        </div>
+
         <p><strong>Amount:</strong> ${item.amount}</p>
-        <p class="small-muted">Priority: ${item.priority || 'none'} • Visibility: ${item.visibility}</p>
+        <p class="small-muted">Priority: ${escapeHtml(item.priority || 'none')} • Visibility: ${escapeHtml(item.visibility)}</p>
+        ${item.link ? `<p class="small-muted">Link: ${escapeHtml(item.link)}</p>` : ''}
+
+        <div class="module-actions">
+          <button class="action-btn" onclick="MetaModules.editFinanceEntry('${item.id}')">Edit</button>
+          <button class="action-btn danger" onclick="MetaModules.deleteFinanceEntry('${item.id}')">Delete</button>
+        </div>
       </div>
-    `).join('') : `<div class="notice-box"><p>No finance entries yet.</p></div>`;
+    `).join('') : `<div class="notice-box"><p>No finance entries in this tab.</p></div>`;
 
     updateFinanceSummary();
+    renderFinanceTypeModal();
   }
 
   function renderMeta() {
     document.getElementById('qaList').innerHTML = window.MetaData.qaItems.map(item => `
       <div class="module-card">
-        <h4>${item.q}</h4>
-        <p>${item.a}</p>
+        <h4>${escapeHtml(item.q)}</h4>
+        <p>${escapeHtml(item.a)}</p>
       </div>
     `).join('');
 
     document.getElementById('patchList').innerHTML = window.MetaData.patchNotes.map(patch => `
       <div class="module-card">
-        <h4>${patch.version}</h4>
+        <h4>${escapeHtml(patch.version)}</h4>
         <ul class="small-muted">
-          ${patch.items.map(item => `<li>${item}</li>`).join('')}
+          ${patch.items.map(item => `<li>${escapeHtml(item)}</li>`).join('')}
         </ul>
       </div>
     `).join('');
@@ -719,8 +1075,8 @@ window.MetaModules = (function () {
     const vis = state().social.profileVisibility;
     document.getElementById('communityVisibilityList').innerHTML = Object.entries(vis).map(([key, value]) => `
       <div class="module-card">
-        <h4>${key}</h4>
-        <p class="small-muted">Default visibility: ${value}</p>
+        <h4>${escapeHtml(key)}</h4>
+        <p class="small-muted">Default visibility: ${escapeHtml(value)}</p>
       </div>
     `).join('');
   }
@@ -730,8 +1086,11 @@ window.MetaModules = (function () {
     startEditJournalEntry,
     deleteJournalEntry,
     clearJournalForm,
+
     addGalleryFolder,
     renameGalleryFolder,
+    setGalleryFolderVisibility,
+    setGalleryImageVisibility,
     deleteGalleryFolder,
     addGalleryImage,
     editGalleryImage,
@@ -741,8 +1100,21 @@ window.MetaModules = (function () {
     toggleGalleryFolder,
     openImagePreview,
     closeImagePreview,
+
     addCalendarEvent,
+    editCalendarEvent,
+    deleteCalendarEvent,
+    toggleCalendarReminder,
+    setCalendarVisibility,
+
     addFinanceEntry,
+    editFinanceEntry,
+    deleteFinanceEntry,
+    setFinanceVisibility,
+    setFinanceTab,
+    openFinanceTypeModal,
+    closeFinanceTypeModal,
+
     renderJournal,
     renderGallery,
     renderCalendar,
