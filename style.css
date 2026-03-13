@@ -216,7 +216,8 @@ body.sidebar-collapsed .app {
 .module-card,
 .notice-box,
 .gallery-folder-card,
-.gallery-image-card {
+.gallery-image-card,
+.link-pill {
   position: relative;
   border: 2px solid var(--border);
   box-shadow: var(--shadow), var(--inner-shadow);
@@ -356,7 +357,8 @@ body[data-theme="light"] .nav-card-desc {
 .step-btn,
 .tab-btn,
 .remove-btn,
-.favorite-btn {
+.favorite-btn,
+.action-btn {
   border: 2px solid var(--border);
   background:
     var(--metal-texture),
@@ -709,9 +711,16 @@ body[data-theme="light"] .tab-btn.active {
 
 .toolbar-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
   margin-bottom: 16px;
+}
+
+.two-cols {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.three-cols {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .field label {
@@ -771,7 +780,8 @@ textarea:focus {
   margin: 10px 0 16px;
 }
 
-.btn {
+.btn,
+.action-btn {
   padding: 10px 14px;
   border-radius: 10px;
   font-size: 14px;
@@ -784,10 +794,16 @@ textarea:focus {
     linear-gradient(180deg, #6b4aa7, #4a3176);
 }
 
-.btn.danger {
+.btn.danger,
+.action-btn.danger {
   background:
     var(--metal-texture),
     linear-gradient(180deg, #8f2d2d, #621a1a);
+}
+
+.action-btn {
+  padding: 7px 10px;
+  font-size: 12px;
 }
 
 .favorite-btn {
@@ -807,7 +823,8 @@ textarea:focus {
 .achievement-list,
 .skill-list,
 .module-list,
-.gallery-image-grid {
+.gallery-image-grid,
+.link-pill-row {
   display: grid;
   gap: 12px;
 }
@@ -815,6 +832,11 @@ textarea:focus {
 .gallery-image-grid {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   margin-top: 12px;
+}
+
+.link-pill-row {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  margin-top: 10px;
 }
 
 .quest-item,
@@ -908,7 +930,10 @@ textarea:focus {
 }
 
 .quest-actions,
-.achievement-actions {
+.achievement-actions,
+.module-actions,
+.gallery-folder-actions,
+.gallery-image-actions {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
@@ -930,6 +955,14 @@ textarea:focus {
 .tag.easy { border-color: rgba(184,135,57,.45); color: #f2d49b; }
 .tag.medium { border-color: rgba(118,96,180,.45); color: #e2dbff; }
 .tag.legendary { border-color: rgba(208,161,60,.55); color: #ffd98f; }
+
+.link-pill {
+  padding: 8px 10px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.03), rgba(0,0,0,.08)),
+    linear-gradient(180deg, var(--panel-2), var(--panel));
+  font-size: 12px;
+}
 
 .checkbox-row {
   display: flex;
@@ -1128,7 +1161,8 @@ textarea:focus {
     padding: 64px 16px 18px;
   }
 
-  .toolbar-grid,
+  .two-cols,
+  .three-cols,
   .grid.two,
   .grid.three,
   .eight-grid {
@@ -1173,5 +1207,10 @@ textarea:focus {
     width: 36px;
     height: 36px;
     font-size: 18px;
+  }
+
+  .gallery-image-grid,
+  .link-pill-row {
+    grid-template-columns: 1fr;
   }
 }
