@@ -447,17 +447,15 @@ window.MetaData = {
     }
   ],
 
-  patchNotes: [
+  appliedPatchNotes: [
     {
       version: 'v1.4 Finance / Calendar / Privacy',
       items: [
         'Added finance summary cards.',
-        'Added finance category chart.',
-        'Added finance balance chart.',
+        'Added single finance overview graph.',
         'Added finance tabs by type.',
-        'Added finance modal for current filtered tab.',
+        'Added finance modal for the active filtered tab.',
         'Added finance edit and delete support.',
-        'Wishlist is now intended as friends-visible content for future social systems.',
         'Expanded calendar with visibility, reminders, links, edit and delete actions.',
         'Expanded gallery with folder visibility and image visibility.',
         'Updated Q&A and patch notes.'
@@ -480,15 +478,43 @@ window.MetaData = {
         'Improved retro RPG presentation.',
         'Added favorites for quests and achievements.'
       ]
+    }
+  ],
+
+  plannedPatchNotes: [
+    {
+      version: 'Planned v1.5 Social / Privacy Architecture',
+      items: [
+        'Friend profiles and profile viewing.',
+        'Shared visibility rules for modules and entries.',
+        'Friends-only and public profile sections.',
+        'Preparation for multiplayer account structure.'
+      ]
     },
     {
-      version: 'Planned v1.5',
+      version: 'Planned v1.6 Finance Timeline / Linking',
       items: [
         'Finance timeline by months.',
-        'Social visibility architecture.',
-        'Gallery links to quests and journal.',
-        'Friend profiles and shared visibility rules.',
-        'Inventory and avatar expansion.'
+        'More advanced finance visualizations.',
+        'Links between gallery, journal, quests and finance entries.'
+      ]
+    },
+    {
+      version: 'Planned v1.7 Avatar / Inventory',
+      items: [
+        'Avatar system expansion.',
+        'Item and equipment system.',
+        'Paragon usage as special currency.',
+        'Visual character progression.'
+      ]
+    },
+    {
+      version: 'Planned v1.8 Story / Chains / Community',
+      items: [
+        'Quest chains and story arcs.',
+        'Shared challenges.',
+        'Community profile interactions.',
+        'Expanded multiplayer layer.'
       ]
     }
   ]
