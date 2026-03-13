@@ -30,21 +30,18 @@ window.MetaModules = (function () {
   }
 
   function ensureGalleryFavorites() {
-    if (!state().gallery.favorites) {
-      state().gallery.favorites = [];
-    }
+    if (!state().gallery.favorites) state().gallery.favorites = [];
   }
 
   function ensureGalleryCollapseState() {
-    if (!state().ui.collapsedGalleryFolders) {
-      state().ui.collapsedGalleryFolders = {};
-    }
+    if (!state().ui.collapsedGalleryFolders) state().ui.collapsedGalleryFolders = {};
   }
 
   function ensureFinanceUiState() {
-    if (!state().ui.financeTab) {
-      state().ui.financeTab = 'all';
-    }
+    if (!state().ui.financeTab) state().ui.financeTab = 'all';
+    if (!state().ui.financeMonthFilter) state().ui.financeMonthFilter = '';
+    if (!state().finance.recurringTemplates) state().finance.recurringTemplates = {};
+    if (!state().finance.recurringOrder) state().finance.recurringOrder = [];
   }
 
   function isGalleryFolderCollapsed(id) {
@@ -64,6 +61,12 @@ window.MetaModules = (function () {
     const d = new Date(dateString);
     if (Number.isNaN(d.getTime())) return dateString;
     return d.toLocaleString();
+  }
+
+  function formatMonthKey(dateString) {
+    const d = new Date(dateString);
+    if (Number.isNaN(d.getTime())) return '';
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
   }
 
   function isToday(dateString) {
@@ -99,8 +102,8 @@ window.MetaModules = (function () {
     const folder = document.getElementById('imagePreviewFolder');
     const created = document.getElementById('imagePreviewCreated');
     const visibility = document.getElementById('imagePreviewVisibility');
-
     const image = state().gallery.images[imageId];
+
     if (!modal || !img || !title || !description || !folder || !created || !visibility || !image) return;
 
     const folderObj = state().gallery.folders[image.folderId];
@@ -128,10 +131,7 @@ window.MetaModules = (function () {
     if (!modal) return;
 
     modal.classList.remove('active');
-    if (img) {
-      img.src = '';
-      img.alt = 'Preview';
-    }
+    if (img) { img.src = ''; img.alt = 'Preview'; }
     if (title) title.textContent = 'Image';
     if (description) description.textContent = '';
     if (folder) folder.textContent = '-';
@@ -139,11 +139,15 @@ window.MetaModules = (function () {
     if (visibility) visibility.textContent = '-';
   }
 
+  function closeFinanceTypeModal() {
+    const modal = document.getElementById('financeTypeModal');
+    if (modal) modal.classList.remove('active');
+  }
+
   function bindImagePreviewEvents() {
     document.querySelectorAll('.gallery-thumb-button').forEach(btn => {
       if (btn.dataset.bound === '1') return;
       btn.dataset.bound = '1';
-
       btn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -236,9 +240,7 @@ window.MetaModules = (function () {
     document.getElementById('journalTags').value = (entry.tags || []).join(', ');
     document.getElementById('journalVisibility').value = entry.visibility || 'private';
     document.getElementById('journalLink').value = entry.linkedExternal?.[0]?.url || '';
-    document.getElementById('journalInternalLinks').value = (entry.linkedInternal || [])
-      .map(item => `${item.type}:${item.id}`)
-      .join(', ');
+    document.getElementById('journalInternalLinks').value = (entry.linkedInternal || []).map(item => `${item.type}:${item.id}`).join(', ');
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -267,9 +269,7 @@ window.MetaModules = (function () {
     if (!list?.length) return '';
     return `
       <div class="link-pill-row">
-        ${list.map(item => `
-          <div class="link-pill">${escapeHtml(item.type)}:${escapeHtml(item.id)}</div>
-        `).join('')}
+        ${list.map(item => `<div class="link-pill">${escapeHtml(item.type)}:${escapeHtml(item.id)}</div>`).join('')}
       </div>
     `;
   }
@@ -386,7 +386,6 @@ window.MetaModules = (function () {
     if (!select) return;
 
     const folders = state().gallery.folderOrder.map(id => state().gallery.folders[id]).filter(Boolean);
-
     select.innerHTML = folders.length
       ? folders.map(folder => `<option value="${folder.id}">${escapeHtml(folder.name)}</option>`).join('')
       : `<option value="">No folders yet</option>`;
@@ -404,7 +403,6 @@ window.MetaModules = (function () {
     const reader = new FileReader();
     reader.onload = () => {
       const id = uid('img');
-
       state().gallery.images[id] = {
         id,
         folderId,
@@ -414,7 +412,6 @@ window.MetaModules = (function () {
         createdAt: new Date().toISOString(),
         visibility: 'inherited'
       };
-
       state().gallery.folders[folderId].itemIds.unshift(id);
 
       document.getElementById('galleryImageTitle').value = '';
@@ -453,10 +450,7 @@ window.MetaModules = (function () {
     const oldFolder = state().gallery.folders[image.folderId];
     const newFolder = state().gallery.folders[nextFolderId];
 
-    if (oldFolder) {
-      oldFolder.itemIds = oldFolder.itemIds.filter(x => x !== id);
-    }
-
+    if (oldFolder) oldFolder.itemIds = oldFolder.itemIds.filter(x => x !== id);
     newFolder.itemIds.unshift(id);
     image.folderId = nextFolderId;
 
@@ -469,9 +463,7 @@ window.MetaModules = (function () {
     if (!image) return;
 
     const folder = state().gallery.folders[image.folderId];
-    if (folder) {
-      folder.itemIds = folder.itemIds.filter(x => x !== id);
-    }
+    if (folder) folder.itemIds = folder.itemIds.filter(x => x !== id);
 
     delete state().gallery.images[id];
     ensureGalleryFavorites();
@@ -505,10 +497,7 @@ window.MetaModules = (function () {
       .filter(folder => {
         if (!search) return true;
         const folderImages = folder.itemIds.map(id => state().gallery.images[id]).filter(Boolean);
-        const hay = [
-          folder.name,
-          ...folderImages.map(img => `${img.title} ${img.description || ''}`)
-        ].join(' ').toLowerCase();
+        const hay = [folder.name, ...folderImages.map(img => `${img.title} ${img.description || ''}`)].join(' ').toLowerCase();
         return hay.includes(search);
       })
       .map(folder => {
@@ -558,7 +547,6 @@ window.MetaModules = (function () {
                   ${images.map(image => {
                     const favorite = state().gallery.favorites.includes(image.id);
                     const otherFolders = folders.filter(f => f.id !== folder.id);
-
                     return `
                       <div class="gallery-image-card">
                         <button class="gallery-thumb-button" data-image-id="${image.id}" type="button">
@@ -590,9 +578,7 @@ window.MetaModules = (function () {
 
                         <div class="gallery-image-actions">
                           <button class="action-btn" onclick="MetaModules.editGalleryImage('${image.id}')">Edit</button>
-                          <button class="favorite-btn ${favorite ? 'active' : ''}" onclick="MetaModules.toggleGalleryFavorite('${image.id}')">
-                            ${favorite ? '★ Favorited' : '☆ Favorite'}
-                          </button>
+                          <button class="favorite-btn ${favorite ? 'active' : ''}" onclick="MetaModules.toggleGalleryFavorite('${image.id}')">${favorite ? '★ Favorited' : '☆ Favorite'}</button>
                           <button class="action-btn danger" onclick="MetaModules.deleteGalleryImage('${image.id}')">Delete</button>
                         </div>
                       </div>
@@ -740,38 +726,109 @@ window.MetaModules = (function () {
     }).join('') : `<div class="notice-box"><p>No calendar events yet.</p></div>`;
   }
 
+  function materializeRecurringFinanceEntries() {
+    ensureFinanceUiState();
+    const templates = state().finance.recurringOrder.map(id => state().finance.recurringTemplates[id]).filter(Boolean);
+    const now = new Date();
+    const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+    templates.forEach(template => {
+      const start = new Date(template.startDate || template.createdAt || new Date().toISOString());
+      if (Number.isNaN(start.getTime())) return;
+
+      let year = start.getFullYear();
+      let month = start.getMonth() + 1;
+
+      while (`${year}-${String(month).padStart(2, '0')}` <= currentMonthKey) {
+        const monthKey = `${year}-${String(month).padStart(2, '0')}`;
+        const entryId = `${template.id}__${monthKey}`;
+
+        if (!state().finance.entries[entryId]) {
+          const occurredAt = `${monthKey}-01`;
+          state().finance.entries[entryId] = {
+            id: entryId,
+            title: template.title,
+            type: template.type,
+            amount: Number(template.amount || 0),
+            priority: template.priority || '',
+            link: template.link || '',
+            visibility: template.visibility || 'private',
+            createdAt: new Date().toISOString(),
+            occurredAt,
+            recurringSourceId: template.id
+          };
+          state().finance.order.unshift(entryId);
+        }
+
+        if (template.recurrence === 'yearly') {
+          year += 1;
+        } else {
+          month += 1;
+          if (month > 12) {
+            month = 1;
+            year += 1;
+          }
+        }
+      }
+    });
+  }
+
   function addFinanceEntry() {
+    ensureFinanceUiState();
+
     const title = document.getElementById('financeTitle').value.trim();
     const type = document.getElementById('financeType').value;
     const amount = document.getElementById('financeAmount').value.trim();
     const priority = document.getElementById('financePriority').value.trim();
     const link = document.getElementById('financeLink').value.trim();
+    const recurring = document.getElementById('financeRecurring').value;
+    const financeDate = document.getElementById('financeDate').value.trim();
     let visibility = document.getElementById('financeVisibility').value;
 
     if (!title) return;
+    if (type === 'wishlist') visibility = 'friends';
 
-    if (type === 'wishlist') {
-      visibility = 'friends';
+    const occurredAt = financeDate || new Date().toISOString().slice(0, 10);
+
+    if (recurring !== 'none') {
+      const templateId = uid('financeRecurring');
+      state().finance.recurringTemplates[templateId] = {
+        id: templateId,
+        title,
+        type,
+        amount: Number(amount || 0),
+        priority,
+        link,
+        visibility,
+        recurrence: recurring,
+        startDate: occurredAt,
+        createdAt: new Date().toISOString()
+      };
+      state().finance.recurringOrder.unshift(templateId);
+      materializeRecurringFinanceEntries();
+    } else {
+      const id = uid('finance');
+      state().finance.entries[id] = {
+        id,
+        title,
+        type,
+        amount: Number(amount || 0),
+        priority,
+        link,
+        visibility,
+        createdAt: new Date().toISOString(),
+        occurredAt
+      };
+      state().finance.order.unshift(id);
     }
 
-    const id = uid('finance');
-    state().finance.entries[id] = {
-      id,
-      title,
-      type,
-      amount: Number(amount || 0),
-      priority,
-      link,
-      visibility,
-      createdAt: new Date().toISOString()
-    };
-    state().finance.order.unshift(id);
-
-    ['financeTitle', 'financeAmount', 'financePriority', 'financeLink'].forEach(id => {
-      document.getElementById(id).value = '';
+    ['financeTitle', 'financeAmount', 'financePriority', 'financeLink', 'financeDate'].forEach(id => {
+      const node = document.getElementById(id);
+      if (node) node.value = '';
     });
     document.getElementById('financeType').value = 'income';
     document.getElementById('financeVisibility').value = 'private';
+    document.getElementById('financeRecurring').value = 'none';
 
     window.MetaApp.save();
     renderFinance();
@@ -833,10 +890,38 @@ window.MetaModules = (function () {
     renderFinance();
   }
 
+  function applyFinanceMonthFilter() {
+    ensureFinanceUiState();
+    const value = document.getElementById('financeMonthFilter').value || '';
+    state().ui.financeMonthFilter = value;
+    window.MetaApp.save();
+    renderFinance();
+  }
+
+  function clearFinanceMonthFilter() {
+    ensureFinanceUiState();
+    state().ui.financeMonthFilter = '';
+    const input = document.getElementById('financeMonthFilter');
+    if (input) input.value = '';
+    window.MetaApp.save();
+    renderFinance();
+  }
+
   function getFinanceEntriesByTab(tab) {
-    const entries = state().finance.order.map(id => state().finance.entries[id]).filter(Boolean);
-    if (!tab || tab === 'all') return entries;
-    return entries.filter(entry => entry.type === tab);
+    ensureFinanceUiState();
+    const monthFilter = state().ui.financeMonthFilter || '';
+
+    let entries = state().finance.order.map(id => state().finance.entries[id]).filter(Boolean);
+
+    if (tab && tab !== 'all') {
+      entries = entries.filter(entry => entry.type === tab);
+    }
+
+    if (monthFilter) {
+      entries = entries.filter(entry => formatMonthKey(entry.occurredAt || entry.createdAt) === monthFilter);
+    }
+
+    return entries;
   }
 
   function openFinanceTypeModal() {
@@ -846,12 +931,6 @@ window.MetaModules = (function () {
     modal.classList.add('active');
   }
 
-  function closeFinanceTypeModal() {
-    const modal = document.getElementById('financeTypeModal');
-    if (!modal) return;
-    modal.classList.remove('active');
-  }
-
   function renderFinanceTypeModal() {
     const titleNode = document.getElementById('financeTypeModalTitle');
     const listNode = document.getElementById('financeTypeModalList');
@@ -859,8 +938,10 @@ window.MetaModules = (function () {
 
     ensureFinanceUiState();
     const tab = state().ui.financeTab || 'all';
+    const monthFilter = state().ui.financeMonthFilter || '';
     const label = tab === 'all' ? 'All Finance Entries' : `${tab.charAt(0).toUpperCase() + tab.slice(1)} Entries`;
-    titleNode.textContent = label;
+
+    titleNode.textContent = monthFilter ? `${label} • ${monthFilter}` : label;
 
     const entries = getFinanceEntriesByTab(tab);
 
@@ -869,6 +950,7 @@ window.MetaModules = (function () {
         <h4>${escapeHtml(item.title)}</h4>
         <p><strong>Type:</strong> ${escapeHtml(item.type)}</p>
         <p><strong>Amount:</strong> ${item.amount}</p>
+        <p><strong>Date:</strong> ${escapeHtml(item.occurredAt || item.createdAt || '-')}</p>
         <p class="small-muted">Priority: ${escapeHtml(item.priority || 'none')} • Visibility: ${escapeHtml(item.visibility)}</p>
         ${item.link ? `<p class="small-muted">Link: ${escapeHtml(item.link)}</p>` : ''}
 
@@ -892,24 +974,32 @@ window.MetaModules = (function () {
   }
 
   function getFinanceTotals() {
+    ensureFinanceUiState();
     const entries = Object.values(state().finance.entries || {});
+    const monthFilter = state().ui.financeMonthFilter || '';
 
     let income = 0;
     let expense = 0;
     let investment = 0;
     let wishlist = 0;
 
-    entries.forEach(e => {
-      const amount = Number(e.amount) || 0;
-      if (e.type === 'income') income += amount;
-      if (e.type === 'expense') expense += amount;
-      if (e.type === 'investment') investment += amount;
-      if (e.type === 'wishlist') wishlist += amount;
-    });
+    entries
+      .filter(e => !monthFilter || formatMonthKey(e.occurredAt || e.createdAt) === monthFilter)
+      .forEach(e => {
+        const amount = Number(e.amount) || 0;
+        if (e.type === 'income') income += amount;
+        if (e.type === 'expense') expense += amount;
+        if (e.type === 'investment') investment += amount;
+        if (e.type === 'wishlist') wishlist += amount;
+      });
 
-    const balance = income - expense - investment;
-
-    return { income, expense, investment, wishlist, balance };
+    return {
+      income,
+      expense,
+      investment,
+      wishlist,
+      balance: income - expense - investment
+    };
   }
 
   function getFinanceTimelineData() {
@@ -917,65 +1007,37 @@ window.MetaModules = (function () {
     const monthly = {};
 
     entries.forEach(entry => {
-      const date = entry.createdAt ? new Date(entry.createdAt) : new Date();
+      const base = entry.occurredAt || entry.createdAt;
+      const date = new Date(base);
       if (Number.isNaN(date.getTime())) return;
 
       const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-      if (!monthly[key]) {
-        monthly[key] = { income: 0, expense: 0, investment: 0 };
-      }
+      if (!monthly[key]) monthly[key] = { income: 0, expense: 0, investment: 0 };
 
       const amount = Number(entry.amount) || 0;
-
       if (entry.type === 'income') monthly[key].income += amount;
       if (entry.type === 'expense') monthly[key].expense += amount;
       if (entry.type === 'investment') monthly[key].investment += amount;
     });
 
-    const keys = Object.keys(monthly).sort();
-    return keys.map(key => ({
+    return Object.keys(monthly).sort().map(key => ({
       month: key,
       balance: monthly[key].income - monthly[key].expense - monthly[key].investment
     }));
-  }
-
-  function updateFinanceSummary() {
-    const { income, expense, investment, wishlist, balance } = getFinanceTotals();
-
-    const incomeNode = document.getElementById('financeIncomeTotal');
-    const expenseNode = document.getElementById('financeExpenseTotal');
-    const investmentNode = document.getElementById('financeInvestmentTotal');
-    const wishlistNode = document.getElementById('financeWishlistTotal');
-    const balanceNode = document.getElementById('financeBalance');
-
-    if (incomeNode) incomeNode.textContent = income;
-    if (expenseNode) expenseNode.textContent = expense;
-    if (investmentNode) investmentNode.textContent = investment;
-    if (wishlistNode) wishlistNode.textContent = wishlist;
-    if (balanceNode) balanceNode.textContent = balance;
-
-    requestAnimationFrame(() => {
-      drawFinanceChart(income, expense, investment, wishlist, balance);
-      drawFinanceTimelineChart(getFinanceTimelineData());
-    });
   }
 
   function setupCanvasSize(canvas) {
     if (!canvas || !canvas.parentElement) return false;
     const parentWidth = canvas.parentElement.clientWidth;
     if (!parentWidth || parentWidth <= 0) return false;
-
-    const width = Math.max(320, Math.floor(parentWidth - 8));
-    canvas.width = width;
+    canvas.width = Math.max(320, Math.floor(parentWidth - 8));
     canvas.height = 240;
     return true;
   }
 
   function drawFinanceChart(income, expense, investment, wishlist, balance) {
     const canvas = document.getElementById('financeChart');
-    if (!canvas) return;
-    if (!setupCanvasSize(canvas)) return;
-
+    if (!canvas || !setupCanvasSize(canvas)) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
@@ -1016,9 +1078,7 @@ window.MetaModules = (function () {
 
   function drawFinanceTimelineChart(timeline) {
     const canvas = document.getElementById('financeTimelineChart');
-    if (!canvas) return;
-    if (!setupCanvasSize(canvas)) return;
-
+    if (!canvas || !setupCanvasSize(canvas)) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
@@ -1042,7 +1102,6 @@ window.MetaModules = (function () {
     const max = Math.max(...values, 0, 1);
     const min = Math.min(...values, 0);
     const range = Math.max(1, max - min);
-
     const zeroY = paddingTop + ((max - 0) / range) * usableHeight;
 
     ctx.strokeStyle = 'rgba(255,255,255,0.15)';
@@ -1058,7 +1117,6 @@ window.MetaModules = (function () {
     timeline.forEach((item, index) => {
       const x = paddingX + (timeline.length === 1 ? usableWidth / 2 : (index / (timeline.length - 1)) * usableWidth);
       const y = paddingTop + ((max - item.balance) / range) * usableHeight;
-
       if (index === 0) ctx.moveTo(x, y);
       else ctx.lineTo(x, y);
     });
@@ -1083,15 +1141,127 @@ window.MetaModules = (function () {
     });
   }
 
-  function renderFinance() {
+  function updateFinanceSummary() {
+    materializeRecurringFinanceEntries();
+
+    const { income, expense, investment, wishlist, balance } = getFinanceTotals();
+
+    const incomeNode = document.getElementById('financeIncomeTotal');
+    const expenseNode = document.getElementById('financeExpenseTotal');
+    const investmentNode = document.getElementById('financeInvestmentTotal');
+    const wishlistNode = document.getElementById('financeWishlistTotal');
+    const balanceNode = document.getElementById('financeBalance');
+
+    if (incomeNode) incomeNode.textContent = income;
+    if (expenseNode) expenseNode.textContent = expense;
+    if (investmentNode) investmentNode.textContent = investment;
+    if (wishlistNode) wishlistNode.textContent = wishlist;
+    if (balanceNode) balanceNode.textContent = balance;
+
+    requestAnimationFrame(() => {
+      drawFinanceChart(income, expense, investment, wishlist, balance);
+      drawFinanceTimelineChart(getFinanceTimelineData());
+    });
+  }
+
+  function exportFinanceData() {
+    ensureFinanceUiState();
+    const payload = {
+      entries: state().finance.entries || {},
+      order: state().finance.order || [],
+      recurringTemplates: state().finance.recurringTemplates || {},
+      recurringOrder: state().finance.recurringOrder || []
+    };
+
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `metamorphosis-finance-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function importFinanceData(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(reader.result);
+        state().finance.entries = parsed.entries || {};
+        state().finance.order = parsed.order || [];
+        state().finance.recurringTemplates = parsed.recurringTemplates || {};
+        state().finance.recurringOrder = parsed.recurringOrder || [];
+        window.MetaApp.save();
+        renderFinance();
+      } catch (err) {
+        alert('Import failed. Invalid finance JSON.');
+      }
+    };
+    reader.readAsText(file);
+
+    event.target.value = '';
+  }
+
+  function renderFinanceTypeModal() {
+    const titleNode = document.getElementById('financeTypeModalTitle');
+    const listNode = document.getElementById('financeTypeModalList');
+    if (!titleNode || !listNode) return;
+
     ensureFinanceUiState();
     const tab = state().ui.financeTab || 'all';
+    const monthFilter = state().ui.financeMonthFilter || '';
+    const label = tab === 'all' ? 'All Finance Entries' : `${tab.charAt(0).toUpperCase() + tab.slice(1)} Entries`;
+    titleNode.textContent = monthFilter ? `${label} • ${monthFilter}` : label;
+
+    const entries = getFinanceEntriesByTab(tab);
+
+    listNode.innerHTML = entries.length ? entries.map(item => `
+      <div class="module-card">
+        <h4>${escapeHtml(item.title)}</h4>
+        <p><strong>Type:</strong> ${escapeHtml(item.type)}</p>
+        <p><strong>Amount:</strong> ${item.amount}</p>
+        <p><strong>Date:</strong> ${escapeHtml(item.occurredAt || item.createdAt || '-')}</p>
+        <p class="small-muted">Priority: ${escapeHtml(item.priority || 'none')} • Visibility: ${escapeHtml(item.visibility)}</p>
+        ${item.link ? `<p class="small-muted">Link: ${escapeHtml(item.link)}</p>` : ''}
+
+        <div class="toolbar-grid two-cols">
+          <div class="field">
+            <label>Visibility</label>
+            <select onchange="MetaModules.setFinanceVisibility('${item.id}', this.value)">
+              <option value="private" ${item.visibility === 'private' ? 'selected' : ''}>Private</option>
+              <option value="friends" ${item.visibility === 'friends' ? 'selected' : ''}>Friends</option>
+              <option value="public" ${item.visibility === 'public' ? 'selected' : ''}>Public</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="module-actions">
+          <button class="action-btn" onclick="MetaModules.editFinanceEntry('${item.id}')">Edit</button>
+          <button class="action-btn danger" onclick="MetaModules.deleteFinanceEntry('${item.id}')">Delete</button>
+        </div>
+      </div>
+    `).join('') : `<div class="notice-box"><p>No entries in this tab.</p></div>`;
+  }
+
+  function renderFinance() {
+    ensureFinanceUiState();
+    materializeRecurringFinanceEntries();
+
+    const tab = state().ui.financeTab || 'all';
+    const monthInput = document.getElementById('financeMonthFilter');
+    if (monthInput) monthInput.value = state().ui.financeMonthFilter || '';
 
     document.querySelectorAll('.finance-type-tab').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.financeTab === tab);
     });
 
     const entries = getFinanceEntriesByTab(tab);
+
     document.getElementById('financeList').innerHTML = entries.length ? entries.map(item => `
       <div class="module-card">
         <div class="quest-head">
@@ -1103,6 +1273,7 @@ window.MetaModules = (function () {
         </div>
 
         <p><strong>Amount:</strong> ${item.amount}</p>
+        <p><strong>Date:</strong> ${escapeHtml(item.occurredAt || item.createdAt || '-')}</p>
         <p class="small-muted">Priority: ${escapeHtml(item.priority || 'none')} • Visibility: ${escapeHtml(item.visibility)}</p>
         ${item.link ? `<p class="small-muted">Link: ${escapeHtml(item.link)}</p>` : ''}
 
@@ -1195,8 +1366,12 @@ window.MetaModules = (function () {
     deleteFinanceEntry,
     setFinanceVisibility,
     setFinanceTab,
+    applyFinanceMonthFilter,
+    clearFinanceMonthFilter,
     openFinanceTypeModal,
     closeFinanceTypeModal,
+    exportFinanceData,
+    importFinanceData,
 
     renderJournal,
     renderGallery,
