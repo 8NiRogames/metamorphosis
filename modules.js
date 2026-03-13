@@ -75,6 +75,7 @@ window.MetaModules = (function () {
     const folderObj = state().gallery.folders[image.folderId];
 
     img.src = image.src || '';
+    img.alt = image.title || 'Preview';
     title.textContent = image.title || 'Untitled image';
     description.textContent = image.description || 'No description';
     folder.textContent = folderObj?.name || '-';
@@ -96,12 +97,47 @@ window.MetaModules = (function () {
     if (!modal) return;
 
     modal.classList.remove('active');
-    if (img) img.src = '';
+    if (img) {
+      img.src = '';
+      img.alt = 'Preview';
+    }
     if (title) title.textContent = 'Image';
     if (description) description.textContent = '';
     if (folder) folder.textContent = '-';
     if (created) created.textContent = '-';
     if (visibility) visibility.textContent = '-';
+  }
+
+  function bindImagePreviewEvents() {
+    document.querySelectorAll('.gallery-thumb-button').forEach(btn => {
+      if (btn.dataset.bound === '1') return;
+      btn.dataset.bound = '1';
+
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const imageId = btn.dataset.imageId;
+        if (imageId) openImagePreview(imageId);
+      });
+    });
+
+    const modal = document.getElementById('imagePreviewModal');
+    if (modal && !modal.dataset.bound) {
+      modal.dataset.bound = '1';
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          closeImagePreview();
+        }
+      });
+    }
+
+    document.addEventListener('keydown', handlePreviewEscape, { once: false });
+  }
+
+  function handlePreviewEscape(e) {
+    if (e.key === 'Escape') {
+      closeImagePreview();
+    }
   }
 
   function saveJournalEntry() {
@@ -386,6 +422,7 @@ window.MetaModules = (function () {
     ensureGalleryFavorites();
     state().gallery.favorites = state().gallery.favorites.filter(x => x !== id);
 
+    closeImagePreview();
     window.MetaApp.save();
     renderGallery();
   }
@@ -458,7 +495,7 @@ window.MetaModules = (function () {
 
                     return `
                       <div class="gallery-image-card">
-                        <button class="gallery-thumb-button" onclick="MetaModules.openImagePreview('${image.id}')">
+                        <button class="gallery-thumb-button" data-image-id="${image.id}" type="button">
                           <img src="${image.src}" alt="${image.title}" />
                         </button>
 
@@ -498,6 +535,8 @@ window.MetaModules = (function () {
       searchInput.dataset.bound = '1';
       searchInput.addEventListener('input', renderGallery);
     }
+
+    bindImagePreviewEvents();
   }
 
   function addCalendarEvent() {
