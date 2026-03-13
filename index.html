@@ -43,12 +43,12 @@
 
         <button class="nav-card" data-page-link="journal">
           <span class="nav-card-title">📖 Journal</span>
-          <span class="nav-card-desc">Entries, search, editing and internal references.</span>
+          <span class="nav-card-desc">Entries, editing, search and references.</span>
         </button>
 
         <button class="nav-card" data-page-link="gallery">
           <span class="nav-card-title">🖼️ Gallery</span>
-          <span class="nav-card-desc">Folders, uploads, edits and image management.</span>
+          <span class="nav-card-desc">Folders, uploads, editing and image management.</span>
         </button>
 
         <button class="nav-card" data-page-link="calendar">
@@ -195,7 +195,7 @@
               <span class="crest-wing"></span>
             </div>
 
-            <div class="toolbar-grid">
+            <div class="toolbar-grid two-cols">
               <div class="field">
                 <label>Search daily quests</label>
                 <input type="text" id="dailyQuestSearch" placeholder="Search title, skill, attribute..." />
@@ -218,7 +218,7 @@
               <span class="crest-wing"></span>
             </div>
 
-            <div class="toolbar-grid">
+            <div class="toolbar-grid two-cols">
               <div class="field">
                 <label>Search main quests</label>
                 <input type="text" id="mainQuestSearch" placeholder="Search by title or skill..." />
@@ -702,6 +702,14 @@
         <button class="btn" onclick="closeResetModal()">Cancel</button>
         <button class="btn danger" onclick="confirmResetCharacter()">Yes, Reset</button>
       </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="imagePreviewModal">
+    <div class="image-preview-modal">
+      <button class="image-preview-close" onclick="MetaModules.closeImagePreview()">✕</button>
+      <img id="imagePreviewFull" src="" alt="Preview" />
+      <div class="image-preview-caption" id="imagePreviewCaption"></div>
     </div>
   </div>
 
