@@ -217,7 +217,8 @@ body.sidebar-collapsed .app {
 .notice-box,
 .gallery-folder-card,
 .gallery-image-card,
-.link-pill {
+.link-pill,
+.image-preview-modal {
   position: relative;
   border: 2px solid var(--border);
   box-shadow: var(--shadow), var(--inner-shadow);
@@ -237,7 +238,8 @@ body.sidebar-collapsed .app {
 .module-card,
 .notice-box,
 .gallery-folder-card,
-.gallery-image-card {
+.gallery-image-card,
+.image-preview-modal {
   background:
     var(--parchment-texture),
     linear-gradient(180deg, var(--card-3), var(--card));
@@ -252,7 +254,8 @@ body[data-theme="light"] .mini-stat,
 body[data-theme="light"] .module-card,
 body[data-theme="light"] .notice-box,
 body[data-theme="light"] .gallery-folder-card,
-body[data-theme="light"] .gallery-image-card {
+body[data-theme="light"] .gallery-image-card,
+body[data-theme="light"] .image-preview-modal {
   box-shadow:
     0 8px 18px rgba(76,54,18,.14),
     inset 0 1px 0 rgba(255,255,255,.45),
@@ -830,7 +833,8 @@ textarea:focus {
 }
 
 .gallery-image-grid {
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 220px));
+  justify-content: start;
   margin-top: 12px;
 }
 
@@ -864,7 +868,8 @@ textarea:focus {
 .quest-head,
 .achievement-head,
 .attr-head,
-.skill-head {
+.skill-head,
+.gallery-folder-head {
   display: flex;
   justify-content: space-between;
   gap: 12px;
@@ -872,19 +877,22 @@ textarea:focus {
   margin-bottom: 10px;
 }
 
-.attr-head {
+.attr-head,
+.gallery-folder-head {
   align-items: center;
   cursor: pointer;
   user-select: none;
 }
 
-.attr-head-left {
+.attr-head-left,
+.gallery-folder-head-left {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.attr-toggle {
+.attr-toggle,
+.gallery-folder-toggle {
   width: 28px;
   height: 28px;
   border: 1px solid var(--border);
@@ -897,11 +905,13 @@ textarea:focus {
   flex-shrink: 0;
 }
 
-.attr-body {
+.attr-body,
+.gallery-folder-body {
   margin-top: 12px;
 }
 
-.attr-body.collapsed {
+.attr-body.collapsed,
+.gallery-folder-body.collapsed {
   display: none;
 }
 
@@ -1033,13 +1043,62 @@ textarea:focus {
   margin-bottom: 12px;
 }
 
+.gallery-thumb-button {
+  display: block;
+  width: 100%;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
 .gallery-image-card img {
   width: 100%;
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
+  height: 180px;
+  object-fit: contain;
+  background: rgba(0,0,0,.18);
   border-radius: 10px;
   border: 1px solid var(--border);
   margin-bottom: 10px;
+  display: block;
+}
+
+.image-preview-modal {
+  width: min(96vw, 1200px);
+  max-height: 92vh;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.image-preview-close {
+  align-self: flex-end;
+  border: 2px solid var(--border);
+  background:
+    var(--metal-texture),
+    linear-gradient(180deg, var(--panel-3), var(--panel));
+  color: var(--text);
+  border-radius: 10px;
+  width: 42px;
+  height: 42px;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+#imagePreviewFull {
+  width: 100%;
+  max-height: 72vh;
+  object-fit: contain;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,.25);
+}
+
+.image-preview-caption {
+  color: var(--muted);
+  text-align: center;
+  font-size: 14px;
 }
 
 .modal-backdrop {
@@ -1050,6 +1109,7 @@ textarea:focus {
   align-items: center;
   justify-content: center;
   padding: 20px;
+  z-index: 1000;
 }
 
 .modal-backdrop.active {
@@ -1212,5 +1272,18 @@ textarea:focus {
   .gallery-image-grid,
   .link-pill-row {
     grid-template-columns: 1fr;
+  }
+
+  .gallery-image-card img {
+    height: 160px;
+  }
+
+  .image-preview-modal {
+    width: 96vw;
+    padding: 12px;
+  }
+
+  #imagePreviewFull {
+    max-height: 65vh;
   }
 }
