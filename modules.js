@@ -35,6 +35,48 @@ window.MetaModules = (function () {
     }
   }
 
+  function ensureGalleryCollapseState() {
+    if (!state().ui.collapsedGalleryFolders) {
+      state().ui.collapsedGalleryFolders = {};
+    }
+  }
+
+  function isGalleryFolderCollapsed(id) {
+    ensureGalleryCollapseState();
+    return !!state().ui.collapsedGalleryFolders[id];
+  }
+
+  function toggleGalleryFolder(id) {
+    ensureGalleryCollapseState();
+    state().ui.collapsedGalleryFolders[id] = !state().ui.collapsedGalleryFolders[id];
+    window.MetaApp.save();
+    renderGallery();
+  }
+
+  function openImagePreview(src, title = '') {
+    const modal = document.getElementById('imagePreviewModal');
+    const img = document.getElementById('imagePreviewFull');
+    const caption = document.getElementById('imagePreviewCaption');
+
+    if (!modal || !img || !caption) return;
+
+    img.src = src;
+    caption.textContent = title || '';
+    modal.classList.add('active');
+  }
+
+  function closeImagePreview() {
+    const modal = document.getElementById('imagePreviewModal');
+    const img = document.getElementById('imagePreviewFull');
+    const caption = document.getElementById('imagePreviewCaption');
+
+    if (!modal || !img || !caption) return;
+
+    modal.classList.remove('active');
+    img.src = '';
+    caption.textContent = '';
+  }
+
   function saveJournalEntry() {
     const editingId = document.getElementById('journalEditingId').value.trim();
     const title = document.getElementById('journalTitle').value.trim();
@@ -174,6 +216,8 @@ window.MetaModules = (function () {
     const name = document.getElementById('galleryFolderName').value.trim();
     if (!name) return;
 
+    ensureGalleryCollapseState();
+
     const id = uid('folder');
     state().gallery.folders[id] = {
       id,
@@ -183,6 +227,8 @@ window.MetaModules = (function () {
       itemIds: []
     };
     state().gallery.folderOrder.unshift(id);
+    state().ui.collapsedGalleryFolders[id] = false;
+
     document.getElementById('galleryFolderName').value = '';
     window.MetaApp.save();
     renderGallery();
@@ -209,6 +255,10 @@ window.MetaModules = (function () {
 
     delete state().gallery.folders[id];
     state().gallery.folderOrder = state().gallery.folderOrder.filter(x => x !== id);
+
+    ensureGalleryCollapseState();
+    delete state().ui.collapsedGalleryFolders[id];
+
     window.MetaApp.save();
     renderGallery();
   }
@@ -326,6 +376,7 @@ window.MetaModules = (function () {
 
   function renderGallery() {
     ensureGalleryFavorites();
+    ensureGalleryCollapseState();
     populateGalleryFolderSelect();
 
     const search = (document.getElementById('gallerySearch')?.value || '').toLowerCase().trim();
@@ -351,50 +402,65 @@ window.MetaModules = (function () {
             return hay.includes(search);
           });
 
+        const collapsed = isGalleryFolderCollapsed(folder.id);
+
         return `
           <div class="gallery-folder-card">
-            <h4>${folder.name}</h4>
-            <p class="small-muted">Visibility: ${folder.visibility} • Images: ${folder.itemIds.length}</p>
-
-            <div class="gallery-folder-actions">
-              <button class="action-btn" onclick="MetaModules.renameGalleryFolder('${folder.id}')">Rename</button>
-              <button class="action-btn danger" onclick="MetaModules.deleteGalleryFolder('${folder.id}')">Delete Folder</button>
+            <div class="gallery-folder-head" onclick="MetaModules.toggleGalleryFolder('${folder.id}')">
+              <div class="gallery-folder-head-left">
+                <div class="gallery-folder-toggle">${collapsed ? '+' : '−'}</div>
+                <div>
+                  <h4>${folder.name}</h4>
+                  <p class="small-muted">Visibility: ${folder.visibility} • Images: ${folder.itemIds.length}</p>
+                </div>
+              </div>
+              <span class="tag">${folder.itemIds.length}</span>
             </div>
 
-            ${images.length ? `
-              <div class="gallery-image-grid">
-                ${images.map(image => {
-                  const favorite = state().gallery.favorites.includes(image.id);
-                  const otherFolders = folders.filter(f => f.id !== folder.id);
-
-                  return `
-                    <div class="gallery-image-card">
-                      <img src="${image.src}" alt="${image.title}" />
-                      <h4>${image.title}</h4>
-                      <p>${image.description || 'No description'}</p>
-
-                      ${otherFolders.length ? `
-                        <div class="field" style="margin-top:8px;">
-                          <label>Move to folder</label>
-                          <select onchange="MetaModules.moveGalleryImage('${image.id}', this.value)">
-                            <option value="">Choose folder</option>
-                            ${otherFolders.map(f => `<option value="${f.id}">${f.name}</option>`).join('')}
-                          </select>
-                        </div>
-                      ` : ''}
-
-                      <div class="gallery-image-actions">
-                        <button class="action-btn" onclick="MetaModules.editGalleryImage('${image.id}')">Edit</button>
-                        <button class="favorite-btn ${favorite ? 'active' : ''}" onclick="MetaModules.toggleGalleryFavorite('${image.id}')">
-                          ${favorite ? '★ Favorited' : '☆ Favorite'}
-                        </button>
-                        <button class="action-btn danger" onclick="MetaModules.deleteGalleryImage('${image.id}')">Delete</button>
-                      </div>
-                    </div>
-                  `;
-                }).join('')}
+            <div class="gallery-folder-body ${collapsed ? 'collapsed' : ''}">
+              <div class="gallery-folder-actions">
+                <button class="action-btn" onclick="event.stopPropagation(); MetaModules.renameGalleryFolder('${folder.id}')">Rename</button>
+                <button class="action-btn danger" onclick="event.stopPropagation(); MetaModules.deleteGalleryFolder('${folder.id}')">Delete Folder</button>
               </div>
-            ` : `<div class="notice-box"><p>No images in this folder yet.</p></div>`}
+
+              ${images.length ? `
+                <div class="gallery-image-grid">
+                  ${images.map(image => {
+                    const favorite = state().gallery.favorites.includes(image.id);
+                    const otherFolders = folders.filter(f => f.id !== folder.id);
+
+                    return `
+                      <div class="gallery-image-card">
+                        <button class="gallery-thumb-button" onclick="MetaModules.openImagePreview('${image.src}', ${JSON.stringify(image.title)})">
+                          <img src="${image.src}" alt="${image.title}" />
+                        </button>
+
+                        <h4>${image.title}</h4>
+                        <p>${image.description || 'No description'}</p>
+
+                        ${otherFolders.length ? `
+                          <div class="field" style="margin-top:8px;">
+                            <label>Move to folder</label>
+                            <select onchange="MetaModules.moveGalleryImage('${image.id}', this.value)">
+                              <option value="">Choose folder</option>
+                              ${otherFolders.map(f => `<option value="${f.id}">${f.name}</option>`).join('')}
+                            </select>
+                          </div>
+                        ` : ''}
+
+                        <div class="gallery-image-actions">
+                          <button class="action-btn" onclick="MetaModules.editGalleryImage('${image.id}')">Edit</button>
+                          <button class="favorite-btn ${favorite ? 'active' : ''}" onclick="MetaModules.toggleGalleryFavorite('${image.id}')">
+                            ${favorite ? '★ Favorited' : '☆ Favorite'}
+                          </button>
+                          <button class="action-btn danger" onclick="MetaModules.deleteGalleryImage('${image.id}')">Delete</button>
+                        </div>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              ` : `<div class="notice-box"><p>No images in this folder yet.</p></div>`}
+            </div>
           </div>
         `;
       }).join('')
@@ -525,6 +591,9 @@ window.MetaModules = (function () {
     moveGalleryImage,
     deleteGalleryImage,
     toggleGalleryFavorite,
+    toggleGalleryFolder,
+    openImagePreview,
+    closeImagePreview,
     addCalendarEvent,
     addFinanceEntry,
     renderJournal,
