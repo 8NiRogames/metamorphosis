@@ -713,7 +713,7 @@ window.MetaModules = (function () {
 
           <p>${escapeHtml(event.note || 'No note')}</p>
           ${event.link ? `<p class="small-muted">Link: ${escapeHtml(event.link)}</p>` : ''}
-          
+
           <div class="toolbar-grid two-cols">
             <div class="field">
               <label>Visibility</label>
@@ -912,6 +912,33 @@ window.MetaModules = (function () {
     return { income, expense, investment, wishlist, balance };
   }
 
+  function getFinanceTimelineData() {
+    const entries = Object.values(state().finance.entries || {});
+    const monthly = {};
+
+    entries.forEach(entry => {
+      const date = entry.createdAt ? new Date(entry.createdAt) : new Date();
+      if (Number.isNaN(date.getTime())) return;
+
+      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      if (!monthly[key]) {
+        monthly[key] = { income: 0, expense: 0, investment: 0 };
+      }
+
+      const amount = Number(entry.amount) || 0;
+
+      if (entry.type === 'income') monthly[key].income += amount;
+      if (entry.type === 'expense') monthly[key].expense += amount;
+      if (entry.type === 'investment') monthly[key].investment += amount;
+    });
+
+    const keys = Object.keys(monthly).sort();
+    return keys.map(key => ({
+      month: key,
+      balance: monthly[key].income - monthly[key].expense - monthly[key].investment
+    }));
+  }
+
   function updateFinanceSummary() {
     const { income, expense, investment, wishlist, balance } = getFinanceTotals();
 
@@ -929,24 +956,28 @@ window.MetaModules = (function () {
 
     requestAnimationFrame(() => {
       drawFinanceChart(income, expense, investment, wishlist, balance);
+      drawFinanceTimelineChart(getFinanceTimelineData());
     });
+  }
+
+  function setupCanvasSize(canvas) {
+    if (!canvas || !canvas.parentElement) return false;
+    const parentWidth = canvas.parentElement.clientWidth;
+    if (!parentWidth || parentWidth <= 0) return false;
+
+    const width = Math.max(320, Math.floor(parentWidth - 8));
+    canvas.width = width;
+    canvas.height = 240;
+    return true;
   }
 
   function drawFinanceChart(income, expense, investment, wishlist, balance) {
     const canvas = document.getElementById('financeChart');
     if (!canvas) return;
+    if (!setupCanvasSize(canvas)) return;
 
-    const parent = canvas.parentElement;
-    if (!parent) return;
-
-    const parentWidth = Math.max(320, parent.clientWidth - 8);
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-
-    if (parentWidth <= 0) return;
-
-    canvas.width = parentWidth;
-    canvas.height = 240;
 
     const values = [income, expense, investment, wishlist, Math.max(0, balance)];
     const labels = ['Income', 'Expense', 'Investment', 'Wishlist', 'Balance'];
@@ -981,6 +1012,75 @@ window.MetaModules = (function () {
     ctx.moveTo(20, canvas.height - 40);
     ctx.lineTo(canvas.width - 20, canvas.height - 40);
     ctx.stroke();
+  }
+
+  function drawFinanceTimelineChart(timeline) {
+    const canvas = document.getElementById('financeTimelineChart');
+    if (!canvas) return;
+    if (!setupCanvasSize(canvas)) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (!timeline.length) {
+      ctx.fillStyle = '#f0e3c8';
+      ctx.font = '16px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('No monthly finance data yet.', canvas.width / 2, canvas.height / 2);
+      return;
+    }
+
+    const paddingX = 50;
+    const paddingTop = 30;
+    const paddingBottom = 45;
+    const usableWidth = canvas.width - paddingX * 2;
+    const usableHeight = canvas.height - paddingTop - paddingBottom;
+
+    const values = timeline.map(item => item.balance);
+    const max = Math.max(...values, 0, 1);
+    const min = Math.min(...values, 0);
+    const range = Math.max(1, max - min);
+
+    const zeroY = paddingTop + ((max - 0) / range) * usableHeight;
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.beginPath();
+    ctx.moveTo(paddingX, zeroY);
+    ctx.lineTo(canvas.width - paddingX, zeroY);
+    ctx.stroke();
+
+    ctx.strokeStyle = '#c99a45';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+
+    timeline.forEach((item, index) => {
+      const x = paddingX + (timeline.length === 1 ? usableWidth / 2 : (index / (timeline.length - 1)) * usableWidth);
+      const y = paddingTop + ((max - item.balance) / range) * usableHeight;
+
+      if (index === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+
+    ctx.stroke();
+    ctx.lineWidth = 1;
+
+    timeline.forEach((item, index) => {
+      const x = paddingX + (timeline.length === 1 ? usableWidth / 2 : (index / (timeline.length - 1)) * usableWidth);
+      const y = paddingTop + ((max - item.balance) / range) * usableHeight;
+
+      ctx.fillStyle = item.balance >= 0 ? '#5f8f46' : '#b94444';
+      ctx.beginPath();
+      ctx.arc(x, y, 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#f0e3c8';
+      ctx.font = '12px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(item.month, x, canvas.height - 15);
+      ctx.fillText(String(item.balance), x, y - 12);
+    });
   }
 
   function renderFinance() {
