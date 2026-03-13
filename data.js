@@ -413,29 +413,82 @@ window.MetaData = {
   ],
 
   qaItems: [
-    { q: 'How does XP work?', a: 'Character XP increases level up to 100 and then continues as paragon.' },
-    { q: 'How do attributes grow?', a: 'Attributes use their own XP pool and grow from skill level-ups.' },
-    { q: 'How do skills work?', a: 'Each skill has level, XP, next XP and paragon. Skill bars loop into paragon after level 100.' },
-    { q: 'How do main quests work?', a: 'Main quests are family-based milestone progress tracks with rewards on thresholds.' }
+    {
+      q: 'How does XP work?',
+      a: 'Character XP increases your level up to 100. After that, further progress goes into character paragon instead of normal levels.'
+    },
+    {
+      q: 'How do attributes grow?',
+      a: 'Attributes have their own XP pool and are fed by the skills connected to them. They also continue into paragon after hitting the maximum level.'
+    },
+    {
+      q: 'How do skills work?',
+      a: 'Each skill has its own level, XP, next-XP requirement and paragon. When a skill reaches level 100, its bar keeps looping and gives paragon levels.'
+    },
+    {
+      q: 'How do main quests work?',
+      a: 'Main quests are family-based long-term progression tracks. Their milestones follow the configured step sequence and reward XP when thresholds are reached.'
+    },
+    {
+      q: 'What is paragon used for?',
+      a: 'Paragon is the infinite progression system after max level. It is planned to become a special currency for avatar features, items and other late-game systems.'
+    },
+    {
+      q: 'How do finances work right now?',
+      a: 'Finance entries can be stored as income, expense, investment or wishlist items. Wishlist is intended to be visible to friends in the future.'
+    },
+    {
+      q: 'What can the gallery do right now?',
+      a: 'The gallery supports folders, image uploads, favorites, image preview, and visibility settings for both folders and images.'
+    },
+    {
+      q: 'Is multiplayer already active?',
+      a: 'Not yet. The current structure is preparing for future accounts, friends, profile viewing, privacy rules and shared visibility systems.'
+    }
   ],
 
   patchNotes: [
     {
-      version: 'v1.2 Polish',
+      version: 'v1.4 Finance / Calendar / Privacy',
       items: [
-        'Mobile sidebar',
-        'Desktop collapsible sidebar',
-        'Gallery uploads',
-        'Favorites for quests and achievements'
+        'Added finance summary cards.',
+        'Added finance category chart.',
+        'Added finance balance chart.',
+        'Added finance tabs by type.',
+        'Added finance modal for current filtered tab.',
+        'Added finance edit and delete support.',
+        'Wishlist is now intended as friends-visible content for future social systems.',
+        'Expanded calendar with visibility, reminders, links, edit and delete actions.',
+        'Expanded gallery with folder visibility and image visibility.',
+        'Updated Q&A and patch notes.'
       ]
     },
     {
-      version: 'Planned v1.3',
+      version: 'v1.3 Journal / Gallery',
       items: [
-        'Journal expansion',
-        'Gallery privacy',
-        'Calendar reminders',
-        'Finance detail tracking'
+        'Added journal entries with editing, deletion and search.',
+        'Added gallery folders and image uploads.',
+        'Added image preview modal with side panel metadata.',
+        'Added favorites for gallery items.'
+      ]
+    },
+    {
+      version: 'v1.2 Visual / Mobile Polish',
+      items: [
+        'Added mobile sidebar support.',
+        'Added desktop collapsible sidebar.',
+        'Improved retro RPG presentation.',
+        'Added favorites for quests and achievements.'
+      ]
+    },
+    {
+      version: 'Planned v1.5',
+      items: [
+        'Finance timeline by months.',
+        'Social visibility architecture.',
+        'Gallery links to quests and journal.',
+        'Friend profiles and shared visibility rules.',
+        'Inventory and avatar expansion.'
       ]
     }
   ]
