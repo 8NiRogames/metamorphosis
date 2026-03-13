@@ -131,12 +131,11 @@ window.MetaModules = (function () {
       });
     }
 
-    document.addEventListener('keydown', handlePreviewEscape, { once: false });
-  }
-
-  function handlePreviewEscape(e) {
-    if (e.key === 'Escape') {
-      closeImagePreview();
+    if (!document.body.dataset.previewEscapeBound) {
+      document.body.dataset.previewEscapeBound = '1';
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeImagePreview();
+      });
     }
   }
 
@@ -604,6 +603,86 @@ window.MetaModules = (function () {
     renderFinance();
   }
 
+  function updateFinanceSummary() {
+    const entries = Object.values(state().finance.entries || {});
+
+    let income = 0;
+    let expense = 0;
+    let investment = 0;
+    let wishlist = 0;
+
+    entries.forEach(e => {
+      const amount = Number(e.amount) || 0;
+      if (e.type === 'income') income += amount;
+      if (e.type === 'expense') expense += amount;
+      if (e.type === 'investment') investment += amount;
+      if (e.type === 'wishlist') wishlist += amount;
+    });
+
+    const balance = income - expense - investment;
+
+    const incomeNode = document.getElementById('financeIncomeTotal');
+    const expenseNode = document.getElementById('financeExpenseTotal');
+    const investmentNode = document.getElementById('financeInvestmentTotal');
+    const wishlistNode = document.getElementById('financeWishlistTotal');
+    const balanceNode = document.getElementById('financeBalance');
+
+    if (incomeNode) incomeNode.textContent = income;
+    if (expenseNode) expenseNode.textContent = expense;
+    if (investmentNode) investmentNode.textContent = investment;
+    if (wishlistNode) wishlistNode.textContent = wishlist;
+    if (balanceNode) balanceNode.textContent = balance;
+
+    drawFinanceChart(income, expense, investment, wishlist);
+  }
+
+  function drawFinanceChart(income, expense, investment, wishlist) {
+    const canvas = document.getElementById('financeChart');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const parentWidth = canvas.parentElement ? canvas.parentElement.clientWidth : 900;
+    const width = Math.max(320, parentWidth - 4);
+    canvas.width = width;
+    canvas.height = 220;
+
+    const values = [income, expense, investment, wishlist];
+    const labels = ['Income', 'Expense', 'Investment', 'Wishlist'];
+    const max = Math.max(...values, 1);
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const padding = 36;
+    const usableHeight = canvas.height - 70;
+    const slotWidth = canvas.width / values.length;
+    const barWidth = Math.min(64, slotWidth - 40);
+
+    ctx.font = '14px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    values.forEach((value, i) => {
+      const barHeight = (value / max) * usableHeight;
+      const x = i * slotWidth + (slotWidth / 2) - (barWidth / 2);
+      const y = canvas.height - 32 - barHeight;
+
+      ctx.fillStyle = '#c99a45';
+      ctx.fillRect(x, y, barWidth, barHeight);
+
+      ctx.fillStyle = '#f0e3c8';
+      ctx.fillText(String(value), x + (barWidth / 2), y - 10);
+      ctx.fillText(labels[i], x + (barWidth / 2), canvas.height - 12);
+    });
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+    ctx.beginPath();
+    ctx.moveTo(padding / 2, canvas.height - 32);
+    ctx.lineTo(canvas.width - padding / 2, canvas.height - 32);
+    ctx.stroke();
+  }
+
   function renderFinance() {
     const entries = state().finance.order.map(id => state().finance.entries[id]).filter(Boolean);
     document.getElementById('financeList').innerHTML = entries.length ? entries.map(item => `
@@ -614,6 +693,8 @@ window.MetaModules = (function () {
         <p class="small-muted">Priority: ${item.priority || 'none'} • Visibility: ${item.visibility}</p>
       </div>
     `).join('') : `<div class="notice-box"><p>No finance entries yet.</p></div>`;
+
+    updateFinanceSummary();
   }
 
   function renderMeta() {
