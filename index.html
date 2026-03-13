@@ -43,12 +43,12 @@
 
         <button class="nav-card" data-page-link="journal">
           <span class="nav-card-title">📖 Journal</span>
-          <span class="nav-card-desc">Roadmap-ready journal module foundation.</span>
+          <span class="nav-card-desc">Entries, search, editing and internal references.</span>
         </button>
 
         <button class="nav-card" data-page-link="gallery">
           <span class="nav-card-title">🖼️ Gallery</span>
-          <span class="nav-card-desc">Folders, image cards and uploads.</span>
+          <span class="nav-card-desc">Folders, uploads, edits and image management.</span>
         </button>
 
         <button class="nav-card" data-page-link="calendar">
@@ -403,7 +403,7 @@
         <div class="page-header">
           <div>
             <h2 class="page-title">Journal</h2>
-            <p class="page-subtitle">Foundation for future journal entries, tags, internal links and external references.</p>
+            <p class="page-subtitle">Entries, editing, search, tags and internal references.</p>
           </div>
         </div>
 
@@ -414,7 +414,7 @@
             <span class="crest-wing"></span>
           </div>
 
-          <div class="toolbar-grid">
+          <div class="toolbar-grid three-cols">
             <div class="field">
               <label>Entry title</label>
               <input type="text" id="journalTitle" placeholder="Title..." />
@@ -423,14 +423,22 @@
               <label>Category</label>
               <input type="text" id="journalCategory" placeholder="Reflection / Progress / Idea..." />
             </div>
+            <div class="field">
+              <label>Visibility</label>
+              <select id="journalVisibility">
+                <option value="private">Private</option>
+                <option value="friends">Friends</option>
+                <option value="public">Public</option>
+              </select>
+            </div>
           </div>
 
           <div class="field">
             <label>Content</label>
-            <textarea id="journalContent" rows="6" placeholder="Write your note..."></textarea>
+            <textarea id="journalContent" rows="7" placeholder="Write your note..."></textarea>
           </div>
 
-          <div class="toolbar-grid">
+          <div class="toolbar-grid two-cols">
             <div class="field">
               <label>Tags</label>
               <input type="text" id="journalTags" placeholder="growth, idea, quest..." />
@@ -441,8 +449,22 @@
             </div>
           </div>
 
+          <div class="toolbar-grid two-cols">
+            <div class="field">
+              <label>Internal references</label>
+              <input type="text" id="journalInternalLinks" placeholder="skill:Reading, quest:mq_books_read, achievement:ach_daily_total" />
+            </div>
+            <div class="field">
+              <label>Search journal</label>
+              <input type="text" id="journalSearch" placeholder="Search title, tags, text..." />
+            </div>
+          </div>
+
+          <input type="hidden" id="journalEditingId" />
+
           <div class="button-row">
-            <button class="btn primary" onclick="MetaModules.addJournalEntry()">Save Entry</button>
+            <button class="btn primary" onclick="MetaModules.saveJournalEntry()">Save Entry</button>
+            <button class="btn" onclick="MetaModules.clearJournalForm()">Clear Form</button>
           </div>
 
           <div class="module-list" id="journalList"></div>
@@ -453,7 +475,7 @@
         <div class="page-header">
           <div>
             <h2 class="page-title">Gallery</h2>
-            <p class="page-subtitle">Folders, image cards and uploads.</p>
+            <p class="page-subtitle">Folders, uploads, editing, moving and favorites.</p>
           </div>
         </div>
 
@@ -464,7 +486,7 @@
             <span class="crest-wing"></span>
           </div>
 
-          <div class="toolbar-grid">
+          <div class="toolbar-grid two-cols">
             <div class="field">
               <label>Folder name</label>
               <input type="text" id="galleryFolderName" placeholder="Miniatures / Concepts / References..." />
@@ -475,7 +497,7 @@
             </div>
           </div>
 
-          <div class="toolbar-grid">
+          <div class="toolbar-grid three-cols">
             <div class="field">
               <label>Folder</label>
               <select id="galleryTargetFolder"></select>
@@ -484,6 +506,10 @@
               <label>Image title</label>
               <input type="text" id="galleryImageTitle" placeholder="Knight WIP / Reference / Diorama..." />
             </div>
+            <div class="field">
+              <label>Search gallery</label>
+              <input type="text" id="gallerySearch" placeholder="Search folders, titles..." />
+            </div>
           </div>
 
           <div class="field">
@@ -491,7 +517,7 @@
             <textarea id="galleryImageDescription" rows="3" placeholder="Optional description..."></textarea>
           </div>
 
-          <div class="toolbar-grid">
+          <div class="toolbar-grid two-cols">
             <div class="field">
               <label>Image file</label>
               <input type="file" id="galleryImageFile" accept="image/*" />
@@ -521,7 +547,7 @@
             <span class="crest-wing"></span>
           </div>
 
-          <div class="toolbar-grid">
+          <div class="toolbar-grid two-cols">
             <div class="field">
               <label>Event title</label>
               <input type="text" id="calendarTitle" placeholder="Swimming / Read / DnD..." />
@@ -560,7 +586,7 @@
             <span class="crest-wing"></span>
           </div>
 
-          <div class="toolbar-grid">
+          <div class="toolbar-grid two-cols">
             <div class="field">
               <label>Entry title</label>
               <input type="text" id="financeTitle" placeholder="Paint set / Salary / ETF..." />
@@ -576,7 +602,7 @@
             </div>
           </div>
 
-          <div class="toolbar-grid">
+          <div class="toolbar-grid two-cols">
             <div class="field">
               <label>Amount</label>
               <input type="number" id="financeAmount" placeholder="0" />
