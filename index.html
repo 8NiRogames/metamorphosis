@@ -706,10 +706,32 @@
   </div>
 
   <div class="modal-backdrop" id="imagePreviewModal">
-    <div class="image-preview-modal">
+    <div class="fb-image-viewer">
       <button class="image-preview-close" onclick="MetaModules.closeImagePreview()">✕</button>
-      <img id="imagePreviewFull" src="" alt="Preview" />
-      <div class="image-preview-caption" id="imagePreviewCaption"></div>
+
+      <div class="fb-image-main">
+        <img id="imagePreviewFull" src="" alt="Preview" />
+      </div>
+
+      <aside class="fb-image-sidepanel">
+        <h3 id="imagePreviewTitle">Image</h3>
+        <p id="imagePreviewDescription" class="small-muted"></p>
+
+        <div class="viewer-meta-list">
+          <div class="viewer-meta-item">
+            <strong>Folder</strong>
+            <span id="imagePreviewFolder">-</span>
+          </div>
+          <div class="viewer-meta-item">
+            <strong>Created</strong>
+            <span id="imagePreviewCreated">-</span>
+          </div>
+          <div class="viewer-meta-item">
+            <strong>Visibility</strong>
+            <span id="imagePreviewVisibility">-</span>
+          </div>
+        </div>
+      </aside>
     </div>
   </div>
 
