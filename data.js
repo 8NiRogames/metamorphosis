@@ -449,6 +449,15 @@ window.MetaData = {
 
   appliedPatchNotes: [
     {
+      version: 'v1.5 Finance Timeline / Meta Split',
+      items: [
+        'Finance graph no longer stretches incorrectly after reload.',
+        'Removed the redundant secondary finance graph.',
+        'Added monthly finance timeline graph.',
+        'Separated applied patch notes from planned patch notes.'
+      ]
+    },
+    {
       version: 'v1.4 Finance / Calendar / Privacy',
       items: [
         'Added finance summary cards.',
@@ -483,20 +492,12 @@ window.MetaData = {
 
   plannedPatchNotes: [
     {
-      version: 'Planned v1.5 Social / Privacy Architecture',
+      version: 'Planned v1.6 Social / Privacy Architecture',
       items: [
         'Friend profiles and profile viewing.',
         'Shared visibility rules for modules and entries.',
         'Friends-only and public profile sections.',
         'Preparation for multiplayer account structure.'
-      ]
-    },
-    {
-      version: 'Planned v1.6 Finance Timeline / Linking',
-      items: [
-        'Finance timeline by months.',
-        'More advanced finance visualizations.',
-        'Links between gallery, journal, quests and finance entries.'
       ]
     },
     {
