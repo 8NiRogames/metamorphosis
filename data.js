@@ -413,41 +413,26 @@ window.MetaData = {
   ],
 
   qaItems: [
-    {
-      q: 'How does XP work?',
-      a: 'Character XP increases your level up to 100. After that, further progress goes into character paragon instead of normal levels.'
-    },
-    {
-      q: 'How do attributes grow?',
-      a: 'Attributes have their own XP pool and are fed by the skills connected to them. They also continue into paragon after hitting the maximum level.'
-    },
-    {
-      q: 'How do skills work?',
-      a: 'Each skill has its own level, XP, next-XP requirement and paragon. When a skill reaches level 100, its bar keeps looping and gives paragon levels.'
-    },
-    {
-      q: 'How do main quests work?',
-      a: 'Main quests are family-based long-term progression tracks. Their milestones follow the configured step sequence and reward XP when thresholds are reached.'
-    },
-    {
-      q: 'What is paragon used for?',
-      a: 'Paragon is the infinite progression system after max level. It is planned to become a special currency for avatar features, items and other late-game systems.'
-    },
-    {
-      q: 'How do finances work right now?',
-      a: 'Finance entries can be stored as income, expense, investment or wishlist items. Wishlist is intended to be visible to friends in the future.'
-    },
-    {
-      q: 'What can the gallery do right now?',
-      a: 'The gallery supports folders, image uploads, favorites, image preview, and visibility settings for both folders and images.'
-    },
-    {
-      q: 'Is multiplayer already active?',
-      a: 'Not yet. The current structure is preparing for future accounts, friends, profile viewing, privacy rules and shared visibility systems.'
-    }
+    { q: 'How does XP work?', a: 'Character XP increases your level up to 100. After that, further progress goes into character paragon instead of normal levels.' },
+    { q: 'How do attributes grow?', a: 'Attributes have their own XP pool and are fed by the skills connected to them. They also continue into paragon after hitting the maximum level.' },
+    { q: 'How do skills work?', a: 'Each skill has its own level, XP, next-XP requirement and paragon. When a skill reaches level 100, its bar keeps looping and gives paragon levels.' },
+    { q: 'How do main quests work?', a: 'Main quests are family-based long-term progression tracks. Their milestones follow the configured step sequence and reward XP when thresholds are reached.' },
+    { q: 'What is paragon used for?', a: 'Paragon is the infinite progression system after max level. It is planned to become a special currency for avatar features, items and other late-game systems.' },
+    { q: 'How do finances work right now?', a: 'Finance entries can be stored as income, expense, investment or wishlist items. Wishlist is intended to be visible to friends in the future.' },
+    { q: 'What can the gallery do right now?', a: 'The gallery supports folders, image uploads, favorites, image preview, and visibility settings for both folders and images.' },
+    { q: 'Is multiplayer already active?', a: 'Not yet. The current structure is preparing for future accounts, friends, profile viewing, privacy rules and shared visibility systems.' }
   ],
 
   appliedPatchNotes: [
+    {
+      version: 'v1.6 Finance Tools',
+      items: [
+        'Added monthly finance filter.',
+        'Added recurring finance entries.',
+        'Added finance export and import.',
+        'Added monthly timeline graph based on recorded entries.'
+      ]
+    },
     {
       version: 'v1.5 Finance Timeline / Meta Split',
       items: [
@@ -469,30 +454,12 @@ window.MetaData = {
         'Expanded gallery with folder visibility and image visibility.',
         'Updated Q&A and patch notes.'
       ]
-    },
-    {
-      version: 'v1.3 Journal / Gallery',
-      items: [
-        'Added journal entries with editing, deletion and search.',
-        'Added gallery folders and image uploads.',
-        'Added image preview modal with side panel metadata.',
-        'Added favorites for gallery items.'
-      ]
-    },
-    {
-      version: 'v1.2 Visual / Mobile Polish',
-      items: [
-        'Added mobile sidebar support.',
-        'Added desktop collapsible sidebar.',
-        'Improved retro RPG presentation.',
-        'Added favorites for quests and achievements.'
-      ]
     }
   ],
 
   plannedPatchNotes: [
     {
-      version: 'Planned v1.6 Social / Privacy Architecture',
+      version: 'Planned v1.7 Social / Privacy Architecture',
       items: [
         'Friend profiles and profile viewing.',
         'Shared visibility rules for modules and entries.',
@@ -501,7 +468,7 @@ window.MetaData = {
       ]
     },
     {
-      version: 'Planned v1.7 Avatar / Inventory',
+      version: 'Planned v1.8 Avatar / Inventory',
       items: [
         'Avatar system expansion.',
         'Item and equipment system.',
@@ -510,7 +477,7 @@ window.MetaData = {
       ]
     },
     {
-      version: 'Planned v1.8 Story / Chains / Community',
+      version: 'Planned v1.9 Story / Chains / Community',
       items: [
         'Quest chains and story arcs.',
         'Shared challenges.',
