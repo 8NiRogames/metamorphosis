@@ -53,28 +53,55 @@ window.MetaModules = (function () {
     renderGallery();
   }
 
-  function openImagePreview(src, title = '') {
+  function formatDate(dateString) {
+    if (!dateString) return '-';
+    const d = new Date(dateString);
+    if (Number.isNaN(d.getTime())) return dateString;
+    return d.toLocaleString();
+  }
+
+  function openImagePreview(imageId) {
     const modal = document.getElementById('imagePreviewModal');
     const img = document.getElementById('imagePreviewFull');
-    const caption = document.getElementById('imagePreviewCaption');
+    const title = document.getElementById('imagePreviewTitle');
+    const description = document.getElementById('imagePreviewDescription');
+    const folder = document.getElementById('imagePreviewFolder');
+    const created = document.getElementById('imagePreviewCreated');
+    const visibility = document.getElementById('imagePreviewVisibility');
 
-    if (!modal || !img || !caption) return;
+    const image = state().gallery.images[imageId];
+    if (!modal || !img || !title || !description || !folder || !created || !visibility || !image) return;
 
-    img.src = src;
-    caption.textContent = title || '';
+    const folderObj = state().gallery.folders[image.folderId];
+
+    img.src = image.src || '';
+    title.textContent = image.title || 'Untitled image';
+    description.textContent = image.description || 'No description';
+    folder.textContent = folderObj?.name || '-';
+    created.textContent = formatDate(image.createdAt);
+    visibility.textContent = image.visibility || 'inherited';
+
     modal.classList.add('active');
   }
 
   function closeImagePreview() {
     const modal = document.getElementById('imagePreviewModal');
     const img = document.getElementById('imagePreviewFull');
-    const caption = document.getElementById('imagePreviewCaption');
+    const title = document.getElementById('imagePreviewTitle');
+    const description = document.getElementById('imagePreviewDescription');
+    const folder = document.getElementById('imagePreviewFolder');
+    const created = document.getElementById('imagePreviewCreated');
+    const visibility = document.getElementById('imagePreviewVisibility');
 
-    if (!modal || !img || !caption) return;
+    if (!modal) return;
 
     modal.classList.remove('active');
-    img.src = '';
-    caption.textContent = '';
+    if (img) img.src = '';
+    if (title) title.textContent = 'Image';
+    if (description) description.textContent = '';
+    if (folder) folder.textContent = '-';
+    if (created) created.textContent = '-';
+    if (visibility) visibility.textContent = '-';
   }
 
   function saveJournalEntry() {
@@ -431,7 +458,7 @@ window.MetaModules = (function () {
 
                     return `
                       <div class="gallery-image-card">
-                        <button class="gallery-thumb-button" onclick="MetaModules.openImagePreview('${image.src}', ${JSON.stringify(image.title)})">
+                        <button class="gallery-thumb-button" onclick="MetaModules.openImagePreview('${image.id}')">
                           <img src="${image.src}" alt="${image.title}" />
                         </button>
 
