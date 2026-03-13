@@ -53,12 +53,12 @@
 
         <button class="nav-card" data-page-link="calendar">
           <span class="nav-card-title">🗓️ Calendar</span>
-          <span class="nav-card-desc">Planning and reminder foundation.</span>
+          <span class="nav-card-desc">Planning, reminders and links.</span>
         </button>
 
         <button class="nav-card" data-page-link="finance">
           <span class="nav-card-title">💰 Finance</span>
-          <span class="nav-card-desc">Income, expenses, investments and wishlist foundation.</span>
+          <span class="nav-card-desc">Income, expenses, investments, wishlist and charts.</span>
         </button>
 
         <button class="nav-card" data-page-link="meta">
@@ -475,7 +475,7 @@
         <div class="page-header">
           <div>
             <h2 class="page-title">Gallery</h2>
-            <p class="page-subtitle">Folders, uploads, editing, moving and favorites.</p>
+            <p class="page-subtitle">Folders, uploads, editing, moving, favorites and privacy.</p>
           </div>
         </div>
 
@@ -536,7 +536,7 @@
         <div class="page-header">
           <div>
             <h2 class="page-title">Calendar</h2>
-            <p class="page-subtitle">Foundation for events, notes, reminders and future quest scheduling.</p>
+            <p class="page-subtitle">Events, reminders, links and visibility.</p>
           </div>
         </div>
 
@@ -547,7 +547,7 @@
             <span class="crest-wing"></span>
           </div>
 
-          <div class="toolbar-grid two-cols">
+          <div class="toolbar-grid three-cols">
             <div class="field">
               <label>Event title</label>
               <input type="text" id="calendarTitle" placeholder="Swimming / Read / DnD..." />
@@ -555,6 +555,28 @@
             <div class="field">
               <label>Date</label>
               <input type="date" id="calendarDate" />
+            </div>
+            <div class="field">
+              <label>Visibility</label>
+              <select id="calendarVisibility">
+                <option value="private">Private</option>
+                <option value="friends">Friends</option>
+                <option value="public">Public</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="toolbar-grid two-cols">
+            <div class="field">
+              <label>Link</label>
+              <input type="text" id="calendarLink" placeholder="https://..." />
+            </div>
+            <div class="field">
+              <label>Reminder</label>
+              <select id="calendarReminder">
+                <option value="true">On</option>
+                <option value="false">Off</option>
+              </select>
             </div>
           </div>
 
@@ -575,7 +597,7 @@
         <div class="page-header">
           <div>
             <h2 class="page-title">Finance</h2>
-            <p class="page-subtitle">Foundation for income, expenses, investments and purchase priorities.</p>
+            <p class="page-subtitle">Income, expenses, investments, wishlist, filters and charts.</p>
           </div>
         </div>
 
@@ -616,10 +638,32 @@
               </div>
             </div>
 
-            <canvas id="financeChart" width="900" height="220"></canvas>
+            <div class="finance-tab-row">
+              <button class="finance-type-tab active" data-finance-tab="all" onclick="MetaModules.setFinanceTab('all')">All</button>
+              <button class="finance-type-tab" data-finance-tab="income" onclick="MetaModules.setFinanceTab('income')">Income</button>
+              <button class="finance-type-tab" data-finance-tab="expense" onclick="MetaModules.setFinanceTab('expense')">Expense</button>
+              <button class="finance-type-tab" data-finance-tab="investment" onclick="MetaModules.setFinanceTab('investment')">Investment</button>
+              <button class="finance-type-tab" data-finance-tab="wishlist" onclick="MetaModules.setFinanceTab('wishlist')">Wishlist</button>
+            </div>
+
+            <div class="finance-tab-actions">
+              <button class="btn" onclick="MetaModules.openFinanceTypeModal()">Open Current Tab</button>
+            </div>
+
+            <div class="finance-chart-grid">
+              <div class="finance-chart-card">
+                <h4>Category Overview</h4>
+                <canvas id="financeChart" width="900" height="220"></canvas>
+              </div>
+
+              <div class="finance-chart-card">
+                <h4>Balance Overview</h4>
+                <canvas id="financeBalanceChart" width="900" height="220"></canvas>
+              </div>
+            </div>
           </div>
 
-          <div class="toolbar-grid two-cols">
+          <div class="toolbar-grid three-cols">
             <div class="field">
               <label>Entry title</label>
               <input type="text" id="financeTitle" placeholder="Paint set / Salary / ETF..." />
@@ -633,9 +677,17 @@
                 <option value="wishlist">Wishlist</option>
               </select>
             </div>
+            <div class="field">
+              <label>Visibility</label>
+              <select id="financeVisibility">
+                <option value="private">Private</option>
+                <option value="friends">Friends</option>
+                <option value="public">Public</option>
+              </select>
+            </div>
           </div>
 
-          <div class="toolbar-grid two-cols">
+          <div class="toolbar-grid three-cols">
             <div class="field">
               <label>Amount</label>
               <input type="number" id="financeAmount" placeholder="0" />
@@ -643,6 +695,10 @@
             <div class="field">
               <label>Priority / note</label>
               <input type="text" id="financePriority" placeholder="low / medium / high / optional..." />
+            </div>
+            <div class="field">
+              <label>Link</label>
+              <input type="text" id="financeLink" placeholder="https://..." />
             </div>
           </div>
 
@@ -765,6 +821,16 @@
           </div>
         </div>
       </aside>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="financeTypeModal">
+    <div class="modal large-modal">
+      <div class="modal-head">
+        <h3 id="financeTypeModalTitle">Finance Entries</h3>
+        <button class="btn" onclick="MetaModules.closeFinanceTypeModal()">Close</button>
+      </div>
+      <div id="financeTypeModalList" class="module-list"></div>
     </div>
   </div>
 
