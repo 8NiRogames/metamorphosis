@@ -891,7 +891,7 @@ window.MetaModules = (function () {
     `).join('') : `<div class="notice-box"><p>No entries in this tab.</p></div>`;
   }
 
-  function updateFinanceSummary() {
+  function getFinanceTotals() {
     const entries = Object.values(state().finance.entries || {});
 
     let income = 0;
@@ -909,6 +909,12 @@ window.MetaModules = (function () {
 
     const balance = income - expense - investment;
 
+    return { income, expense, investment, wishlist, balance };
+  }
+
+  function updateFinanceSummary() {
+    const { income, expense, investment, wishlist, balance } = getFinanceTotals();
+
     const incomeNode = document.getElementById('financeIncomeTotal');
     const expenseNode = document.getElementById('financeExpenseTotal');
     const investmentNode = document.getElementById('financeInvestmentTotal');
@@ -921,79 +927,37 @@ window.MetaModules = (function () {
     if (wishlistNode) wishlistNode.textContent = wishlist;
     if (balanceNode) balanceNode.textContent = balance;
 
-    drawFinanceChart(income, expense, investment, wishlist);
-    drawFinanceBalanceChart(income, expense, investment, balance);
+    requestAnimationFrame(() => {
+      drawFinanceChart(income, expense, investment, wishlist, balance);
+    });
   }
 
-  function drawFinanceChart(income, expense, investment, wishlist) {
+  function drawFinanceChart(income, expense, investment, wishlist, balance) {
     const canvas = document.getElementById('financeChart');
     if (!canvas) return;
 
+    const parent = canvas.parentElement;
+    if (!parent) return;
+
+    const parentWidth = Math.max(320, parent.clientWidth - 8);
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const parentWidth = canvas.parentElement ? canvas.parentElement.clientWidth : 900;
-    const width = Math.max(320, parentWidth - 8);
-    canvas.width = width;
+    if (parentWidth <= 0) return;
+
+    canvas.width = parentWidth;
     canvas.height = 240;
 
-    const values = [income, expense, investment, wishlist];
-    const labels = ['Income', 'Expense', 'Investment', 'Wishlist'];
-    const colors = ['#5f8f46', '#b8862f', '#7660b4', '#c99a45'];
+    const values = [income, expense, investment, wishlist, Math.max(0, balance)];
+    const labels = ['Income', 'Expense', 'Investment', 'Wishlist', 'Balance'];
+    const colors = ['#5f8f46', '#b8862f', '#7660b4', '#c99a45', '#d0a13c'];
     const max = Math.max(...values, 1);
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     const usableHeight = canvas.height - 80;
     const slotWidth = canvas.width / values.length;
-    const barWidth = Math.min(70, slotWidth - 36);
-
-    ctx.font = '14px Arial';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-
-    values.forEach((value, i) => {
-      const barHeight = (value / max) * usableHeight;
-      const x = i * slotWidth + (slotWidth / 2) - (barWidth / 2);
-      const y = canvas.height - 40 - barHeight;
-
-      ctx.fillStyle = colors[i];
-      ctx.fillRect(x, y, barWidth, barHeight);
-
-      ctx.fillStyle = '#f0e3c8';
-      ctx.fillText(String(value), x + (barWidth / 2), y - 10);
-      ctx.fillText(labels[i], x + (barWidth / 2), canvas.height - 15);
-    });
-
-    ctx.strokeStyle = 'rgba(255,255,255,0.12)';
-    ctx.beginPath();
-    ctx.moveTo(20, canvas.height - 40);
-    ctx.lineTo(canvas.width - 20, canvas.height - 40);
-    ctx.stroke();
-  }
-
-  function drawFinanceBalanceChart(income, expense, investment, balance) {
-    const canvas = document.getElementById('financeBalanceChart');
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const parentWidth = canvas.parentElement ? canvas.parentElement.clientWidth : 900;
-    const width = Math.max(320, parentWidth - 8);
-    canvas.width = width;
-    canvas.height = 240;
-
-    const values = [income, expense + investment, Math.max(0, balance)];
-    const labels = ['Resources In', 'Resources Out', 'Balance'];
-    const colors = ['#5f8f46', '#7a1f1f', '#c99a45'];
-    const max = Math.max(...values, 1);
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    const usableHeight = canvas.height - 80;
-    const slotWidth = canvas.width / values.length;
-    const barWidth = Math.min(80, slotWidth - 40);
+    const barWidth = Math.min(64, slotWidth - 24);
 
     ctx.font = '14px Arial';
     ctx.textAlign = 'center';
@@ -1054,21 +1018,40 @@ window.MetaModules = (function () {
   }
 
   function renderMeta() {
-    document.getElementById('qaList').innerHTML = window.MetaData.qaItems.map(item => `
-      <div class="module-card">
-        <h4>${escapeHtml(item.q)}</h4>
-        <p>${escapeHtml(item.a)}</p>
-      </div>
-    `).join('');
+    const qaNode = document.getElementById('qaList');
+    const appliedNode = document.getElementById('appliedPatchList');
+    const plannedNode = document.getElementById('plannedPatchList');
 
-    document.getElementById('patchList').innerHTML = window.MetaData.patchNotes.map(patch => `
-      <div class="module-card">
-        <h4>${escapeHtml(patch.version)}</h4>
-        <ul class="small-muted">
-          ${patch.items.map(item => `<li>${escapeHtml(item)}</li>`).join('')}
-        </ul>
-      </div>
-    `).join('');
+    if (qaNode) {
+      qaNode.innerHTML = (window.MetaData.qaItems || []).map(item => `
+        <div class="module-card">
+          <h4>${escapeHtml(item.q)}</h4>
+          <p>${escapeHtml(item.a)}</p>
+        </div>
+      `).join('');
+    }
+
+    if (appliedNode) {
+      appliedNode.innerHTML = (window.MetaData.appliedPatchNotes || []).map(patch => `
+        <div class="module-card">
+          <h4>${escapeHtml(patch.version)}</h4>
+          <ul class="small-muted">
+            ${(patch.items || []).map(item => `<li>${escapeHtml(item)}</li>`).join('')}
+          </ul>
+        </div>
+      `).join('');
+    }
+
+    if (plannedNode) {
+      plannedNode.innerHTML = (window.MetaData.plannedPatchNotes || []).map(patch => `
+        <div class="module-card">
+          <h4>${escapeHtml(patch.version)}</h4>
+          <ul class="small-muted">
+            ${(patch.items || []).map(item => `<li>${escapeHtml(item)}</li>`).join('')}
+          </ul>
+        </div>
+      `).join('');
+    }
   }
 
   function renderCommunity() {
