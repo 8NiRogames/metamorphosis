@@ -597,7 +597,7 @@
         <div class="page-header">
           <div>
             <h2 class="page-title">Finance</h2>
-            <p class="page-subtitle">Income, expenses, investments, wishlist, filters and charts.</p>
+            <p class="page-subtitle">Income, expenses, investments, wishlist, monthly filters, recurring entries and export.</p>
           </div>
         </div>
 
@@ -646,8 +646,26 @@
               <button class="finance-type-tab" data-finance-tab="wishlist" onclick="MetaModules.setFinanceTab('wishlist')">Wishlist</button>
             </div>
 
+            <div class="toolbar-grid three-cols">
+              <div class="field">
+                <label>Monthly filter</label>
+                <input type="month" id="financeMonthFilter" />
+              </div>
+              <div class="field compact">
+                <label>&nbsp;</label>
+                <button class="btn" onclick="MetaModules.applyFinanceMonthFilter()">Apply Month</button>
+              </div>
+              <div class="field compact">
+                <label>&nbsp;</label>
+                <button class="btn" onclick="MetaModules.clearFinanceMonthFilter()">Clear Month</button>
+              </div>
+            </div>
+
             <div class="finance-tab-actions">
               <button class="btn" onclick="MetaModules.openFinanceTypeModal()">Open Current Tab</button>
+              <button class="btn" onclick="MetaModules.exportFinanceData()">Export Finance</button>
+              <button class="btn" onclick="document.getElementById('financeImportFile').click()">Import Finance</button>
+              <input type="file" id="financeImportFile" accept="application/json" style="display:none;" onchange="MetaModules.importFinanceData(event)" />
             </div>
 
             <div class="finance-chart-grid">
@@ -663,7 +681,7 @@
             </div>
           </div>
 
-          <div class="toolbar-grid three-cols">
+          <div class="toolbar-grid four-cols">
             <div class="field">
               <label>Entry title</label>
               <input type="text" id="financeTitle" placeholder="Paint set / Salary / ETF..." />
@@ -685,9 +703,13 @@
                 <option value="public">Public</option>
               </select>
             </div>
+            <div class="field">
+              <label>Date</label>
+              <input type="date" id="financeDate" />
+            </div>
           </div>
 
-          <div class="toolbar-grid three-cols">
+          <div class="toolbar-grid four-cols">
             <div class="field">
               <label>Amount</label>
               <input type="number" id="financeAmount" placeholder="0" />
@@ -699,6 +721,14 @@
             <div class="field">
               <label>Link</label>
               <input type="text" id="financeLink" placeholder="https://..." />
+            </div>
+            <div class="field">
+              <label>Recurring</label>
+              <select id="financeRecurring">
+                <option value="none">None</option>
+                <option value="monthly">Monthly</option>
+                <option value="yearly">Yearly</option>
+              </select>
             </div>
           </div>
 
